@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  gh_tagged_release:
+    name: Create tagged release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        poetry-version: [ 1.1.13 ]
+        os: [ ubuntu-latest ]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: Install poetry ${{ matrix.poetry-version }}
+        run: |
+          python -m ensurepip
+          python -m pip install --upgrade pip
+          python -m pip install poetry==${{ matrix.poetry-version }}
+
+      - name: Set and build sds-aspect project
+        id: SDS_version
+        run: |
+          cd core/sds-aspect-meta-model-python
+          poetry version ${GITHUB_REF/refs\/tags\/v/}
+          poetry install
+          poetry run download-bamm-release
+          poetry build
+          echo "SdsVersion=poetry version -s" >> $GITHUB_ENV
+          echo "::set-output name=SdsVersion::$(poetry version -s)"
+
+      - name: Create GitHub release
+        if: ${{ (!contains( github.ref, 'b' )) }}
+        uses: svenstaro/upload-release-action@latest
+        with:
+          file_glob: true
+          overwrite: true
+          prerelease: false
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: core/sds-aspect-meta-model-python/dist/sds-aspect-meta-model-python-${{steps.SDS_version.outputs.SdsVersion}}.tar.gz
+          tag: ${{steps.SDS_version.outputs.SdsVersion}}
+
+      - name: Create GitHub release
+        if: ${{ (contains( github.ref, 'b' )) }}
+        uses: svenstaro/upload-release-action@latest
+        with:
+          file_glob: true
+          overwrite: true
+          prerelease: true
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: core/sds-aspect-meta-model-python/dist/sds-aspect-meta-model-python-${{steps.SDS_version.outputs.SdsVersion}}.tar.gz
+          tag: ${{steps.SDS_version.outputs.SdsVersion}}

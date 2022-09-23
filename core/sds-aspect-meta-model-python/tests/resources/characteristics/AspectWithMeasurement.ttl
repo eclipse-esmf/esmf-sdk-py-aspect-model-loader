@@ -1,0 +1,19 @@
+@prefix : <urn:bamm:io.openmanufacturing:aspect-model:TestAspect:1.0.0#> .
+@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .
+@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .
+
+<urn:bamm:io.openmanufacturing:aspect-model:TestAspect:1.0.0> a bamm:Aspect ;
+   bamm:properties ( :testProperty ) ;
+   bamm:operations ( ) .
+
+:testProperty a bamm:Property ;
+   bamm:characteristic :TestMeasurement .
+
+:TestMeasurement a bamm-c:Measurement ;
+   bamm:preferredName "Test Measurement"@en ;
+   bamm:description "This is a test Measurement"@en ;
+   bamm:see <http://openmanufacturing.org> ;
+   bamm:dataType xsd:float ;
+   bamm-c:unit unit:kelvin .

@@ -1,0 +1,51 @@
+name: Check New Pull Request
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ '**' ]
+
+jobs:
+  build:
+    name: Check if passes all requirements
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        poetry-version: [ 1.1.13 ]
+        os: [ ubuntu-latest ]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: Run image
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
+
+      - name: build sds-aspect
+        run: |
+          cd core/sds-aspect-meta-model-python
+          poetry install
+          poetry run download-bamm-release
+          poetry build
+
+      - name: run tests
+        run: |
+          cd core/sds-aspect-meta-model-python
+          poetry run pytest
+
+      - name: run MyPy
+        run: |
+          cd core/sds-aspect-meta-model-python
+          poetry run mypy .
+
+      - name: run black
+        uses: psf/black@stable
+        with:
+          options: "--check --verbose --line-length=160"

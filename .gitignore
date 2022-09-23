@@ -1,0 +1,7 @@
+__pycache__/
+.vscode/
+.idea
+**/dist
+*.egg-info
+core/sds-aspect-meta-model-python/sds_aspect_meta_model_python/bamm_aspect_meta_model/bamm/
+core/sds-aspect-meta-model-python/poetry.lock

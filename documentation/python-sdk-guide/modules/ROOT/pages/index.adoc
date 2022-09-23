@@ -1,0 +1,205 @@
+////
+Copyright (c) 2022 Robert Bosch Manufacturing Solutions GmbH
+
+See the AUTHORS file(s) distributed with this work for additional
+information regarding authorship.
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+SPDX-License-Identifier: MPL-2.0
+////
+
+
+= SDS SDK Python Aspect Model loader
+
+The Python SDK offers functionality which helps software developers to work with Aspect Models in their Python applications.
+
+This guide gives an overview of the components in the Python SDK and shows how to use them.
+
+== Getting Started
+
+=== Prerequisites
+
+* Python Version 3.10 or higher.
+Check your version with
++
+[source,bash]
+----
+python --version
+----
+
+* In order to include the packages a Python dependency manager is required; we recommend
+https://python-poetry.org/[Python Poetry].
+The remainder of the guide assumes usage of Poetry.
+Please refer to the https://python-poetry.org/docs/#installation[Poetry installation guide].
+You can check your installed Poetry version with
++
+[source,bash]
+----
+poetry --version
+----
+
+== Aspect Model Loader for Python
+
+=== Introduction
+
+Aspect Models are stored as RDF Graphs in `.ttl` (RDF Turtle) files.
+The Aspect Model Loader for Python reads one or more Turtle file and parses the Aspect Model.
+The result is a Python object representing the root Aspect of the Aspect Model.
+The Aspect has references to all of its children (e.g., Properties and Operations).
+
+=== Installation
+
+If you want to work with Aspect Models in your Python solution you should install the Aspect Model Loader for Python and include it into your project.
+
+== Installation from package Repository
+
+=== PyPI
+
+Currently not available
+
+=== GitHub Releases
+
+To use GitHub release as dependency using Poetry, you need to add it like this:
+
+[source,toml]
+----
+[tool.poetry.dependencies]
+sds-aspect-meta-model-python = { git = "https://github.com/OpenManufacturingPlatform/sds-sdk-py-aspect-model-loader.git", tag = "1.0.0" }
+----
+
+for more information on depend on a library located in a git: 
+https://python-poetry.org/docs/dependency-specification/#git-dependencies[git dependencies]
+
+
+== Installation with local package
+
+The Python package is an archive with the file ending `.tar.gz`.
+If you are working with Poetry, you can easily import that package by adding the local reference to your `pyproject.toml`
+
+[source,toml]
+----
+[tool.poetry.dependencies]
+sds-aspect-meta-model-python = { path = "path/to/sds-aspect-meta-model-python-x.y.z.tar.gz" }
+----
+
+To make Poetry recognize your changes, run
+[source,bash]
+
+----
+poetry update
+----
+
+=== Loading an Aspect Model
+
+Import the Aspect Model loader in your Python module
+[source,python]
+
+----
+from sds-aspect-meta-model-python import AspectLoader
+----
+
+Then create an instance of the AspectLoader and run the method `load_aspect_model()` from the `AspectLoader` with
+
+[source,python]
+----
+from sds-aspect-meta-model-python import AspectLoader
+
+al = AspectLoader()
+aspect = al.load_aspect_model("path/to/turtle.ttl")
+----
+
+where the input argument can either be a `Path` object or a string representing a path.
+Both, relative paths and absolute paths are allowed.
+
+The return value of `load_aspect_model()` is an instance of the class `DefaultAspect` which is declared in the project.
+
+==== Loading an Aspect Model from multiple files
+
+If the Aspect Model is seperated into multiple `.ttl` files you can load the Aspect Model by calling the method `load_aspect_model_from_multiple_files` with a list of file paths.
+
+[source,python]
+----
+from sds-aspect-meta-model-python import AspectLoader
+
+al = AspectLoader()
+aspect = al.load_aspect_model_from_multiple_files(
+    ["file1.ttl", "file2.ttl", "file3.ttl"]
+)
+----
+
+It may happen that the multiple files contain multiple aspect definitions and not only one.
+In this case it is possible to pass the URN of the Aspect as a hint, so the Loader knows which Aspect to load.
+
+[source,python]
+----
+aspect_urn = "urn:bamm:io.openmanufacturing:test:1.0.0#myAspect"
+aspect = al.load_aspect_model_from_multiple_files(
+    ["file1.ttl", "file2.ttl", "file3.ttl"],
+    aspect_urn
+)
+----
+
+The urn can either be a string or an instance of rdflib.URIRef.
+If no urn is passed and the `.ttl` files contain multiple Aspects, the Aspect Loader will load the first one that is found.
+
+=== Traversing the Aspect Model
+
+The attributes of an Aspect can be accessed with like this:
+
+[source,python]
+----
+name = aspect.name
+urn = aspect.urn
+preferred_names = aspect.preferred_names
+descriptions = aspect.descriptions
+meta_model_version = aspect.meta_model_version
+see = aspect.see
+
+properties = aspect.properties
+operations = aspect.operations
+events = aspect.events
+----
+
+Note that the attributes on Aspect Model objects are read-only.
+
+== BAMM Aspect Meta Model in Python
+
+=== Introduction
+
+The BAMM Aspect Meta Model is defined by multiple Turtle files in the public
+https://github.com/OpenManufacturingPlatform/sds-bamm-aspect-meta-model[OMP GitHub Repository].
+The project is developed in Java and the releases are published as JAR files.
+
+Python applications that work with Aspect Models and RDF may need the BAMM as a Python package.
+Therefore, the project `BAMM Aspect Meta Model` for Python was created.
+It is set up to extract the RDF Turtle files from the released BAMM artifact or its Github repository and pack them into a Python project.
+
+If you are not sure whether you need the BAMM Aspect Meta Model as a dependency you probably don't need it because it does not contain any Python functionality.
+It is only intended for working with Aspect Models on RDF level.
+
+=== Installation
+
+The package is released on PyPI under the name `sds-bamm-aspect-meta-model`.
+The package can be imported to a Python project by adding the package as a dependency.
+
+If you are using Poetry as a dependency manager you can execute the following commands:
+
+[source,bash]
+----
+poetry add bamm-aspect-meta-model
+poetry install
+----
+
+The `pyproject.toml` file of your project should then include the following:
+[source,toml]
+
+----
+[tool.poetry.dependencies]
+bamm-aspect-meta-model = "^x.y.z"
+----
+
+In the future it is planned to publish all packages of the Python SDK on public repositories.
+The authentication will then not be required anymore.

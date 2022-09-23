@@ -1,0 +1,22 @@
+@prefix : <urn:bamm:io.openmanufacturing:aspect-model:TestAspect:1.0.0#> .
+@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .
+@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .
+
+<urn:bamm:io.openmanufacturing:aspect-model:TestAspect:1.0.0> a bamm:Aspect ;
+   bamm:preferredName "Test Aspect"@en ;
+   bamm:preferredName "Test Aspekt"@de ;
+   bamm:description "This is a test description"@en ;
+   bamm:see <http://openmanufacturing.org> ;
+   bamm:properties ( :testPropertyOne ) ;
+   bamm:operations ( ) .
+
+:testPropertyOne a bamm:Property ;
+   bamm:characteristic [
+      a bamm-c:Enumeration ;
+      bamm:preferredName "Test Enumeration"@en ;
+      bamm:description "This is a test enumeration."@en ;
+      bamm:dataType xsd:string ;
+      bamm-c:values ( "foo" "bar" "baz" )
+   ] .
