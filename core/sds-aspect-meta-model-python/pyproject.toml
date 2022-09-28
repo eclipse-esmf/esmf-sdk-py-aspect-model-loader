@@ -3,7 +3,7 @@ name = "sds-aspect-meta-model-python"
 version = "0.0.1"
 description = ""
 authors = [
-    "Aghyad Farrouh <external.aghyad.farrouh@bosch.com>",
+    "Aghyad Farrouh <aghyad.farrouh@systecs.com>",
     "Georg Schmidt-Dumont <georg.schmidt-dumont@de.bosch.com>",
     "Nico Makowe <nico.makowe@de.bosch.com>",
 ]
