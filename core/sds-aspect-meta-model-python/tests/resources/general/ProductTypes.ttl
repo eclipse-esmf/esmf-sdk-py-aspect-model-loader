@@ -1,7 +1,14 @@
+# Copyright (c) 2022 Robert Bosch Manufacturing Solutions GmbH
 #
-# Aspect model for product
-# format turtle https://www.w3.org/TeamSubmission/turtle
+# See the AUTHORS file(s) distributed with this work for
+# additional information regarding authorship.
 #
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# SPDX-License-Identifier: MPL-2.0
+
 @prefix :       <urn:bamm:io.openmanufacturing.file_path1:0.0.1#>.
 @prefix bamm:   <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .
 @prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .
@@ -17,7 +24,7 @@
     bamm:description   "Aspekt welcher die Produktypen einer gewissen Produktfamilie liefert"@de ;
     bamm:properties    ( :productTypes ) ;
     bamm:operations    ( ) .
-    
+
 :productTypes a bamm:Property ;
     bamm:preferredName  "Product Types"@en ;
     bamm:preferredName  "Produkttypen"@de ;
