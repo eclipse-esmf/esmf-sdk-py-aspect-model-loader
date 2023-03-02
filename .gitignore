@@ -3,5 +3,5 @@ __pycache__/
 .idea
 **/dist
 *.egg-info
-core/sds-aspect-meta-model-python/sds_aspect_meta_model_python/bamm_aspect_meta_model/bamm/
-core/sds-aspect-meta-model-python/poetry.lock
+core/esmf-aspect-meta-model-python/esmf_aspect_meta_model_python/samm_aspect_meta_model/bamm/
+core/esmf-aspect-meta-model-python/poetry.lock

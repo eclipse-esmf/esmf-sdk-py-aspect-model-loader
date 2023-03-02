@@ -1,4 +1,4 @@
-# SDS SDK Python Aspect Model loader
+# ESMF SDK Python Aspect Model loader
 
 ## Table of Contents
 
@@ -7,7 +7,7 @@
 - [Getting Started](#getting-started)
 - [SDK Structure](#sdk-structure)
 - [Python Core Components](#python-core-components)
-    - [sds-aspect-meta-model-python](#sds-aspect-meta-model-python)
+    - [esmf-aspect-meta-model-python](#esmf-aspect-meta-model-python)
 - [Version Handling](#version-handling)
     - [BAMM Versioning](#bamm-versioning)
     - [API Versioning](#api-versioning)
@@ -21,7 +21,7 @@
 
 ## Introduction
 
-The SDS SDK Python Aspect Model loader contains artifacts and resources for all parties that intent to use, extend or
+The ESMF SDK Python Aspect Model loader contains artifacts and resources for all parties that intent to use, extend or
 integrate with the BAMM Aspect Meta Model, e.g., Solution Developers,
 Domain Experts or OEMs.
 
@@ -34,11 +34,11 @@ and are built using
 
 ## Getting help
 
-Are you having trouble with SDS SDK Python? We want to help!
+Are you having trouble with ESMF SDK Python? We want to help!
 
-* Check the [developer documentation](https://openmanufacturingplatform.github.io)
-* Having issues with the SDS SDK Python? Open
-  a [GitHub issue](https://github.com/OpenManufacturingPlatform/sds-sdk-py-aspect-model-loader/issues).
+* Check the [developer documentation](https://esmf.github.io)
+* Having issues with the ESMF SDK Python? Open
+  a [GitHub issue](https://github.com/eclipse-esmf/esmf-sdk-py-aspect-model-loader/issues).
 
 ## Getting Started
 
@@ -50,10 +50,10 @@ concepts for each component can be found in the respective subfolders or subrepo
 To ease navigation through the SDK and its components, the following structure is employed:
 
 ```
-sds-sdk-python
+esmf-sdk-py-aspect-model-loader
  │
  ├─── core                                      # e.g. meta model implementation etc.
- │     ├─── sds-aspect-meta-model-python
+ │     ├─── esmf-aspect-meta-model-python
  │     ├─── ...
  └─── samples                                   # sample projects to get you started quickly
 ```
@@ -63,7 +63,7 @@ sds-sdk-python
 The Python core components are those to be consumed by developers that aim to build applications or tools dealing with
 BAMM.
 
-### sds-aspect-meta-model-python
+### esmf-aspect-meta-model-python
 
 Contains the Python implementation of the BAMM.
 
@@ -73,7 +73,7 @@ generated source code artifacts. Any form of source code generator will use the 
 
 ## Version Handling
 
-The aspect meta model loader work with the BAMM versions specified in the [download_bamm_release.py](core/sds-aspect-meta-model-python/sds_aspect_meta_model_python//bamm_aspect_meta_model/download_bamm_release.py). This version will be used for deployment.
+The aspect meta model loader work with the BAMM versions specified in the [download_bamm_release.py](core/esmf-aspect-meta-model-python/esmf_aspect_meta_model_python//samm_aspect_meta_model/download_bamm_release.py). This version will be used for deployment.
 
 As BAMM evolves over time, the Aspect Meta Model Loader should also adapt and evolve accordingly.
 Due to this fact it is important to understand the versioning concept that is applied to the BAMM,
@@ -141,7 +141,7 @@ introducing too many transitive dependencies downstream.
 ### Documentation
 
 Further documentation and howto's are provided in the
-official [Python SDK User Documentation](https://openmanufacturingplatform.github.io/sds-documentation/python-sdk-guide/1.0.0/index.html)
+official [Python SDK User Documentation](https://esmf.github.io/esmf-documentation/python-sdk-guide/index.html)
 
 ### License
 

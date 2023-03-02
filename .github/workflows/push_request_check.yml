@@ -28,21 +28,21 @@ jobs:
         with:
           poetry-version: ${{ matrix.poetry-version }}
 
-      - name: build sds-aspect
+      - name: build esmf-aspect
         run: |
-          cd core/sds-aspect-meta-model-python
+          cd core/esmf-aspect-meta-model-python
           poetry install
           poetry run download-bamm-release
           poetry build
 
       - name: run tests
         run: |
-          cd core/sds-aspect-meta-model-python
+          cd core/esmf-aspect-meta-model-python
           poetry run pytest
 
       - name: run MyPy
         run: |
-          cd core/sds-aspect-meta-model-python
+          cd core/esmf-aspect-meta-model-python
           poetry run mypy .
 
       - name: run black

@@ -1,5 +1,5 @@
-# Contribution Guideline SDS SDK PY Aspect Model loader
-Thank you for your interest in contributing to the SDS SDK PY Aspect Model loader. Use this repository to contribute to the SDK as easy and 
+# Contribution Guideline ESMF SDK PY Aspect Model loader
+Thank you for your interest in contributing to the ESMF SDK PY Aspect Model loader. Use this repository to contribute to the SDK as easy and 
 transparent as possible, whether it is:
 
 * Reporting a bug
@@ -8,16 +8,16 @@ transparent as possible, whether it is:
 * other
 
 
-## OMP SDS and Roles
-The SDS SDK PY Aspect Model loader is developed in the context of the OMP SDS WG (Open Manufacturing Platform - Semantic Data Structuring - Working Group). 
-More information about the OMP such as its goals or members is available under 
-[open-manufacturing.org](https://open-manufacturing.org). 
-The overall goal of the SDS WG within the OMP is to work on a Semantic Data Structuring Layer that addresses the needs 
+## IDTA ESMF and Roles
+The ESMF SDK PY Aspect Model loader is developed in the context of the IDTA ESMF WG (Industrial Digital Twin Association - Eclipse Semantic Modeling Framework - Working Group). 
+More information about the IDTA such as its goals or members is available under 
+[https://projects.eclipse.org/projects/dt.esmf](https://projects.eclipse.org/projects/dt.esmf). 
+The overall goal of the ESMF WG within the IDTA is to work on a Semantic Data Structuring Layer that addresses the needs 
 to share, join, and reuse heterogeneous data of the manufacturing. 
-The SDS SDK PY Aspect Model loader is based on the BAMM Aspect Meta Model and supports its use. 
+The ESMF SDK PY Aspect Model loader is based on the SAMM Aspect Meta Model and supports its use. 
 
 ### Roles
-The work on the SDS SDK PY Aspect Model loader is organized within the OMP SDS WG to which this document simply refers as "`working group`" 
+The work on the ESMF SDK PY Aspect Model loader is organized within the OMP ESMF WG to which this document simply refers as "`working group`" 
 in the following. The `working group` is currently meeting regularly and may decide on the acceptance of Pull Requests 
 (`PR's`) and `Issues`. Before a release of the specification, the `working group` further needs to agree on a state of 
 the SDK as a release candidate. 
@@ -32,7 +32,7 @@ working group. The `Chair` is also a `maintainer` of this repository.
 # Contributing Source Code (using GitHub)
 * We use this GitHub repository to track issues and feature requests, as well as discuss and manage all PR's related to 
 this project.
-* Opening `Issues` and `PRs` in GitHub is the preferred way to interact with the community around the SDS SDK PY Aspect Model loader.
+* Opening `Issues` and `PRs` in GitHub is the preferred way to interact with the community around the ESMF SDK PY Aspect Model loader.
 
 ## Branching
 We follow the [Git branching guidance](https://docs.microsoft.com/en-us/azure/devops/repos/git/git-branching-guidance?view=azure-devops).
@@ -99,7 +99,7 @@ subject to each Non-Working Group Participant executing the Feedback Agreement s
 ``Appendix B`` with the placeholders set to: 
 - [Project Name] = "OMP" 
 - [Projects’s Source Code License] = "MPL 2.0"
-- [name of deliverable] = "SDS SDK PY Aspect Model loader"
+- [name of deliverable] = "ESMF SDK PY Aspect Model loader"
 
 states:
 
@@ -108,7 +108,7 @@ states:
 >
 >Feedback
 > 
->The OMP (“Project”) is developing the SDS SDK PY Aspect Model loader (the “Materials”). Project would like to receive input, 
+>The OMP (“Project”) is developing the ESMF SDK PY Aspect Model loader (the “Materials”). Project would like to receive input, 
 >suggestions and other feedback (“Feedback”) on the Materials. By signing below, 
 >you (on behalf of yourself if you are an individual and your company if you are providing Feedback 
 >on behalf of the company) grant the Project under all applicable intellectual property rights owned or controlled by 
@@ -214,11 +214,11 @@ Please also check used third party material for license compatibility with the M
 E.g. software licensed under GPL, AGPL or, a similar strong copy-left license cannot be approved.
 
 # Code Conventions
-The SDS SDK PY Aspect Model loader is written in the Python Programming Language. Please have a look into our [Code Conventions](CONVENTIONS.md).
+The ESMF SDK PY Aspect Model loader is written in the Python Programming Language. Please have a look into our [Code Conventions](CONVENTIONS.md).
 
 # Release Process
 The working group may decide that it reached a stable state for the contents of the repository. 
-To settle an agreement on this and provide downstream users with a stable version of the BAMM SDK, 
+To settle an agreement on this and provide downstream users with a stable version of the SAMM SDK, 
 a release process can be triggered. 
 
 For such a release the `working group` must approve the current state of the `main` branch as agreement. 
@@ -229,7 +229,7 @@ notified. After that notification, a `maintainer` triggers the release feature f
 which the `v{version_number}-RC` branch is based.
 
 ## Versioning
-We use Semantic Versioning to identify released versions of the SDS SDK PY Aspect Model loader. Semantic Versioning is documented 
+We use Semantic Versioning to identify released versions of the ESMF SDK PY Aspect Model loader. Semantic Versioning is documented 
 [here](https://semver.org). It proposes to have a versioning number with the following elements:
 
 ````
