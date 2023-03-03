@@ -1,0 +1,76 @@
+# Copyright (c) 2022 Robert Bosch Manufacturing Solutions GmbH
+#
+# See the AUTHORS file(s) distributed with this work for
+# additional information regarding authorship.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# SPDX-License-Identifier: MPL-2.0
+
+@prefix : <urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#> .
+@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .
+@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .
+
+<urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0> a samm:Aspect ;
+   samm:preferredName "Test Aspect"@en ;
+   samm:preferredName "Test Aspekt"@de ;
+   samm:description "This is a test description"@en ;
+   samm:see <http://openmanufacturing.org> ;
+   samm:properties ( :testPropertyOne ) ;
+   samm:operations ( ) .
+
+:testPropertyOne a samm:Property ;
+   samm:characteristic [
+      a samm-c:Enumeration ;
+      samm:preferredName "Test Enumeration"@en ;
+      samm:description "This is a test enumeration."@en ;
+      samm:dataType :TestEntity ;
+      samm-c:values ( :foo :bar )
+   ] .
+
+:TestEntity a samm:Entity ;
+   samm:properties ( :entityPropertyOne :entityPropertyTwo :entityPropertyThree :entityPropertyFour ) .
+
+:entityPropertyOne a samm:Property ;
+   samm:characteristic samm-c:Text .
+
+:entityPropertyTwo a samm:Property ;
+   samm:characteristic [
+      a samm-c:Collection ;
+      samm:dataType xsd:int
+   ] .
+
+:entityPropertyThree a samm:Property ;
+   samm:characteristic [
+      a samm-c:SingleEntity ;
+      samm:dataType :TestEntityTwo
+   ] .
+
+:entityPropertyFour a samm:Property ;
+   samm:characteristic [
+      a samm-c:Enumeration ;
+      samm:dataType xsd:string ;
+      samm-c:values ( "foo" "bar" "baz" )
+   ] .
+
+:TestEntityTwo a samm:Entity ;
+   samm:properties ( :entityPropertyOne ) .
+
+:foo a :TestEntity ;
+   :entityPropertyOne "foo" ;
+   :entityPropertyTwo ( 1 2 3 ) ;
+   :entityPropertyThree :testEntityTwoInstance ;
+   :entityPropertyFour "foo" .
+
+:bar a :TestEntity ;
+   :entityPropertyOne "bar" ;
+   :entityPropertyTwo ( 4 5 6 ) ;
+   :entityPropertyThree :testEntityTwoInstance ;
+   :entityPropertyFour "bar" .
+
+:testEntityTwoInstance a :TestEntityTwo ;
+   :entityPropertyOne "baz" .
