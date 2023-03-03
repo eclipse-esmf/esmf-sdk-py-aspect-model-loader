@@ -14,14 +14,14 @@ from rdflib.term import Node
 from esmf_aspect_meta_model_python.base.characteristics.either import Either
 from esmf_aspect_meta_model_python.impl.characteristics.default_either import DefaultEither
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.BAMMC import BAMMC
+from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
 
 
 class EitherInstantiator(InstantiatorBase[Either]):
     def _create_instance(self, element_node: Node) -> Either:
         meta_model_base_attributes = self._get_base_attributes(element_node)
-        left = self._get_child(element_node, self._bammc.get_urn(BAMMC.left))
-        right = self._get_child(element_node, self._bammc.get_urn(BAMMC.right))
+        left = self._get_child(element_node, self._sammc.get_urn(SAMMC.left))
+        right = self._get_child(element_node, self._sammc.get_urn(SAMMC.right))
         data_type = self._get_data_type(element_node)
 
         if data_type is None:

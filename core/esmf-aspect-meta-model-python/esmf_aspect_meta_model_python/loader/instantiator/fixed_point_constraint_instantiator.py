@@ -13,13 +13,13 @@ from rdflib.term import Node
 
 from esmf_aspect_meta_model_python.base.contraints.fixed_point_constraint import FixedPointConstraint
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.BAMMC import BAMMC
+from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
 from esmf_aspect_meta_model_python.impl.constraints.default_fixed_point_constraint import DefaultFixedPointConstraint
 
 
 class FixedPointConstraintInstantiator(InstantiatorBase[FixedPointConstraint]):
     def _create_instance(self, element_node: Node) -> FixedPointConstraint:
         meta_model_base_attributes = self._get_base_attributes(element_node)
-        scale = self._aspect_graph.value(subject=element_node, predicate=self._bammc.get_urn(BAMMC.scale)).toPython()
-        integer = self._aspect_graph.value(subject=element_node, predicate=self._bammc.get_urn(BAMMC.integer)).toPython()
+        scale = self._aspect_graph.value(subject=element_node, predicate=self._sammc.get_urn(SAMMC.scale)).toPython()
+        integer = self._aspect_graph.value(subject=element_node, predicate=self._sammc.get_urn(SAMMC.integer)).toPython()
         return DefaultFixedPointConstraint(meta_model_base_attributes, scale, integer)

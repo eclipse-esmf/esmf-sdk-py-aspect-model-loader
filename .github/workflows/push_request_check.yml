@@ -32,7 +32,7 @@ jobs:
         run: |
           cd core/esmf-aspect-meta-model-python
           poetry install
-          poetry run download-bamm-release
+          poetry run download-samm-release
           poetry build
 
       - name: run tests

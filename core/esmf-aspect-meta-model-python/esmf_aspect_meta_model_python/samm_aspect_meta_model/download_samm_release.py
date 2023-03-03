@@ -15,22 +15,21 @@ import pathlib
 import requests
 
 
-BAMM_VERSION_TO_DOWNLOAD = "2.0.0"
+SAMM_VERSION_TO_DOWNLOAD = "2.0.0"
 
 
 def main():
-    """Downloads the release .JAR of the bamm for the selected version and extracts the BAMM files"""
-    download_jar(BAMM_VERSION_TO_DOWNLOAD)
-    extract_jar(BAMM_VERSION_TO_DOWNLOAD)
+    """Downloads the release .JAR of the samm for the selected version and extracts the SAMM files"""
+    download_jar(SAMM_VERSION_TO_DOWNLOAD)
+    extract_jar(SAMM_VERSION_TO_DOWNLOAD)
     print("current path: ", pathlib.Path().resolve())
 
 
 def download_jar(version):
-    """Downloads the release .JAR of the bamm for the selected version"""
+    """Downloads the release .JAR of the samm for the selected version"""
 
-    print(f"Start downloading BAMM Version {version}")
-    url = f"https://github.com/eclipse-esmf/esmf-semantic-aspect-meta-model/releases/download/v{version}/sds-aspect-meta-model-{version}.jar "
-    #TODO url = f"https://github.com/eclipse-esmf/esmf-semantic-aspect-meta-model/releases/download/v{version}/esmf-aspect-meta-model-{version}.jar "
+    print(f"Start downloading SAMM Version {version}")
+    url = f"https://github.com/eclipse-esmf/esmf-semantic-aspect-meta-model/releases/download/v{version}/esmf-aspect-meta-model-{version}.jar "
 
     request = requests.get(url, allow_redirects=True)
 
@@ -39,17 +38,16 @@ def download_jar(version):
 
 
 def extract_jar(version):
-    """Copies all folders in the archive that start with "bamm" into the
+    """Copies all folders in the archive that start with "samm" into the
     samm_aspect_meta_model folder. The archive gets deleted afterwards
     """
     print(f"Start extracting files from esmf-aspect-meta-model-{version}.jar")
     archive = zipfile.ZipFile(f"esmf-aspect-meta-model-{version}.jar")
     for file in archive.namelist():
-        #TODO if file.startswith("samm"):
-        if file.startswith("bamm"):
+        if file.startswith("samm"):
             archive.extract(file, "./esmf_aspect_meta_model_python/samm_aspect_meta_model")
     archive.close()
     print("Done extracting files.")
 
-    print("Deleting BAMM JAR file.")
+    print("Deleting SAMM JAR file.")
     os.remove(f"esmf-aspect-meta-model-{version}.jar")

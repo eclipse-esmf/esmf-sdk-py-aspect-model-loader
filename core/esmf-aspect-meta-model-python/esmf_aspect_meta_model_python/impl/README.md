@@ -1,10 +1,10 @@
 # Default Implementation
-This folder implements the meta model elements of the BAMM. 
+This folder implements the meta model elements of the SAMM. 
 The classes in here are derived from the base folder.
 
 # Aspect hierarchy
 
-Every Model Class in Default Implementation of the BAMM Aspect Meta Model 
+Every Model Class in Default Implementation of the SAMM Aspect Meta Model 
 is derived from the DefaultBase class. 
 It consists of the following attributes:
 ```

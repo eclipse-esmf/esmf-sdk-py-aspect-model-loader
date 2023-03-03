@@ -15,12 +15,12 @@ from esmf_aspect_meta_model_python.vocabulary.namespace import Namespace
 
 
 class UNIT(Namespace):
-    __bamm_prefix = "urn:samm:org.eclipse.esmf.samm:unit:"
+    __samm_prefix = "urn:samm:org.eclipse.esmf.samm:unit:"
 
     def __init__(self, meta_model_version: str):
         self.__meta_model_version: str = meta_model_version
 
     def get_urn(self, element_type: str) -> rdflib.URIRef:
         """returns the URN string of the given element type.
-        Example: get_urn(BAMM.reference_unit) -> "urn:samm:org.eclipse.esmf.samm:unit:2.0.0#referenceUnit" """
-        return rdflib.URIRef(f"{UNIT.__bamm_prefix}{self.__meta_model_version}#{element_type}")
+        Example: get_urn(SAMM.reference_unit) -> "urn:samm:org.eclipse.esmf.samm:unit:2.0.0#referenceUnit" """
+        return rdflib.URIRef(f"{UNIT.__samm_prefix}{self.__meta_model_version}#{element_type}")

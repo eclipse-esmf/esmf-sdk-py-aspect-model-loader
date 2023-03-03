@@ -20,7 +20,7 @@ from esmf_aspect_meta_model_python.base.property import Property
 from esmf_aspect_meta_model_python.loader.model_element_factory import ModelElementFactory
 from esmf_aspect_meta_model_python.loader.default_element_cache import DefaultElementCache
 from esmf_aspect_meta_model_python.resolver.aspect_meta_model_resolver import AspectMetaModelResolver
-from esmf_aspect_meta_model_python.vocabulary.BAMM import BAMM
+from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
 
 
 class AspectLoader:
@@ -64,11 +64,11 @@ class AspectLoader:
                 file_path = str(file_path)
             aspect_graph.parse(file_path, format="turtle")
 
-        meta_model_version = self.__extract_bamm_version(aspect_graph)
+        meta_model_version = self.__extract_samm_version(aspect_graph)
 
         if aspect_urn == "":
-            bamm = BAMM(meta_model_version)
-            aspect_urn = aspect_graph.value(predicate=rdflib.RDF.type, object=bamm.get_urn(BAMM.aspect))
+            samm = SAMM(meta_model_version)
+            aspect_urn = aspect_graph.value(predicate=rdflib.RDF.type, object=samm.get_urn(SAMM.aspect))
 
         if aspect_urn is not rdflib.URIRef:
             aspect_urn = rdflib.URIRef(aspect_urn)
@@ -78,11 +78,11 @@ class AspectLoader:
 
         return model_element_factory.create_element(aspect_urn)  # type: ignore
 
-    def __extract_bamm_version(self, aspect_graph: rdflib.Graph) -> str:
-        """searches the aspect graph for the currently used version of the BAMM and returns it."""
+    def __extract_samm_version(self, aspect_graph: rdflib.Graph) -> str:
+        """searches the aspect graph for the currently used version of the SAMM and returns it."""
         version = ""
         for prefix, namespace in aspect_graph.namespace_manager.namespaces():
-            if prefix == "bamm":
+            if prefix == "samm":
                 urn_parts = namespace.split(":")
                 version_part = urn_parts[len(urn_parts) - 1]
                 version = version_part.replace("#", "")

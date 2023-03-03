@@ -14,8 +14,8 @@ import rdflib  # type: ignore
 from esmf_aspect_meta_model_python.vocabulary.namespace import Namespace
 
 
-class BAMME(Namespace):
-    __bamme_prefix = "urn:samme:org.eclipse.esmf.samm:meta-model:"
+class SAMME(Namespace):
+    __samme_prefix = "urn:samme:org.eclipse.esmf.samm:meta-model:"
     TimeSeriesEntity = "TimeSeriesEntity"
     ThreeDimensionalPosition = "ThreeDimensionalPosition"
     timestamp = "timestamp"
@@ -29,5 +29,5 @@ class BAMME(Namespace):
 
     def get_urn(self, element_type: str) -> rdflib.URIRef:
         """returns the URN string of the given element type.
-        Example: get_urn(BAMM.characteristic) -> "urn:samm:org.eclipse.esmf.samm:meta-model:1.0.0#characteristic" """
-        return rdflib.URIRef(f"{self.__bamme_prefix}{self.__meta_model_version}#{element_type}")
+        Example: get_urn(SAMM.characteristic) -> "urn:samm:org.eclipse.esmf.samm:meta-model:1.0.0#characteristic" """
+        return rdflib.URIRef(f"{self.__samme_prefix}{self.__meta_model_version}#{element_type}")

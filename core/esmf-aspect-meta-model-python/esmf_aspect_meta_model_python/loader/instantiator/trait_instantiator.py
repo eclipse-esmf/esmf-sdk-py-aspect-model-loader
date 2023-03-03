@@ -17,19 +17,19 @@ from esmf_aspect_meta_model_python.base.characteristics.trait import Trait
 from esmf_aspect_meta_model_python.base.contraints.constraint import Constraint
 from esmf_aspect_meta_model_python.impl.characteristics.default_trait import DefaultTrait
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.BAMMC import BAMMC
+from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
 
 
 class TraitInstantiator(InstantiatorBase[Trait]):
     def _create_instance(self, element_node: Node) -> Trait:
         meta_model_base_attributes = self._get_base_attributes(element_node)
 
-        constraint_subjects = self._aspect_graph.objects(subject=element_node, predicate=self._bammc.get_urn(BAMMC.constraint))
+        constraint_subjects = self._aspect_graph.objects(subject=element_node, predicate=self._sammc.get_urn(SAMMC.constraint))
 
         constraints: List[Constraint] = [self._model_element_factory.create_element(constraint_subject) for constraint_subject in constraint_subjects]
         if not constraints:
             raise ValueError("Trait must have at least one constraint.")
 
-        base_characteristic = self._get_child(element_node, self._bammc.get_urn(BAMMC.base_characteristic), required=True)
+        base_characteristic = self._get_child(element_node, self._sammc.get_urn(SAMMC.base_characteristic), required=True)
 
         return DefaultTrait(meta_model_base_attributes, base_characteristic, constraints)

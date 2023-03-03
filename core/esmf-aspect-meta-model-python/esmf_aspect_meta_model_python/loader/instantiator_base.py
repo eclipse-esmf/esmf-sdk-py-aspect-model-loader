@@ -18,8 +18,8 @@ from rdflib.term import Node
 from esmf_aspect_meta_model_python.base.data_types.data_type import DataType
 from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import MetaModelBaseAttributes
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
-from esmf_aspect_meta_model_python.vocabulary.BAMM import BAMM
-from esmf_aspect_meta_model_python.vocabulary.BAMMC import BAMMC
+from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
+from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
 
 if TYPE_CHECKING:
     # Only import the module during type checking and not during runtime.
@@ -44,8 +44,8 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
         child elements.
         """
 
-        self._bamm = model_element_factory.get_bamm()
-        self._bammc = model_element_factory.get_bammc()
+        self._samm = model_element_factory.get_samm()
+        self._sammc = model_element_factory.get_sammc()
         self._unit = model_element_factory.get_unit()
         self._meta_model_version = model_element_factory.get_meta_model_version()
         self._aspect_graph: rdflib.Graph = model_element_factory.get_aspect_graph()
@@ -94,9 +94,9 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
             element_subject: Element of the graph where the information should be extracted
 
         Returns:
-            object that wraps all the information (bamm_version, urn, name, preferred_names, descriptions, see)
+            object that wraps all the information (samm_version, urn, name, preferred_names, descriptions, see)
         """
-        return MetaModelBaseAttributes.from_meta_model_element(element_subject, self._aspect_graph, self._bamm, self._meta_model_version)
+        return MetaModelBaseAttributes.from_meta_model_element(element_subject, self._aspect_graph, self._samm, self._meta_model_version)
 
     def _get_child(self, parent_subject: Node, child_predicate, required=False):
         """
@@ -130,7 +130,7 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
 
     def _get_list_children(self, element_subject: Node, list_predicate: rdflib.URIRef) -> list:
         """Extracts all children of an rdf list from the given element and
-        returns a list of the instances. Used for bamm:properties, bamm:operations and bamm:events
+        returns a list of the instances. Used for samm:properties, samm:operations and samm:events
         Arguments:
             element_subject: Element of the graph that has properties as children (e.g. aspect or entity)
             list_predicate: Predicate pointing from the parent to the list
@@ -159,14 +159,14 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
         Returns:
             Data type object or none
         """
-        element_characteristic_node = self._aspect_graph.value(subject=element_node, predicate=self._bammc.get_urn(BAMMC.element_characteristic))
+        element_characteristic_node = self._aspect_graph.value(subject=element_node, predicate=self._sammc.get_urn(SAMMC.element_characteristic))
         if element_characteristic_node is None:
-            data_type_node = self._aspect_graph.value(subject=element_node, predicate=self._bamm.get_urn(BAMM.data_type))
+            data_type_node = self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.data_type))
         else:
             # some characteristics (Collection, List, TimeSeries, etc.) may have
             # an attribute "element_characteristic". If it is given, then take
             # the data type of the element_characteristic.
-            data_type_node = self._aspect_graph.value(subject=element_characteristic_node, predicate=self._bamm.get_urn(BAMM.data_type))
+            data_type_node = self._aspect_graph.value(subject=element_characteristic_node, predicate=self._samm.get_urn(SAMM.data_type))
         if data_type_node is None:
             return None
         else:

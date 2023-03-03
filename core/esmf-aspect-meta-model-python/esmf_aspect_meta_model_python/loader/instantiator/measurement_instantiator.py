@@ -14,7 +14,7 @@ from rdflib.term import Node
 from esmf_aspect_meta_model_python.base.characteristics.quantifiable.measurement import Measurement
 from esmf_aspect_meta_model_python.impl.characteristics.quantifiable.default_measurement import DefaultMeasurement
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.BAMMC import BAMMC
+from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
 
 
 class MeasurementInstantiator(InstantiatorBase[Measurement]):
@@ -22,7 +22,7 @@ class MeasurementInstantiator(InstantiatorBase[Measurement]):
         meta_model_base_attributes = self._get_base_attributes(element_node)
 
         data_type = self._get_data_type(element_node)
-        unit = self._get_child(element_node, self._bammc.get_urn(BAMMC.unit), required=True)
+        unit = self._get_child(element_node, self._sammc.get_urn(SAMMC.unit), required=True)
 
         if data_type is None:
             raise TypeError("Data type can't be None.")

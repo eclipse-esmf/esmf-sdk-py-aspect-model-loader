@@ -1,5 +1,5 @@
 # Base
-This folder contains a minimum definition of the elements in the BAMM. The folder does not include any implementations. 
+This folder contains a minimum definition of the elements in the SAMM. The folder does not include any implementations. 
 It can be seen as a contract that establishes a fixed structure and inheritance hierarchy.
 The classes should not be instantiated because they are abstract which is similar to interfaces in Java.
 

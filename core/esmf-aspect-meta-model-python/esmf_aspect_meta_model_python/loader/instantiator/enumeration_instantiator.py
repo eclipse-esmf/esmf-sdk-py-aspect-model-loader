@@ -16,8 +16,8 @@ from rdflib.term import Node
 from esmf_aspect_meta_model_python.base.characteristics.enumeration import Enumeration
 from esmf_aspect_meta_model_python.impl.characteristics.default_enumeration import DefaultEnumeration
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.BAMMC import BAMMC
-from esmf_aspect_meta_model_python.vocabulary.BAMM import BAMM
+from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
 
 
@@ -27,7 +27,7 @@ class EnumerationInstantiator(InstantiatorBase[Enumeration]):
 
         data_type = self._get_data_type(element_node)
 
-        value_collection_node = self._aspect_graph.value(subject=element_node, predicate=self._bammc.get_urn(BAMMC.values))
+        value_collection_node = self._aspect_graph.value(subject=element_node, predicate=self._sammc.get_urn(SAMMC.values))
         value_nodes = RdfHelper.get_rdf_list_values(value_collection_node, self._aspect_graph)
         values = [self.__to_enum_node_value(value_node) for value_node in value_nodes]
 
@@ -64,7 +64,7 @@ class EnumerationInstantiator(InstantiatorBase[Enumeration]):
                     value[property_name] = actual_value
 
             value_node_name = value_node.split("#")[1]
-            value_key = self._bamm.get_urn(BAMM.name).toPython()
+            value_key = self._samm.get_urn(SAMM.name).toPython()
             value[value_key] = value_node_name  # type: ignore
             return value
 
@@ -76,9 +76,9 @@ class EnumerationInstantiator(InstantiatorBase[Enumeration]):
             )
 
     def __is_collection_value(self, property_subject: str) -> bool:
-        characteristic = self._aspect_graph.value(subject=property_subject, predicate=self._bamm.get_urn(BAMM.characteristic))
+        characteristic = self._aspect_graph.value(subject=property_subject, predicate=self._samm.get_urn(SAMM.characteristic))
         characteristic_type = self._aspect_graph.value(subject=characteristic, predicate=rdflib.RDF.type)
-        return characteristic_type in self._bammc.collections_urns()
+        return characteristic_type in self._sammc.collections_urns()
 
     def __instantiate_enum_collection(self, value_list) -> typing.List[typing.Dict]:
         """creates a collection as a child for enumeration characteristics"""

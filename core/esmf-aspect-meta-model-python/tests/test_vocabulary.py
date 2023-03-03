@@ -13,17 +13,17 @@ from typing import Optional, Set
 
 from rdflib import URIRef  # type: ignore
 
-from esmf_aspect_meta_model_python.vocabulary.BAMME import BAMME
-from esmf_aspect_meta_model_python.vocabulary.BAMM import BAMM
-from esmf_aspect_meta_model_python.vocabulary.BAMMC import BAMMC
+from esmf_aspect_meta_model_python.vocabulary.SAMME import SAMME
+from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
+from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
 from esmf_aspect_meta_model_python.vocabulary.UNIT import UNIT
 from esmf_aspect_meta_model_python.vocabulary.namespace import Namespace
 
-BAMM_VERSION = "2.0.0"
-UNIT_URN = f"urn:samm:org.eclipse.esmf.samm:unit:{BAMM_VERSION}#referenceUnit"
-BAMME_URN = f"urn:samme:org.eclipse.esmf.samm:meta-model:{BAMM_VERSION}#referenceUnit"
-BAMMC_URN = f"urn:samm:org.eclipse.esmf.samm:characteristic:{BAMM_VERSION}#constraint"
-BAMM_URN = f"urn:samm:org.eclipse.esmf.samm:meta-model:{BAMM_VERSION}#Aspect"
+SAMM_VERSION = "2.0.0"
+UNIT_URN = f"urn:samm:org.eclipse.esmf.samm:unit:{SAMM_VERSION}#referenceUnit"
+SAMME_URN = f"urn:samme:org.eclipse.esmf.samm:meta-model:{SAMM_VERSION}#referenceUnit"
+SAMMC_URN = f"urn:samm:org.eclipse.esmf.samm:characteristic:{SAMM_VERSION}#constraint"
+SAMM_URN = f"urn:samm:org.eclipse.esmf.samm:meta-model:{SAMM_VERSION}#Aspect"
 
 # helper method
 def assert_object_fields_value(unit, unit_fields_set: Set[Optional[str]]):
@@ -35,63 +35,63 @@ def assert_object_fields_value(unit, unit_fields_set: Set[Optional[str]]):
 
 
 # Unit
-def test_bamm_unit_implement_namespace() -> None:
-    unit = UNIT(BAMM_VERSION)
+def test_samm_unit_implement_namespace() -> None:
+    unit = UNIT(SAMM_VERSION)
     assert issubclass(type(unit), Namespace)
 
 
-def test_bamm_unit_fields() -> None:
+def test_samm_unit_fields() -> None:
     unit_fields_value: Set[Optional[str]] = set()
-    unit = UNIT(BAMM_VERSION)
+    unit = UNIT(SAMM_VERSION)
     assert_object_fields_value(unit, unit_fields_value)
 
 
-def test_bamm_unit_get_urn() -> None:
-    unit = UNIT(BAMM_VERSION)
-    uri_ref = unit.get_urn(BAMM.referenceUnit)
+def test_samm_unit_get_urn() -> None:
+    unit = UNIT(SAMM_VERSION)
+    uri_ref = unit.get_urn(SAMM.referenceUnit)
     assert issubclass(type(uri_ref), URIRef)
     assert uri_ref.toPython() == UNIT_URN
 
 
-def test_bamm_unit_get_type() -> None:
-    unit = UNIT(BAMM_VERSION)
+def test_samm_unit_get_type() -> None:
+    unit = UNIT(SAMM_VERSION)
     string_type = unit.get_name(UNIT_URN)
     assert string_type == "referenceUnit"
 
 
-# Bamme
-def test_bamm_bamme_implement_namespace() -> None:
-    bamme = BAMME(BAMM_VERSION)
-    assert issubclass(type(bamme), Namespace)
+# Samme
+def test_samm_samme_implement_namespace() -> None:
+    samme = SAMME(SAMM_VERSION)
+    assert issubclass(type(samme), Namespace)
 
 
-def test_bamm_bamme_fields() -> None:
-    bamme_fields_value: Set[Optional[str]] = {"TimeSeriesEntity", "ThreeDimensionalPosition", "timestamp", "x", "y", "z", "value"}
-    bamme = BAMME(BAMM_VERSION)
-    assert_object_fields_value(bamme, bamme_fields_value)
+def test_samm_samme_fields() -> None:
+    samme_fields_value: Set[Optional[str]] = {"TimeSeriesEntity", "ThreeDimensionalPosition", "timestamp", "x", "y", "z", "value"}
+    samme = SAMME(SAMM_VERSION)
+    assert_object_fields_value(samme, samme_fields_value)
 
 
-def test_bamm_bamme_get_urn() -> None:
-    bamme = BAMME(BAMM_VERSION)
-    uri_ref = bamme.get_urn(BAMM.referenceUnit)
+def test_samm_samme_get_urn() -> None:
+    samme = SAMME(SAMM_VERSION)
+    uri_ref = samme.get_urn(SAMM.referenceUnit)
     assert issubclass(type(uri_ref), URIRef)
-    assert uri_ref.toPython() == BAMME_URN
+    assert uri_ref.toPython() == SAMME_URN
 
 
-def test_bamm_bamme_get_type() -> None:
-    bamme = BAMME(BAMM_VERSION)
-    string_type = bamme.get_name(BAMME_URN)
+def test_samm_samme_get_type() -> None:
+    samme = SAMME(SAMM_VERSION)
+    string_type = samme.get_name(SAMME_URN)
     assert string_type == "referenceUnit"
 
 
-# Bammc
-def test_bamm_bammc_implement_namespace() -> None:
-    bammc = BAMMC(BAMM_VERSION)
-    assert issubclass(type(bammc), Namespace)
+# Sammc
+def test_samm_sammc_implement_namespace() -> None:
+    sammc = SAMMC(SAMM_VERSION)
+    assert issubclass(type(sammc), Namespace)
 
 
-def test_bamm_bammc_fields() -> None:
-    bammc_fields_value: Set[Optional[str]] = {
+def test_samm_sammc_fields() -> None:
+    sammc_fields_value: Set[Optional[str]] = {
         "localeCode",
         "languageCode",
         "baseCharacteristic",
@@ -133,31 +133,31 @@ def test_bamm_bammc_fields() -> None:
         "RangeConstraint",
         "constraint",
     }
-    bammc = BAMMC(BAMM_VERSION)
-    assert_object_fields_value(bammc, bammc_fields_value)
+    sammc = SAMMC(SAMM_VERSION)
+    assert_object_fields_value(sammc, sammc_fields_value)
 
 
-def test_bamm_bammc_get_urn() -> None:
-    bammc = BAMMC(BAMM_VERSION)
-    uri_ref = bammc.get_urn(BAMMC.constraint)
+def test_samm_sammc_get_urn() -> None:
+    sammc = SAMMC(SAMM_VERSION)
+    uri_ref = sammc.get_urn(SAMMC.constraint)
     assert issubclass(type(uri_ref), URIRef)
-    assert uri_ref.toPython() == BAMMC_URN
+    assert uri_ref.toPython() == SAMMC_URN
 
 
-def test_bamm_bammc_get_type() -> None:
-    bammc = BAMMC(BAMM_VERSION)
-    string_type = bammc.get_name(BAMMC_URN)
+def test_samm_sammc_get_type() -> None:
+    sammc = SAMMC(SAMM_VERSION)
+    string_type = sammc.get_name(SAMMC_URN)
     assert string_type == "constraint"
 
 
-# Bamm
-def test_bamm_bamm_implement_namespace() -> None:
-    bamm = BAMM(BAMM_VERSION)
-    assert issubclass(type(bamm), Namespace)
+# Samm
+def test_samm_samm_implement_namespace() -> None:
+    samm = SAMM(SAMM_VERSION)
+    assert issubclass(type(samm), Namespace)
 
 
-def test_bamm_bamm_fields() -> None:
-    bamm_fields_value: Set[Optional[str]] = {
+def test_samm_samm_fields() -> None:
+    samm_fields_value: Set[Optional[str]] = {
         "listType",
         "input",
         "output",
@@ -196,18 +196,18 @@ def test_bamm_bamm_fields() -> None:
         "numericConversionFactor",
         "symbol",
     }
-    bamm = BAMM(BAMM_VERSION)
-    assert_object_fields_value(bamm, bamm_fields_value)
+    samm = SAMM(SAMM_VERSION)
+    assert_object_fields_value(samm, samm_fields_value)
 
 
-def test_bamm_bamm_get_urn() -> None:
-    bamm = BAMM(BAMM_VERSION)
-    uri_ref = bamm.get_urn(BAMM.aspect)
+def test_samm_samm_get_urn() -> None:
+    samm = SAMM(SAMM_VERSION)
+    uri_ref = samm.get_urn(SAMM.aspect)
     assert issubclass(type(uri_ref), URIRef)
-    assert uri_ref.toPython() == BAMM_URN
+    assert uri_ref.toPython() == SAMM_URN
 
 
-def test_bamm_bamm_get_type() -> None:
-    bamm = BAMM(BAMM_VERSION)
-    string_type = bamm.get_name(BAMM_URN)
+def test_samm_samm_get_type() -> None:
+    samm = SAMM(SAMM_VERSION)
+    string_type = samm.get_name(SAMM_URN)
     assert string_type == "Aspect"

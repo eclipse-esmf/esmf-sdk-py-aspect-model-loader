@@ -165,7 +165,7 @@ events = aspect.events
 
 Note that the attributes on Aspect Model objects are read-only.
 
-== BAMM Aspect Meta Model in Python
+== SAMM Aspect Meta Model in Python
 
 === Introduction
 

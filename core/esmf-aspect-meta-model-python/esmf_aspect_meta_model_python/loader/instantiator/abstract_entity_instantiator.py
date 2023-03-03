@@ -18,7 +18,7 @@ from esmf_aspect_meta_model_python.base.data_types.abstract_entity import Abstra
 from esmf_aspect_meta_model_python.base.property import Property
 from esmf_aspect_meta_model_python.impl.data_types.default_abstract_entity import DefaultAbstractEntity
 from esmf_aspect_meta_model_python.loader.instantiator.complex_type_instantiator import ComplexTypeInstantiator
-from esmf_aspect_meta_model_python.vocabulary.BAMM import BAMM
+from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
 
 
 class AbstractEntityInstantiator(ComplexTypeInstantiator[AbstractEntity]):
@@ -32,7 +32,7 @@ class AbstractEntityInstantiator(ComplexTypeInstantiator[AbstractEntity]):
         meta_model_base_attributes = self._get_base_attributes(element_node)
         extends_element = self.get_extended_element(element_node)
         extending_subjects = self.get_extending_elements(element_node)
-        properties: List[Property] = self._get_list_children(element_node, self._bamm.get_urn(BAMM.properties))
+        properties: List[Property] = self._get_list_children(element_node, self._samm.get_urn(SAMM.properties))
 
         self._instantiating_now.remove(element_node)
         return DefaultAbstractEntity(meta_model_base_attributes, properties, extends_element, extending_subjects)

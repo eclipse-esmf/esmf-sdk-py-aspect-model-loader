@@ -34,7 +34,7 @@ jobs:
           cd core/esmf-aspect-meta-model-python
           poetry version ${GITHUB_REF/refs\/tags\/v/}
           poetry install
-          poetry run download-bamm-release
+          poetry run download-samm-release
           poetry build
           echo "EsmfVersion=poetry version -s" >> $GITHUB_ENV
           echo "::set-output name=EsmfVersion::$(poetry version -s)"

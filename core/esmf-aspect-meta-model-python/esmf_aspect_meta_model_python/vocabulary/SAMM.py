@@ -13,8 +13,8 @@ import rdflib  # type: ignore
 from .namespace import Namespace
 
 
-class BAMM(Namespace):
-    __bamm_prefix = "urn:samm:org.eclipse.esmf.samm:meta-model:"
+class SAMM(Namespace):
+    __samm_prefix = "urn:samm:org.eclipse.esmf.samm:meta-model:"
 
     aspect = "Aspect"
     abstract_entity = "AbstractEntity"
@@ -59,7 +59,6 @@ class BAMM(Namespace):
     numeric_conversion_factor = "numericConversionFactor"
     quantity_kind = "quantityKind"
     reference_unit = "referenceUnit"
-    symbol = "symbol"
     unit = "unit"
 
     def __init__(self, meta_model_version: str):
@@ -67,8 +66,8 @@ class BAMM(Namespace):
 
     def get_urn(self, element_type: str) -> rdflib.URIRef:
         """returns the URN string of the given element type.
-        Example: get_urn(BAMM.characteristic) -> "urn:samm:org.eclipse.esmf.samm:meta-model:1.0.0#characteristic" """
+        Example: get_urn(SAMM.characteristic) -> "urn:samm:org.eclipse.esmf.samm:meta-model:1.0.0#characteristic" """
 
-        bamm_prefix = BAMM.__bamm_prefix
+        samm_prefix = SAMM.__samm_prefix
         meta_model_version = self.__meta_model_version
-        return rdflib.URIRef(f"{bamm_prefix}{meta_model_version}#{element_type}")
+        return rdflib.URIRef(f"{samm_prefix}{meta_model_version}#{element_type}")

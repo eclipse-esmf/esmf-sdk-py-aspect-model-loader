@@ -20,7 +20,7 @@ from esmf_aspect_meta_model_python.base.property_func import PropertyFunc
 class Unit(Base, metaclass=abc.ABCMeta):
     """A unit is used to specify the magnitude of a physical quantity.
     Examples for units are meter, millimeter, inch, or volts.
-    A Unit in the BAMM
+    A Unit in the SAMM
     """
 
     @classmethod

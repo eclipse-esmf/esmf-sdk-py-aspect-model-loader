@@ -15,8 +15,8 @@ from typing import List
 from esmf_aspect_meta_model_python.vocabulary.namespace import Namespace
 
 
-class BAMMC(Namespace):
-    __bammc_prefix = "urn:samm:org.eclipse.esmf.samm:characteristic:"
+class SAMMC(Namespace):
+    __sammc_prefix = "urn:samm:org.eclipse.esmf.samm:characteristic:"
 
     base_characteristic = "baseCharacteristic"
     code = "Code"
@@ -64,18 +64,18 @@ class BAMMC(Namespace):
 
     def get_urn(self, element_type: str) -> rdflib.URIRef:
         """returns the URN string of the given element type.
-        Example: get_urn(BAMM.scale) -> "urn:samm:org.eclipse.esmf.samm:characteristic:1.0.0#scale"
+        Example: get_urn(SAMM.scale) -> "urn:samm:org.eclipse.esmf.samm:characteristic:1.0.0#scale"
         """
 
-        bammc_prefix = self.__bammc_prefix
+        sammc_prefix = self.__sammc_prefix
         meta_model_version = self.__meta_model_version
-        return rdflib.URIRef(f"{bammc_prefix}{meta_model_version}#{element_type}")
+        return rdflib.URIRef(f"{sammc_prefix}{meta_model_version}#{element_type}")
 
     def collections_urns(self) -> List[rdflib.URIRef]:
         return [
-            self.get_urn(BAMMC.collection),
-            self.get_urn(BAMMC.set),
-            self.get_urn(BAMMC.sorted_set),
-            self.get_urn(BAMMC.list),
-            self.get_urn(BAMMC.time_series),
+            self.get_urn(SAMMC.collection),
+            self.get_urn(SAMMC.set),
+            self.get_urn(SAMMC.sorted_set),
+            self.get_urn(SAMMC.list),
+            self.get_urn(SAMMC.time_series),
         ]

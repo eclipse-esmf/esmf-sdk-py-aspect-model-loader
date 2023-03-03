@@ -20,7 +20,7 @@ from esmf_aspect_meta_model_python.base.property import Property
 from esmf_aspect_meta_model_python.impl.default_aspect import DefaultAspect
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.base.event import Event
-from esmf_aspect_meta_model_python.vocabulary.BAMM import BAMM
+from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
 
 
 class AspectInstantiator(InstantiatorBase[Aspect]):
@@ -31,9 +31,9 @@ class AspectInstantiator(InstantiatorBase[Aspect]):
         if not isinstance(element_node, rdflib.URIRef):
             raise TypeError("An Aspect needs to be defined as a named node.")
 
-        properties: List[Property] = self._get_list_children(element_node, self._bamm.get_urn(BAMM.properties))
-        operations: List[Operation] = self._get_list_children(element_node, self._bamm.get_urn(BAMM.operations))
-        events: List[Event] = self._get_list_children(element_node, self._bamm.get_urn(BAMM.events))
+        properties: List[Property] = self._get_list_children(element_node, self._samm.get_urn(SAMM.properties))
+        operations: List[Operation] = self._get_list_children(element_node, self._samm.get_urn(SAMM.operations))
+        events: List[Event] = self._get_list_children(element_node, self._samm.get_urn(SAMM.events))
         is_collection_aspect = False
 
         return DefaultAspect(meta_model_base_attributes, properties, operations, events, is_collection_aspect)

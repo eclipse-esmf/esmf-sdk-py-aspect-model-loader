@@ -15,7 +15,7 @@ from rdflib import URIRef
 from esmf_aspect_meta_model_python.base.contraints.range_constraint import RangeConstraint
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.base.bound_definition import BoundDefinition
-from esmf_aspect_meta_model_python.vocabulary.BAMMC import BAMMC
+from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
 from esmf_aspect_meta_model_python.impl.constraints.default_range_constraint import DefaultRangeConstraint
 
 
@@ -34,27 +34,27 @@ class RangeConstraintInstantiator(InstantiatorBase[RangeConstraint]):
         return DefaultRangeConstraint(meta_model_base_attributes, min_value, max_value, lower_bound_definition, upper_bound_definition)
 
     def __get_upper_bound_definition(self, element_node, max_value):
-        upper_bound_definition_value = self._aspect_graph.value(subject=element_node, predicate=self._bammc.get_urn(BAMMC.upper_bound_definition))
+        upper_bound_definition_value = self._aspect_graph.value(subject=element_node, predicate=self._sammc.get_urn(SAMMC.upper_bound_definition))
         if upper_bound_definition_value is not None:
             return RangeConstraintInstantiator.__get_bound_definition(upper_bound_definition_value)
 
         return BoundDefinition.OPEN if max_value is None else BoundDefinition.AT_MOST
 
     def __get_lower_bound_definition(self, element_node, min_value):
-        lower_bound_definition_value = self._aspect_graph.value(subject=element_node, predicate=self._bammc.get_urn(BAMMC.lower_bound_definition))
+        lower_bound_definition_value = self._aspect_graph.value(subject=element_node, predicate=self._sammc.get_urn(SAMMC.lower_bound_definition))
         if lower_bound_definition_value is not None:
             return RangeConstraintInstantiator.__get_bound_definition(lower_bound_definition_value)
 
         return BoundDefinition.OPEN if min_value is None else BoundDefinition.AT_LEAST
 
     def __get_max_value(self, element_node):
-        max_value = self._aspect_graph.value(subject=element_node, predicate=self._bammc.get_urn(BAMMC.max_value))
+        max_value = self._aspect_graph.value(subject=element_node, predicate=self._sammc.get_urn(SAMMC.max_value))
         if max_value is not None:
             max_value = max_value.toPython()
         return max_value
 
     def __get_min_value(self, element_node):
-        min_value = self._aspect_graph.value(subject=element_node, predicate=self._bammc.get_urn(BAMMC.min_value))
+        min_value = self._aspect_graph.value(subject=element_node, predicate=self._sammc.get_urn(SAMMC.min_value))
         if min_value is not None:
             min_value = min_value.toPython()
         return min_value

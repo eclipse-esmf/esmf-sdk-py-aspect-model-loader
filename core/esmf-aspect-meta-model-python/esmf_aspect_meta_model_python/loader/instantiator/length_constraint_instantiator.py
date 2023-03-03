@@ -13,13 +13,13 @@ from rdflib.term import Node
 
 from esmf_aspect_meta_model_python.base.contraints.length_constraint import LengthConstraint
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.BAMMC import BAMMC
+from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
 from esmf_aspect_meta_model_python.impl.constraints.default_length_constraint import DefaultLengthConstraint
 
 
 class LengthConstraintInstantiator(InstantiatorBase[LengthConstraint]):
     def _create_instance(self, element_node: Node) -> LengthConstraint:
         meta_model_base_attributes = self._get_base_attributes(element_node)
-        min_value = self._aspect_graph.value(subject=element_node, predicate=self._bammc.get_urn(BAMMC.min_value)).toPython()
-        max_value = self._aspect_graph.value(subject=element_node, predicate=self._bammc.get_urn(BAMMC.max_value)).toPython()
+        min_value = self._aspect_graph.value(subject=element_node, predicate=self._sammc.get_urn(SAMMC.min_value)).toPython()
+        max_value = self._aspect_graph.value(subject=element_node, predicate=self._sammc.get_urn(SAMMC.max_value)).toPython()
         return DefaultLengthConstraint(meta_model_base_attributes, min_value, max_value)

@@ -17,7 +17,7 @@ from esmf_aspect_meta_model_python.base.operation import Operation
 from esmf_aspect_meta_model_python.base.property import Property
 from esmf_aspect_meta_model_python.impl.default_operation import DefaultOperation
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.BAMM import BAMM
+from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
 
 
 class OperationInstantiator(InstantiatorBase[Operation]):
@@ -29,7 +29,7 @@ class OperationInstantiator(InstantiatorBase[Operation]):
         """
         meta_model_base_attributes = self._get_base_attributes(element_node)
 
-        input: List[Property] = self._get_list_children(element_node, self._bamm.get_urn(BAMM.input))
-        output = self._get_child(element_node, self._bamm.get_urn(BAMM.output))
+        input: List[Property] = self._get_list_children(element_node, self._samm.get_urn(SAMM.input))
+        output = self._get_child(element_node, self._samm.get_urn(SAMM.output))
 
         return DefaultOperation(meta_model_base_attributes, input, output)

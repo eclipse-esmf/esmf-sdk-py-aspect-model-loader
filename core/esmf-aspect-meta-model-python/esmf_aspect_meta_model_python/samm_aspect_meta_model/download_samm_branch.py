@@ -22,8 +22,7 @@ from esmf_aspect_meta_model_python.samm_aspect_meta_model.github_folder import (
 
 
 def main():
-    url = "https://api.github.com/repos/eclipse-esmf/esmf-semantic-aspect-meta-model/contents/src/main/resources/bamm"
-    #TODO url = "https://api.github.com/repos/eclipse-esmf/esmf-semantic-aspect-meta-model/contents/src/main/resources/samm"
+    url = "https://api.github.com/repos/eclipse-esmf/esmf-semantic-aspect-meta-model/contents/esmf-semantic-aspect-meta-model/src/main/resources/samm"
 
     # in the pipeline machine an environment variable is set for the Github Token.
     # If the variable does not exists don't use authorization.
@@ -34,14 +33,12 @@ def main():
         headers = {"Authorization": f"token {github_token}"}
 
     samm_folder = GitFolder(
-        "bamm",
-        #TODO "samm",
+        "samm",
         "",
         "",
         0,
         "",
-        path.join("esmf_aspect_meta_model_python", "samm_aspect_meta_model", "bamm"),
-        #TODO path.join("esmf_aspect_meta_model_python", "samm_aspect_meta_model", "samm"),
+        path.join("esmf_aspect_meta_model_python", "samm_aspect_meta_model", "samm"),
     )
     samm_folder = decoding_url_response(samm_folder, url, headers)
     download_samm_files(samm_folder, headers)
