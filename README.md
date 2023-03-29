@@ -22,10 +22,10 @@
 ## Introduction
 
 The ESMF SDK Python Aspect Model loader contains artifacts and resources for all parties that intent to use, extend or
-integrate with the SAMM Aspect Meta Model, e.g., Solution Developers,
+integrate with the Semantic Aspect Meta Model, e.g., Solution Developers,
 Domain Experts or OEMs.
 
-At its core are components which help to work with the SAMM Aspect Meta Model (SAMM).
+At its core are components which help to work with the Semantic Aspect Meta Model (SAMM).
 
 This repository contains a detailed developer documentation written in AsciiDoc. The source files (AsciiDoc) are
 located [here](documentation/python-sdk-guide)
@@ -36,7 +36,7 @@ and are built using
 
 Are you having trouble with ESMF SDK Python? We want to help!
 
-* Check the [developer documentation](https://esmf.github.io)
+* Check the [developer documentation](https://eclipse-esmf.github.io)
 * Having issues with the ESMF SDK Python? Open
   a [GitHub issue](https://github.com/eclipse-esmf/esmf-sdk-py-aspect-model-loader/issues).
 
@@ -141,7 +141,7 @@ introducing too many transitive dependencies downstream.
 ### Documentation
 
 Further documentation and howto's are provided in the
-official [Python SDK User Documentation](https://esmf.github.io/esmf-documentation/python-sdk-guide/index.html)
+official [Python SDK User Documentation](https://eclipse-esmf.github.io/python-sdk-guide/index.html)
 
 ### License
 

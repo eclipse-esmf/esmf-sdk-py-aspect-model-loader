@@ -98,14 +98,14 @@ class MetaModelBaseAttributes:
         Returns:
             the extracted name as a string
         Examples:
-            urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testProperty -> testProperty
-            urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0 -> TestAspect
+            urn:samm:org.eclipse.esmf.examples:1.0.0#testProperty -> testProperty
+            urn:samm:org.eclipse.esmf.examples:TestAspect:1.0.0 -> TestAspect
         """
         split_urn = urn.split("#")
         if len(split_urn) == 2:
-            # urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testProperty
+            # urn:samm:org.eclipse.esmf.examples#testProperty
             return split_urn[1]
-        # urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0
+        # urn:samm:org.eclipse.esmf.examples:TestAspect:1.0.0
         split_urn = urn.split(":")
         return split_urn[-2]
 

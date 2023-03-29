@@ -42,7 +42,7 @@ def test_aspect():
     assert aspect.get_preferred_name("de") == "Test Aspekt"
     assert len(aspect.descriptions) == 1
     assert aspect.get_description("en") == "This is a test description"
-    assert aspect.urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0"
+    assert aspect.urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#TestAspect"
     assert len(aspect.properties) == 2
     assert aspect.is_collection_aspect is False
 
@@ -59,8 +59,8 @@ def test_aspect():
         characteristic.get_description("en") == "Describes a Property which contains plain text. This is intended exclusively for human readable strings, "
         "not for identifiers, measurement values, etc."
     )
-    assert characteristic.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testPropertyOne"
-    assert characteristic.parent_elements[1].urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testPropertyTwo"
+    assert characteristic.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#testPropertyOne"
+    assert characteristic.parent_elements[1].urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#testPropertyTwo"
 
     data_type = characteristic.data_type
     assert data_type.is_scalar is True
@@ -275,7 +275,7 @@ def test_find_properties_by_name() -> None:
     assert len(result) == 1
     assert isinstance(result[0], BaseImpl)
     assert result[0].name == "testPropertyOne"
-    assert result[0].urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testPropertyOne"
+    assert result[0].urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#testPropertyOne"
     assert len(result[0].preferred_names) == 0
     assert len(result[0].see) == 0
     assert len(result[0].descriptions) == 0
@@ -285,7 +285,7 @@ def test_find_properties_by_name() -> None:
     assert len(result) == 1
     assert isinstance(result[0], BaseImpl)
     assert result[0].name == "testPropertyTwo"
-    assert result[0].urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testPropertyTwo"
+    assert result[0].urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#testPropertyTwo"
     assert len(result[0].preferred_names) == 0
     assert len(result[0].see) == 0
     assert len(result[0].descriptions) == 0
@@ -314,20 +314,20 @@ def test_find_properties_by_urn() -> None:
     aspect_loader = AspectLoader()
     aspect_loader.load_aspect_model(file_path)
 
-    result = aspect_loader.find_by_urn("urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testPropertyOne")
+    result = aspect_loader.find_by_urn("urn:samm:org.eclipse.esmf.examples:1.0.0#testPropertyOne")
     assert result is not None
     assert isinstance(result, BaseImpl)
     assert result.name == "testPropertyOne"
-    assert result.urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testPropertyOne"
+    assert result.urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#testPropertyOne"
     assert len(result.preferred_names) == 0
     assert len(result.see) == 0
     assert len(result.descriptions) == 0
 
-    result = aspect_loader.find_by_urn("urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testPropertyTwo")
+    result = aspect_loader.find_by_urn("urn:samm:org.eclipse.esmf.examples:1.0.0#testPropertyTwo")
     assert result is not None
     assert isinstance(result, BaseImpl)
     assert result.name == "testPropertyTwo"
-    assert result.urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testPropertyTwo"
+    assert result.urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#testPropertyTwo"
     assert len(result.preferred_names) == 0
     assert len(result.see) == 0
     assert len(result.descriptions) == 0

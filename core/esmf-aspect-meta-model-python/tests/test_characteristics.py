@@ -67,7 +67,7 @@ def test_loading_aspect_with_collection_with_element_characteristic():
     element_characteristic = collection_characteristic.element_characteristic
     assert element_characteristic.urn == "urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#Text"
 
-    assert element_characteristic.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#TestCollection"
+    assert element_characteristic.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#TestCollection"
 
 
 def test_loading_aspect_with_simple_enum():
@@ -107,7 +107,7 @@ def test_loading_aspect_with_quantifiable():
     assert len(unit.quantity_kinds) == 1
     for quantity_kind in unit.quantity_kinds:
         assert quantity_kind.name == "frequency"
-    assert unit.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#TestQuantifiable"
+    assert unit.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#TestQuantifiable"
 
 
 def test_loading_aspect_with_duration():
@@ -185,11 +185,11 @@ def test_loading_aspect_with_either():
 
     left = either_characteristic.left
     assert left.name == "Text"
-    assert left.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#TestEither"
+    assert left.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#TestEither"
 
     right = either_characteristic.right
     assert right.name == "Boolean"
-    assert right.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#TestEither"
+    assert right.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#TestEither"
 
 
 def test_loading_aspect_with_blank_node() -> None:

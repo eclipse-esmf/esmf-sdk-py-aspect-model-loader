@@ -60,7 +60,7 @@ def test_find_properties_by_name() -> None:
     assert len(result) == 1
     assert isinstance(result[0], BaseImpl)
     assert result[0].name == "testPropertyOne"
-    assert result[0].urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testPropertyOne"
+    assert result[0].urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#testPropertyOne"
     assert len(result[0].preferred_names) == 0
     assert len(result[0].see) == 0
     assert len(result[0].descriptions) == 0
@@ -70,7 +70,7 @@ def test_find_properties_by_name() -> None:
     assert len(result) == 1
     assert isinstance(result[0], BaseImpl)
     assert result[0].name == "testPropertyTwo"
-    assert result[0].urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testPropertyTwo"
+    assert result[0].urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#testPropertyTwo"
     assert len(result[0].preferred_names) == 0
     assert len(result[0].see) == 0
     assert len(result[0].descriptions) == 0
@@ -98,20 +98,20 @@ def test_find_properties_by_urn() -> None:
     file_path = RESOURCE_PATH / "AspectWithProperties.ttl"
     aspect_loader = AspectLoader()
     aspect_loader.load_aspect_model(file_path)
-    element = aspect_loader.find_by_urn("urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testPropertyOne")
+    element = aspect_loader.find_by_urn("urn:samm:org.eclipse.esmf.examples:1.0.0#testPropertyOne")
     assert element is not None
     assert isinstance(element, BaseImpl)
     assert element.name == "testPropertyOne"
-    assert element.urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testPropertyOne"
+    assert element.urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#testPropertyOne"
     assert len(element.preferred_names) == 0
     assert len(element.see) == 0
     assert len(element.descriptions) == 0
 
-    element = aspect_loader.find_by_urn("urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testPropertyTwo")
+    element = aspect_loader.find_by_urn("urn:samm:org.eclipse.esmf.examples:1.0.0#testPropertyTwo")
     assert element is not None
     assert isinstance(element, BaseImpl)
     assert element.name == "testPropertyTwo"
-    assert element.urn == "urn:samm:org.eclipse.esmf.samm:aspect-model:TestAspect:1.0.0#testPropertyTwo"
+    assert element.urn == "urn:samm:org.eclipse.esmf.examples:1.0.0#testPropertyTwo"
     assert len(element.preferred_names) == 0
     assert len(element.see) == 0
     assert len(element.descriptions) == 0

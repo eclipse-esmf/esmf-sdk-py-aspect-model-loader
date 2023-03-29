@@ -66,7 +66,7 @@ def test_samm_samme_implement_namespace() -> None:
 
 
 def test_samm_samme_fields() -> None:
-    samme_fields_value: Set[Optional[str]] = {"TimeSeriesEntity", "ThreeDimensionalPosition", "timestamp", "x", "y", "z", "value"}
+    samme_fields_value: Set[Optional[str]] = {"TimeSeriesEntity", "Point3d", "timestamp", "x", "y", "z", "value"}
     samme = SAMME(SAMM_VERSION)
     assert_object_fields_value(samme, samme_fields_value)
 
