@@ -17,7 +17,7 @@ from esmf_aspect_meta_model_python.vocabulary.namespace import Namespace
 class SAMME(Namespace):
     __samme_prefix = "urn:samme:org.eclipse.esmf.samm:meta-model:"
     TimeSeriesEntity = "TimeSeriesEntity"
-    ThreeDimensionalPosition = "ThreeDimensionalPosition"
+    Point3d = "Point3d"
     timestamp = "timestamp"
     value = "value"
     x = "x"

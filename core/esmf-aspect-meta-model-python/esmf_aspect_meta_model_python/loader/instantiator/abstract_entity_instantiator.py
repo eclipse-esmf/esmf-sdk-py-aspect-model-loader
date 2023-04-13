@@ -23,7 +23,6 @@ from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
 
 class AbstractEntityInstantiator(ComplexTypeInstantiator[AbstractEntity]):
     def _create_instance(self, element_node: Node) -> AbstractEntity:
-
         if not isinstance(element_node, rdflib.URIRef):
             raise TypeError("An abstract entity needs to be defined as a named node.")
 

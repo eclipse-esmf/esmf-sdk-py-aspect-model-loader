@@ -148,7 +148,6 @@ class AspectLoader:
 
     def __determine_access_path(self, base_element: Base, path: list[list[str]]) -> list[list[str]]:
         if base_element is None or base_element.parent_elements is None or len(base_element.parent_elements) == 0:
-
             return path
 
         # in case of multiple parent get the number of additional parents and

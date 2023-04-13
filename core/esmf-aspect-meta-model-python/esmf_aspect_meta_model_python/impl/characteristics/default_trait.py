@@ -20,7 +20,6 @@ from esmf_aspect_meta_model_python.impl.characteristics.default_characteristic i
 
 class DefaultTrait(DefaultCharacteristic, Trait):
     def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, base_characteristic: Characteristic, constraints: List[Constraint]):
-
         if base_characteristic is None:
             raise AttributeError(f"No base characteristic given for the trait {self.urn}")
 

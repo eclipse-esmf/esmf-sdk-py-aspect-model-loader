@@ -21,7 +21,7 @@ class DefaultElementCache(CacheStrategy):
     def reset(self) -> None:
         self._instance_cache.clear()
 
-    def get(self, key: str) -> (Base | None):
+    def get(self, key: str) -> Base | None:
         return self._instance_cache.get(key)
 
     def get_by_name(self, name: str) -> list[Base]:
@@ -38,7 +38,6 @@ class DefaultElementCache(CacheStrategy):
         return next((x for x in self._instance_cache.values() if x.urn == urn), None)
 
     def resolve_instance(self, model_element: Base) -> Base:
-
         if model_element.urn is None:
             return model_element
 

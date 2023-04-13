@@ -29,3 +29,11 @@ download-samm-branch = "esmf_aspect_meta_model_python.samm_aspect_meta_model.dow
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.mypy]
+show_error_codes = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = "esmf_aspect_meta_model_python.loader.*"
+ignore_errors = true

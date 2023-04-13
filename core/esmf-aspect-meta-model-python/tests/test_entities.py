@@ -165,7 +165,6 @@ def test_aspect_with_unused_extending_entity() -> None:
 
 
 def test_aspect_with_abstract_coordinate_properties_list() -> None:
-
     file_path = RESOURCE_PATH / "AspectWithPoint3d.ttl"
     aspect_loader = AspectLoader()
     aspect = aspect_loader.load_aspect_model(file_path)
