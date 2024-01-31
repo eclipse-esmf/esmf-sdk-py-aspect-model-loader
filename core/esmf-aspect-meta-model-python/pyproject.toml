@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "esmf-aspect-model-loader"
-version = "2.1.0"
+version = "2.1.1"
 description = "Load Aspect Models based on the Semantic Aspect Meta Model"
 authors = [
     "Eclipse Semantic Modeling Framework",
