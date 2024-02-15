@@ -1,0 +1,15 @@
+#
+# Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH, Germany. All rights reserved.
+#
+
+@prefix : <urn:samm:org.eclipse.esmf.test.types:2.0.0#>.
+@prefix samm:   <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .
+@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+
+:TypeList a samm-c:List ;
+   samm:preferredName "Test List"@en ;
+   samm:description "This is a test list."@en ;
+   samm:see <http://example.com/> ;
+   samm:dataType xsd:string .

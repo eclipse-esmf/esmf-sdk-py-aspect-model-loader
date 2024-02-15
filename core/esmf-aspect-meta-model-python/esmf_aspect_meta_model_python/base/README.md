@@ -27,9 +27,9 @@ HasUrn
         │   ├── SingleEntity
         │   ├── StructuredValue
         │   ├── Quantifiable
-		│   │   ├── Duration
-		│   │   └── Measurement
-		│   └── Trait
+        │   │   ├── Duration
+        │   │   └── Measurement
+        │   └── Trait
         ├── Constraint
         │   ├── EncodingConstraint
         │   ├── FixedPointConstraint
@@ -38,7 +38,7 @@ HasUrn
         │   ├── LocaleConstraint
         │   ├── RangeConstraint
         │   └── RegularExpressionConstraint
-		├── Event
+        ├── Event
         ├── Operation
         ├── Property
         ├── QuantityKind           

@@ -1,0 +1,26 @@
+#
+# Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH, Germany. All rights reserved.
+#
+
+@prefix : <urn:samm:org.eclipse.esmf.test.general_with_references:2.0.0#> .
+@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .
+@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:ExternalPartId a samm:Property ;
+    samm:preferredName "External part id"@en ;
+    samm:description "External part id description."@en ;
+    samm:exampleValue "0123456789" ;
+    samm:characteristic :PartNumber .
+
+:PartNumber a samm-c:Trait ;
+    samm:see <https://some_link> ;
+    samm-c:baseCharacteristic [
+        a samm-c:Code ;
+        samm:preferredName "Part Number"@en ;
+        samm:dataType xsd:string
+    ] ;
+    samm-c:constraint [
+        a samm-c:RegularExpressionConstraint ;
+        samm:value "[A-Z0-9-]{10,68}"
+    ] .

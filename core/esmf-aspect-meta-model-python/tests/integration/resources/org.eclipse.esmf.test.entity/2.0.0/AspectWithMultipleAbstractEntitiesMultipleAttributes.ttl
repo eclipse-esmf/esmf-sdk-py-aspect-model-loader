@@ -1,0 +1,59 @@
+# Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+#
+# See the AUTHORS file(s) distributed with this work for
+# additional information regarding authorship.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# SPDX-License-Identifier: MPL-2.0
+
+@prefix : <urn:samm:org.eclipse.esmf.test.entity:2.0.0#> .
+@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .
+@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:AspectWithAbstractEntity a samm:Aspect ;
+   samm:properties ( :testProperty ) ;
+   samm:operations ( ) .
+
+:testProperty a samm:Property ;
+   samm:characteristic :EntityCharacteristic .
+
+:EntityCharacteristic a samm-c:SingleEntity ;
+   samm:dataType :ExtendingTestEntity5 .
+
+:ExtendingTestEntity5 a samm:Entity ;
+   samm:extends :AbstractTestEntity5First ;
+   samm:preferredName "Test Entity english"@en ;
+   samm:preferredName "Test Entity italian"@it ;
+   samm:description "This is a test entity english"@en ;
+   samm:description "This is a test entity italian"@it ;
+   samm:see <http://example.com/5> ;
+   samm:see <http://example.com/6> ;
+   samm:properties ( :testPropertyTwo ) .
+
+:AbstractTestEntity5First a samm:AbstractEntity ;
+   samm:extends :AbstractTestEntity5Second ;
+   samm:preferredName "Abstract Test Entity 1 english"@en ;
+   samm:preferredName "Abstract Test Entity 1 german"@de ;
+   samm:description "This is an abstract test entity 1 english"@en ;
+   samm:description "This is an abstract test entity 1 german"@de ;
+   samm:see <http://example.com/3> ;
+   samm:see <http://example.com/4> ;
+   samm:properties ( :testPropertyTwo ).
+
+:AbstractTestEntity5Second a samm:AbstractEntity ;
+   samm:preferredName "Abstract Test Entity 2 english"@en ;
+   samm:preferredName "Abstract Test Entity 2 german"@de ;
+   samm:preferredName "Abstract Test Entity 2 french"@fr ;
+   samm:description "This is an abstract test entity 2 english"@en ;
+   samm:description "This is an abstract test entity 2 german"@de ;
+   samm:description "This is an abstract test entity 2 french"@fr ;
+   samm:see <http://example.com/1> ;
+   samm:see <http://example.com/2> ;
+   samm:properties ( :testPropertyTwo ).
+
+:testPropertyTwo a samm:Property ;
+   samm:characteristic samm-c:Text .

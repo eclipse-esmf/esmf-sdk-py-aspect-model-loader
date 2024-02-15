@@ -1,0 +1,19 @@
+#
+# Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH, Germany. All rights reserved.
+#
+
+@prefix : <urn:samm:org.eclipse.esmf.test.general_with_references:2.0.0#>.
+@prefix type: <urn:samm:org.eclipse.esmf.test.types:2.0.0#> .
+@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .
+
+:test_aspect a samm:Aspect ;
+    samm:preferredName "Aspect with references"@en ;
+    samm:description "Test aspect with references from different files."@en ;
+    samm:properties ( :property_1 ) ;
+    samm:operations ( ) .
+
+:property_1 a samm:Entity ;
+            samm:preferredName "Test property"@en ;
+            samm:description "Test property description."@en ;
+            samm:properties ( :ExternalPartId
+                              type:TypeList ) .

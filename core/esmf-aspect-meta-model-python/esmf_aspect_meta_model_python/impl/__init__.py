@@ -35,6 +35,7 @@ from .constraints.default_range_constraint import DefaultRangeConstraint
 from .constraints.default_regular_expression_constraint import DefaultRegularExpressionConstraint
 from .data_types.default_abstract_entity import DefaultAbstractEntity
 from .data_types.default_complex_type import DefaultComplexType
+from .data_types.default_data_type import DefaultDataType
 from .data_types.default_entity import DefaultEntity
 from .data_types.default_scalar import DefaultScalar
 from .default_aspect import DefaultAspect

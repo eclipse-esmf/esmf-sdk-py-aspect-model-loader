@@ -1,0 +1,30 @@
+#  Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+#
+#  See the AUTHORS file(s) distributed with this work for additional
+#  information regarding authorship.
+#
+#  This Source Code Form is subject to the terms of the Mozilla Public
+#  License, v. 2.0. If a copy of the MPL was not distributed with this
+#  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+#   SPDX-License-Identifier: MPL-2.0
+
+from esmf_aspect_meta_model_python.base.data_types.data_type import DataType
+
+
+class DefaultDataType(DataType):
+    """Default DataType class."""
+
+    def __init__(self, urn: str, meta_model_version: str):
+        self._urn = urn
+        self._meta_model_version = meta_model_version
+
+    @property
+    def urn(self) -> str:
+        """URN."""
+        return self._urn
+
+    @property
+    def meta_model_version(self) -> str:
+        """Meta model version."""
+        return self._meta_model_version

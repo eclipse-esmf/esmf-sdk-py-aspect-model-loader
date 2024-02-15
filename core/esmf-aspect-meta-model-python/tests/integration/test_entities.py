@@ -9,11 +9,12 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
+from os import getcwd
 from pathlib import Path
 
 from esmf_aspect_meta_model_python import AbstractEntity, AspectLoader, ComplexType, Enumeration, Quantifiable
 
-RESOURCE_PATH = Path("tests/integration/resources/entity")
+RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.entity/2.0.0")
 
 
 def test_loading_aspect_with_entity_enum():
@@ -420,7 +421,7 @@ def test_aspect_with_time_series():
     assert isinstance(time_series_entity, ComplexType)
     assert time_series_entity.is_complex is True
     assert time_series_entity.name == "TestTimeSeriesEntity"
-    assert time_series_entity.urn == "urn:samm:org.eclipse.esmf.test:1.0.0#TestTimeSeriesEntity"
+    assert time_series_entity.urn == "urn:samm:org.eclipse.esmf.test.entity:2.0.0#TestTimeSeriesEntity"
 
     assert len(time_series_entity.properties) == 1
     assert len(time_series_entity.all_properties) == 3
@@ -465,7 +466,7 @@ def test_aspect_with_time_series_with_complex_type() -> None:
     assert isinstance(data_type, ComplexType)
     assert data_type.is_complex is True
     assert data_type.name == "TestTimeSeriesEntity"
-    assert data_type.urn == "urn:samm:org.eclipse.esmf.samm.test:1.0.0#TestTimeSeriesEntity"
+    assert data_type.urn == "urn:samm:org.eclipse.esmf.test.entity:2.0.0#TestTimeSeriesEntity"
 
     assert len(data_type.properties) == 1
     assert len(data_type.all_properties) == 3
@@ -528,7 +529,7 @@ def test_aspect_with_entity_extending_file_resource() -> None:
     advancedFileResource = characteristic.data_type
     assert isinstance(advancedFileResource, ComplexType)
     assert advancedFileResource.is_complex
-    assert advancedFileResource.urn == "urn:samm:org.eclipse.esmf.samm.test:1.0.0#AdvancedFileResource"
+    assert advancedFileResource.urn == "urn:samm:org.eclipse.esmf.test.entity:2.0.0#AdvancedFileResource"
     assert advancedFileResource.name == "AdvancedFileResource"
     assert len(advancedFileResource.properties) == 1
     assert len(advancedFileResource.all_properties) == 3

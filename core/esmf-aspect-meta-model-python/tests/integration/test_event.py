@@ -9,11 +9,12 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
+from os import getcwd
 from pathlib import Path
 
 from esmf_aspect_meta_model_python import AspectLoader, Event
 
-RESOURCE_PATH = Path("tests/integration/resources/event")
+RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.event/2.0.0")
 
 
 def test_loading_aspect_with_event() -> None:

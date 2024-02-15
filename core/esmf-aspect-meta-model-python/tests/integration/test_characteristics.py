@@ -9,6 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
+from os import getcwd
 from pathlib import Path
 
 import rdflib
@@ -23,7 +24,7 @@ from esmf_aspect_meta_model_python import (
     StructuredValue,
 )
 
-RESOURCE_PATH = Path("tests/integration/resources/characteristics")
+RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.characteristics/2.0.0")
 
 
 def test_loading_aspect_with_collection():
@@ -42,7 +43,7 @@ def test_loading_aspect_with_collection():
     assert aspect_property.get_preferred_name("en") == "Test Property"
     assert aspect_property.get_description("en") == "This is a test property."
     assert sorted(aspect_property.see) == ["http://example.com/", "http://example.com/me"]
-    assert aspect_property.urn == "urn:samm:org.eclipse.esmf.test:1.0.0#testProperty"
+    assert aspect_property.urn == "urn:samm:org.eclipse.esmf.test.characteristics:2.0.0#testProperty"
     assert aspect_property.example_value == rdflib.Literal("Example Value")
 
     characteristic = aspect_property.characteristic
@@ -90,7 +91,9 @@ def test_loading_aspect_with_collection_with_element_characteristic():
     element_characteristic = collection_characteristic.element_characteristic
     assert element_characteristic.urn == "urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#Text"
 
-    assert element_characteristic.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.test:1.0.0#TestCollection"
+    assert element_characteristic.parent_elements[0].urn == (
+        "urn:samm:org.eclipse.esmf.test.characteristics:2.0.0#TestCollection"
+    )
 
 
 def test_loading_aspect_with_simple_enum():
@@ -130,7 +133,7 @@ def test_loading_aspect_with_quantifiable():
     assert len(unit.quantity_kinds) == 1
     for quantity_kind in unit.quantity_kinds:
         assert quantity_kind.name == "frequency"
-    assert unit.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.test:1.0.0#TestQuantifiable"
+    assert unit.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.test.characteristics:2.0.0#TestQuantifiable"
 
 
 def test_loading_aspect_with_duration():

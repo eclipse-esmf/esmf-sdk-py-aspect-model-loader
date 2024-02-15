@@ -9,6 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
+from os import getcwd
 from pathlib import Path
 
 from esmf_aspect_meta_model_python import (
@@ -26,7 +27,7 @@ from esmf_aspect_meta_model_python import (
     Trait,
 )
 
-RESOURCE_PATH = Path("tests/integration/resources/constraints")
+RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.constraints/2.0.0")
 
 
 def test_loading_aspect_with_constrained_collection():
