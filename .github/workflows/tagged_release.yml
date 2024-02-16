@@ -102,6 +102,18 @@ jobs:
             exit 1
           fi
 
+      - name: Prepare git branch
+        run: |
+          git fetch
+          git ls-remote --exit-code --heads origin ${{ env.release_branch_name }} >/dev/null 2>&1
+          EXIT_CODE=$?
+          if [[ $EXIT_CODE == '0' ]]; then
+            git checkout ${{ env.release_branch_name }}
+            git pull
+          elif [[ $EXIT_CODE == '2' ]]; then
+            git checkout -b ${{ env.release_branch_name }}
+          fi
+
       - name: Set versions
         continue-on-error: true
         run: |
@@ -122,12 +134,17 @@ jobs:
 
       - name: Create a release branch
         run: |
-          git checkout -b ${{ env.release_branch_name }}
           git add documentation/python-sdk-guide/antora.yml
           git add core/esmf-aspect-meta-model-python/pyproject.toml
           git commit -m "Release version ${{steps.ESMF_version.outputs.EsmfVersion}}."
-          git push --set-upstream origin ${{ env.release_branch_name }}
-          tag_version=v${{ github.event.inputs.release_version }} 
+          git ls-remote --exit-code --heads origin ${{ env.release_branch_name }} >/dev/null 2>&1
+          EXIT_CODE=$?
+          if [[ $EXIT_CODE == '0' ]]; then
+            git push
+          elif [[ $EXIT_CODE == '2' ]]; then
+            git push --set-upstream origin ${{ env.release_branch_name }}
+          fi
+          tag_version=v${{ github.event.inputs.release_version }}
           git tag $tag_version
           git push origin $tag_version
 
