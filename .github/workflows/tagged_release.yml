@@ -102,24 +102,23 @@ jobs:
             exit 1
           fi
 
-      - name: Prepare git branch
-        run: |
-          git fetch
-          git ls-remote --exit-code --heads origin ${{ env.release_branch_name }} >/dev/null 2>&1
-          EXIT_CODE=$?
-          if [[ $EXIT_CODE == '0' ]]; then
-            git checkout ${{ env.release_branch_name }}
-            git pull
-          elif [[ $EXIT_CODE == '2' ]]; then
-            git checkout -b ${{ env.release_branch_name }}
-          fi
-
       - name: Set versions
         continue-on-error: true
         run: |
           release_version=${{ github.event.inputs.release_version }}
           release_branch_name=${release_version%.*}.x
           echo "release_branch_name=$release_branch_name" >> $GITHUB_ENV
+
+      - name: Prepare release branch
+        continue-on-error: true
+        run: |
+          git fetch
+          git checkout -b  ${{ env.release_branch_name }}
+          git push --set-upstream origin ${{ env.release_branch_name }}
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.release_branch_name }}
 
       - name: Set antora version
         run: yq eval -i '.version = "${{ github.event.inputs.release_version }}"' documentation/python-sdk-guide/antora.yml
@@ -132,18 +131,16 @@ jobs:
           echo "EsmfVersion=${{ github.event.inputs.release_version }}" >> $GITHUB_ENV
           echo "::set-output name=EsmfVersion::${{ github.event.inputs.release_version }}"
 
-      - name: Create a release branch
+      - name: Push changes to the release branch
         run: |
+          git pull
           git add documentation/python-sdk-guide/antora.yml
           git add core/esmf-aspect-meta-model-python/pyproject.toml
           git commit -m "Release version ${{steps.ESMF_version.outputs.EsmfVersion}}."
-          git ls-remote --exit-code --heads origin ${{ env.release_branch_name }} >/dev/null 2>&1
-          EXIT_CODE=$?
-          if [[ $EXIT_CODE == '0' ]]; then
-            git push
-          elif [[ $EXIT_CODE == '2' ]]; then
-            git push --set-upstream origin ${{ env.release_branch_name }}
-          fi
+          git push
+
+      - name: Create tag
+        run: |
           tag_version=v${{ github.event.inputs.release_version }}
           git tag $tag_version
           git push origin $tag_version
