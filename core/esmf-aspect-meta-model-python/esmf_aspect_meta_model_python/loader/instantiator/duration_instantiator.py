@@ -13,17 +13,18 @@ from rdflib.term import Node
 
 from esmf_aspect_meta_model_python.base.characteristics.quantifiable.duration import Duration
 from esmf_aspect_meta_model_python.impl.characteristics.quantifiable.default_duration import DefaultDuration
+from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
 
 
 class DurationInstantiator(InstantiatorBase[Duration]):
     def _create_instance(self, element_node: Node) -> Duration:
-        meta_model_base_attributes = self._get_base_attributes(element_node)
         data_type = self._get_data_type(element_node)
-        unit = self._get_child(element_node, self._sammc.get_urn(SAMMC.unit))
+        if not data_type:
+            raise TypeError(DATA_TYPE_ERROR_MSG)
 
-        if data_type is None:
-            raise TypeError("Data type can't be None.")
+        meta_model_base_attributes = self._get_base_attributes(element_node)
+        unit = self._get_child(element_node, self._sammc.get_urn(SAMMC.unit))
 
         return DefaultDuration(meta_model_base_attributes, data_type, unit)

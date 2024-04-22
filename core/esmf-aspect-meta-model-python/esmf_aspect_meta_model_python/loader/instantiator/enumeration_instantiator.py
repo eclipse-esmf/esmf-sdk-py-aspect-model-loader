@@ -17,6 +17,7 @@ from rdflib.term import Node
 
 from esmf_aspect_meta_model_python.base.characteristics.enumeration import Enumeration
 from esmf_aspect_meta_model_python.impl.characteristics.default_enumeration import DefaultEnumeration
+from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
 from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
@@ -25,19 +26,17 @@ from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
 
 class EnumerationInstantiator(InstantiatorBase[Enumeration]):
     def _create_instance(self, element_node: Node) -> Enumeration:
-        meta_model_base_attributes = self._get_base_attributes(element_node)
-
         data_type = self._get_data_type(element_node)
+        if data_type is None:
+            raise TypeError(DATA_TYPE_ERROR_MSG)
 
+        meta_model_base_attributes = self._get_base_attributes(element_node)
         value_collection_node = self._aspect_graph.value(
             subject=element_node,
             predicate=self._sammc.get_urn(SAMMC.values),
         )
         value_nodes = RdfHelper.get_rdf_list_values(value_collection_node, self._aspect_graph)
         values = [self.__to_enum_node_value(value_node) for value_node in value_nodes]
-
-        if data_type is None:
-            raise TypeError("Data type can't be None.")
 
         return DefaultEnumeration(meta_model_base_attributes, data_type, values)
 

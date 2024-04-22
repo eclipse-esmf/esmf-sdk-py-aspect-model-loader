@@ -44,7 +44,7 @@ class AspectMetaModelResolver:
         Returns:
             None because the aspect graph contains all the new information
         """
-        base_path = pathlib.Path().resolve()
+        base_path = pathlib.Path(__file__).parents[2]
         for meta_model_path in AspectMetaModelResolver.__samm_paths:
             formatted_meta_model_path = meta_model_path.format(meta_model_version)
             meta_model_full_path = join(base_path, formatted_meta_model_path)

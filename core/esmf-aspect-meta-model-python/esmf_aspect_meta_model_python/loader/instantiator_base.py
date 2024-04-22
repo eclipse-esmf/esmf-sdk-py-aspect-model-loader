@@ -170,12 +170,7 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
             subject=element_node,
             predicate=self._sammc.get_urn(SAMMC.element_characteristic),
         )
-        if element_characteristic_node is None:
-            data_type_node = self._aspect_graph.value(
-                subject=element_node,
-                predicate=self._samm.get_urn(SAMM.data_type),
-            )
-        else:
+        if element_characteristic_node:
             # some characteristics (Collection, List, TimeSeries, etc.) may have
             # an attribute "element_characteristic". If it is given, then take
             # the data type of the element_characteristic.
@@ -183,7 +178,14 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
                 subject=element_characteristic_node,
                 predicate=self._samm.get_urn(SAMM.data_type),
             )
-        if data_type_node is None:
-            return None
         else:
+            data_type_node = self._aspect_graph.value(
+                subject=element_node,
+                predicate=self._samm.get_urn(SAMM.data_type),
+            )
+
+        data_type_element = None
+        if data_type_node:
             return self._model_element_factory.create_element(data_type_node)
+
+        return data_type_element

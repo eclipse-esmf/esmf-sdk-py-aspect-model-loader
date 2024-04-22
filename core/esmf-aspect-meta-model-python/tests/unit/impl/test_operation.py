@@ -24,21 +24,21 @@ class TestDefaultOperation:
         assert result._output_property == self.output_property_mock
         set_parent_element_on_child_elements_mock.assert_called_once()
 
-    @mock.patch("esmf_aspect_meta_model_python.impl.default_operation.super")
+    @mock.patch("esmf_aspect_meta_model_python.impl.default_operation.BaseImpl.__init__")
     def test_set_parent_element_on_child_elements(self, _):
         operation = DefaultOperation(self.meta_model_mock, [self.input_property_mock], self.output_property_mock)
 
         self.input_property_mock.append_parent_element.assert_called_once_with(operation)
         self.output_property_mock.append_parent_element.assert_called_once_with(operation)
 
-    @mock.patch("esmf_aspect_meta_model_python.impl.default_operation.super")
+    @mock.patch("esmf_aspect_meta_model_python.impl.default_operation.BaseImpl.__init__")
     def test_input_properties(self, _):
         operation = DefaultOperation(self.meta_model_mock, [self.input_property_mock], self.output_property_mock)
         result = operation.input_properties
 
         assert result == [self.input_property_mock]
 
-    @mock.patch("esmf_aspect_meta_model_python.impl.default_operation.super")
+    @mock.patch("esmf_aspect_meta_model_python.impl.default_operation.BaseImpl.__init__")
     def test_output_property(self, _):
         operation = DefaultOperation(self.meta_model_mock, [self.input_property_mock], self.output_property_mock)
         result = operation.output_property

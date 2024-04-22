@@ -32,7 +32,7 @@ class TestDefaultAspect:
         assert result._is_collection_aspect == self.is_collection_aspect
         set_parent_element_on_child_elements_mock.assert_called_once()
 
-    @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.super")
+    @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.BaseImpl.__init__")
     def test_set_parent_element_on_child_elements(self, _):
         aspect = DefaultAspect(
             self.meta_model_mock,
@@ -46,7 +46,7 @@ class TestDefaultAspect:
         self.operation_mock.append_parent_element.assert_called_once_with(aspect)
         self.event_mock.append_parent_element.assert_called_once_with(aspect)
 
-    @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.super")
+    @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.BaseImpl.__init__")
     def test_operations(self, _):
         aspect = DefaultAspect(
             self.meta_model_mock,
@@ -59,7 +59,7 @@ class TestDefaultAspect:
 
         assert result == [self.operation_mock]
 
-    @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.super")
+    @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.BaseImpl.__init__")
     def test_properties(self, _):
         aspect = DefaultAspect(
             self.meta_model_mock,
@@ -72,7 +72,7 @@ class TestDefaultAspect:
 
         assert result == [self.property_mock]
 
-    @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.super")
+    @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.BaseImpl.__init__")
     def test_events(self, _):
         aspect = DefaultAspect(
             self.meta_model_mock,
@@ -85,7 +85,7 @@ class TestDefaultAspect:
 
         assert result == [self.event_mock]
 
-    @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.super")
+    @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.BaseImpl.__init__")
     def test_is_collection_aspect(self, _):
         aspect = DefaultAspect(
             self.meta_model_mock,

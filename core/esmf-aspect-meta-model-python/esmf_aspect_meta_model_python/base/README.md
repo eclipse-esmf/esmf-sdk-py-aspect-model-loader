@@ -12,7 +12,7 @@ HasUrn
         ├── StructureElement <──┘                  │
         │   ├── Aspect                             │
         │   └── ComplexType <──────────────────────┘
-        │       ├── AbstractEntity                 
+        │       ├── AbstractEntity
         │       └── Entity
         ├── Characteristic
         │   ├── Code
@@ -41,7 +41,7 @@ HasUrn
         ├── Event
         ├── Operation
         ├── Property
-        ├── QuantityKind           
+        ├── QuantityKind
         └── Unit
 
 BoundDefiniton

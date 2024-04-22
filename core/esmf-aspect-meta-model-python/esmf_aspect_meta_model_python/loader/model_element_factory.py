@@ -63,7 +63,8 @@ class ModelElementFactory:
             an instance of a the element with all the child attributes
         """
         element_type = self._get_element_type(element_node)
-        if self._instantiators.keys().__contains__(element_type):
+
+        if element_type in self._instantiators:
             instance = self._instantiators[element_type].get_instance(element_node)
         else:
             instance = self._create_instantiator(element_type).get_instance(element_node)

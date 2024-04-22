@@ -13,17 +13,18 @@ from rdflib.term import Node
 
 from esmf_aspect_meta_model_python.base.characteristics.collection.time_series import TimeSeries
 from esmf_aspect_meta_model_python.impl.characteristics.collection.default_time_series import DefaultTimeSeries
+from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
 
 
 class TimeSeriesInstantiator(InstantiatorBase[TimeSeries]):
     def _create_instance(self, element_node: Node) -> TimeSeries:
+        data_type = self._get_data_type(element_node)
+        if not data_type:
+            raise TypeError(DATA_TYPE_ERROR_MSG)
+
         meta_model_base_attributes = self._get_base_attributes(element_node)
         element_characteristic = self._get_child(element_node, self._sammc.get_urn(SAMMC.element_characteristic))
-        data_type = self._get_data_type(element_node)
-
-        if data_type is None:
-            raise ValueError("Data type can't be none in TimeSeries.")
 
         return DefaultTimeSeries(meta_model_base_attributes, data_type, element_characteristic)

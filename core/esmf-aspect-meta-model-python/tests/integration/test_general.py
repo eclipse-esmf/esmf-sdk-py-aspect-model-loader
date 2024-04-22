@@ -357,7 +357,7 @@ def test_load_aspect_from_multiple_files() -> None:
     file_path1 = RESOURCE_PATH / "ProductTypes.ttl"
     file_path2 = RESOURCE_PATH / "ProductType_shared.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model_from_multiple_files(
+    aspect = aspect_loader._load_aspect_model_from_multiple_files(
         [file_path1, file_path2],
         "urn:samm:org.eclipse.esmf.test.general:2.0.0#ProductTypes",
     )
