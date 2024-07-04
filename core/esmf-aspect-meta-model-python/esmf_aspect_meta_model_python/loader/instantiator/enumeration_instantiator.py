@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-import typing
+from typing import Any, Dict, List, Optional, Union
 
 import rdflib  # type: ignore
 
@@ -40,7 +40,7 @@ class EnumerationInstantiator(InstantiatorBase[Enumeration]):
 
         return DefaultEnumeration(meta_model_base_attributes, data_type, values)
 
-    def __to_enum_node_value(self, value_node: Node) -> typing.Dict:
+    def __to_enum_node_value(self, value_node: Node) -> Union[Dict, str]:
         """
         This method instantiates one possible value of an enumeration.
         :param value_node:  Node of the Graph that represents one enumeration value.
@@ -49,38 +49,46 @@ class EnumerationInstantiator(InstantiatorBase[Enumeration]):
         - If value_node is a URIRef it will represent a value of a ComplexType
         :return: the one generated value of the enumeration
         """
-        value = {}
+        str_value: str = ""
+        dict_value: Dict = {}
 
-        if isinstance(value_node, rdflib.Literal):
+        if isinstance(value_node, rdflib.Literal) or (
+            isinstance(value_node, rdflib.URIRef) and value_node.find("#") == -1
+        ):
             # value represents a simple data type
-            value = value_node.toPython()
+            str_value = value_node.toPython()
 
-        elif isinstance(value_node, rdflib.URIRef):
+        elif isinstance(value_node, rdflib.URIRef) or isinstance(value_node, rdflib.term.BNode):
             # value represents a complex data type
-            value_node_properties = self._aspect_graph.predicate_objects(value_node)
-            for property_urn, property_value in value_node_properties:
+            dict_value = {}
+
+            for property_urn, property_value in self._aspect_graph.predicate_objects(value_node):
                 if property_urn != rdflib.RDF.type and isinstance(property_urn, str):
                     property_name = property_urn.split("#")[1]
-                    actual_value: typing.Optional[typing.Any]
+
+                    actual_value: Optional[Any]
                     if self.__is_collection_value(property_urn):
                         actual_value = self.__instantiate_enum_collection(property_value)
                     else:
                         actual_value = self.__to_enum_node_value(property_value)
-                    value[property_name] = actual_value
+
+                    if property_name == "see":
+                        dict_value.setdefault(property_name, []).append(actual_value)
+                    else:
+                        dict_value[property_name] = actual_value
 
             value_node_name = value_node.split("#")[1]
             value_key = self._samm.get_urn(SAMM.name).toPython()
-            value[value_key] = value_node_name  # type: ignore
+            dict_value[value_key] = value_node_name  # type: ignore
 
-        else:
-            if not isinstance(value_node, rdflib.term.BNode) or value_node == rdflib.namespace.RDF.nil:
-                # illegal node type for enumeration value (e.g., Blank Node)
-                raise TypeError(
-                    f"Every value of an enumeration must either be a Literal (string, int, etc.) or "
-                    f"a URI reference to a ComplexType. Values of type {type(value_node).__name__} are not allowed"
-                )
+        elif value_node == rdflib.namespace.RDF.nil:
+            # illegal node type for enumeration value (e.g., Blank Node)
+            raise TypeError(
+                f"Every value of an enumeration must either be a Literal (string, int, etc.) or "
+                f"a URI reference to a ComplexType. Values of type {type(value_node).__name__} are not allowed"
+            )
 
-        return value
+        return str_value or dict_value
 
     def __is_collection_value(self, property_subject: str) -> bool:
         characteristic = self._aspect_graph.value(  # type: ignore
@@ -88,13 +96,15 @@ class EnumerationInstantiator(InstantiatorBase[Enumeration]):
             predicate=self._samm.get_urn(SAMM.characteristic),
         )
         characteristic_type = self._aspect_graph.value(subject=characteristic, predicate=rdflib.RDF.type)
+
         return characteristic_type in self._sammc.collections_urns()
 
-    def __instantiate_enum_collection(self, value_list) -> typing.List[typing.Dict]:
+    def __instantiate_enum_collection(self, value_list) -> List[Union[Dict, str]]:
         """creates a collection as a child for enumeration characteristics"""
         value_node_list = RdfHelper.get_rdf_list_values(value_list, self._aspect_graph)
         values = []
         for value_node in value_node_list:
             value = self.__to_enum_node_value(value_node)
             values.append(value)
+
         return values

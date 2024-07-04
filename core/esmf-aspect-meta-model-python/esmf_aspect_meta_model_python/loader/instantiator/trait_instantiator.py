@@ -14,7 +14,7 @@ from typing import List
 from rdflib.term import Node
 
 from esmf_aspect_meta_model_python.base.characteristics.trait import Trait
-from esmf_aspect_meta_model_python.base.contraints.constraint import Constraint
+from esmf_aspect_meta_model_python.base.constraints.constraint import Constraint
 from esmf_aspect_meta_model_python.impl.characteristics.default_trait import DefaultTrait
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC

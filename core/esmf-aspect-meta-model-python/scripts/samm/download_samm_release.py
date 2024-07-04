@@ -15,7 +15,7 @@ import zipfile
 
 import requests
 
-SAMM_VERSION_TO_DOWNLOAD = "2.1.0"
+SAMM_VERSION_TO_DOWNLOAD = "2.2.0"
 
 
 def main():

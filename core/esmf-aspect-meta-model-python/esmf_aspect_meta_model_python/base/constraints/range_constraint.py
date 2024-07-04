@@ -13,7 +13,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 from esmf_aspect_meta_model_python.base.bound_definition import BoundDefinition
-from esmf_aspect_meta_model_python.base.contraints.constraint import Constraint
+from esmf_aspect_meta_model_python.base.constraints.constraint import Constraint
 
 
 class RangeConstraint(Constraint, ABC):

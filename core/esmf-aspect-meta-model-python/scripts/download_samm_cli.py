@@ -19,9 +19,9 @@ def get_samm_cli_file_name():
     """Get a SAMM CLI file name for the current platform."""
 
     if platform.system() == "Windows":
-        file_name = Const.WIN_FILE_NAME.substitute(version_number=Const.VERSION)
+        file_name = Const.WIN_FILE_NAME.substitute(version_number=Const.JAVA_CLI_VERSION)
     elif platform.system() == "Linux":
-        file_name = Const.LINUX_FILE_NAME.substitute(version_number=Const.VERSION)
+        file_name = Const.LINUX_FILE_NAME.substitute(version_number=Const.JAVA_CLI_VERSION)
     else:
         raise NotImplementedError(
             f"Please download a SAMM CLI manually for your operation system from '{Const.BASE_PATH}'"
@@ -62,7 +62,7 @@ def download_samm_cli():
         print(error)
     else:
         print(f"Start downloading SAMM CLI {samm_cli_file_name}")
-        url = Const.BASE_PATH.substitute(version_number=Const.VERSION, file_name=samm_cli_file_name)
+        url = Const.BASE_PATH.substitute(version_number=Const.JAVA_CLI_VERSION, file_name=samm_cli_file_name)
         dir_path = Path(__file__).resolve().parents[1]
         archive_file = os.path.join(dir_path, samm_cli_file_name)
 

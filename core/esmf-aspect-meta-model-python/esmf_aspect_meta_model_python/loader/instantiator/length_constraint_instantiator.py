@@ -11,7 +11,7 @@
 
 from rdflib.term import Node
 
-from esmf_aspect_meta_model_python.base.contraints.length_constraint import LengthConstraint
+from esmf_aspect_meta_model_python.base.constraints.length_constraint import LengthConstraint
 from esmf_aspect_meta_model_python.impl.constraints.default_length_constraint import DefaultLengthConstraint
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper

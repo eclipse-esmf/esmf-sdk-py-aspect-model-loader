@@ -46,8 +46,8 @@ poetry --version
 === Introduction
 
 Aspect Models are stored as RDF Graphs in `.ttl` (RDF Turtle) files.
-The Aspect Model Loader for Python reads one or more Turtle file and parses the Aspect Model.
-The result is a Python object representing the root Aspect of the Aspect Model.
+The Aspect Model Loader for Python offers a SAMMGraph class that provides two main methods: `load_aspect_model` and `load_model_elements`.
+Theese methods allows to read a Turtle file and parses the Aspect Model and return either a root Aspect node or a list of all elements from the Aspect Model.
 The Aspect has references to all of its children (e.g., Properties and Operations).
 
 === Installation
@@ -58,7 +58,21 @@ If you want to work with Aspect Models in your Python solution you should instal
 
 === PyPI
 
-Currently not available
+To install the esmf-aspect-model-loader from PyPI, you can use the following command:
+
+[source,bash]
+----
+poetry add esmf-aspect-model-loader
+----
+
+You can specify the version of the package by adding the version number after the package name.
+For example, to install version 2.2.0 of the package, you can use the following command:
+[source,bash]
+----
+poetry add esmf-aspect-model-loader==2.2.0
+----
+
+For more detailed information how to add a library via poetry please read https://python-poetry.org/docs/cli/#add[Poetry add guide].
 
 === GitHub Releases
 
@@ -67,7 +81,7 @@ To use GitHub release as dependency using Poetry, you need to add it like this:
 [source,toml]
 ----
 [tool.poetry.dependencies]
-esmf-aspect-meta-model-python = { git = "https://github.com/eclipse-esmf/esmf-sdk-py-aspect-model-loader.git", tag = "1.0.0" }
+esmf-aspect-model-loader = { git = "https://github.com/eclipse-esmf/esmf-sdk-py-aspect-model-loader.git", tag = "v2.2.0", subdirectory = "core/esmf-aspect-meta-model-python" }`
 ----
 
 for more information on depend on a library located in a git:
@@ -82,7 +96,7 @@ If you are working with Poetry, you can easily import that package by adding the
 [source,toml]
 ----
 [tool.poetry.dependencies]
-esmf-aspect-meta-model-python = { path = "path/to/esmf-aspect-meta-model-python-x.y.z.tar.gz" }
+esmf-aspect-model-loader = { path = "path/to/esmf-aspect-meta-model-python-x.y.z.tar.gz" }
 ----
 
 To make Poetry recognize your changes, run
@@ -99,65 +113,35 @@ https://github.com/eclipse-esmf/esmf-aspect-model-editor/blob/main/core/apps/ame
 Aspect model.
 
 
-==== Loading an Aspect Model from one *.ttl file
-
-Import the Aspect Model Loader in your Python module
-[source,python]
-
-----
-from esmf_aspect_meta_model_python.loader.aspect_loader import AspectLoader
-----
-
-Then create an instance of the AspectLoader and run the method `load_aspect_model()` from the `AspectLoader` with
+==== Loading an Aspect Model
 
 [source,python]
-----
-from esmf_aspect_meta_model_python.loader.aspect_loader import AspectLoader
 
-loader = AspectLoader()
-aspect = loader.load_aspect_model(PATH_TO_TURTLE_FILE)
+----
+# import a SAMMGraph class to your Python module
+from esmf_aspect_meta_model_python import SAMMGraph
+
+# Define the path to local Turtle file
+model_path = "PATH_TO_TURTLE_FILE"
+
+# Create an instance of SAMMGraph
+samm_graph = SAMMGraph()
+
+# Parse the Turtle file to load the graph
+samm_graph.parse(model_path)
+
+# Load the aspect model from the graph
+aspect = samm_graph.load_aspect_model()
+print(aspect)
+
+# or load all model elements
+elements = samm_graph.load_model_elements()
+for element in elements:
+    print(element)
 ----
 
 where the input argument `PATH_TO_TURTLE_FILE` can either be a `Path` object or a string representing a path to the ttl file.
-
 Both, relative paths and absolute paths are allowed.
-
-The return value of `load_aspect_model()` is an instance of the class `DefaultAspect` which is declared in the project.
-
-==== Loading an Aspect Model from multiple files
-
-If the Aspect Model is separated into multiple `.ttl` files you can load the Aspect Model by calling the method `load_aspect_model_from_multiple_files`
-with a list of file paths.
-
-[source,python]
-----
-from esmf_aspect_meta_model_python.loader.aspect_loader import AspectLoader
-
-loader = AspectLoader()
-aspect = loader.load_aspect_model_from_multiple_files([
-    "file1.ttl",
-    "file2.ttl",
-    "file3.ttl",
-])
-----
-
-It may happen that the multiple files contain multiple aspect definitions and not only one.
-In this case it is possible to pass the URN of the Aspect as a hint, so the Loader knows which Aspect to load.
-
-[source,python]
-----
-from esmf_aspect_meta_model_python.loader.aspect_loader import AspectLoader
-
-loader = AspectLoader()
-aspect_urn = "urn:samm:org.eclipse.esmf.samm:test:1.0.0#myAspect"
-aspect = loader.load_aspect_model_from_multiple_files(
-    ["file1.ttl", "file2.ttl", "file3.ttl"],
-    aspect_urn,
-)
-----
-
-The urn can either be a string or an instance of rdflib.URIRef.
-If no urn is passed and the `.ttl` files contain multiple Aspects, the Aspect Loader will load the first one that is found.
 
 === Traversing the Aspect Model
 
@@ -351,27 +335,3 @@ It is set up to extract the RDF Turtle files from the released SAMM artifact or 
 
 If you are not sure whether you need the SAMM Aspect Meta Model as a dependency you probably don't need it because it does not contain any Python functionality.
 It is only intended for working with Aspect Models on RDF level.
-
-=== Installation
-
-The package is released on PyPI under the name `esmf-samm-aspect-meta-model`.
-The package can be imported to a Python project by adding the package as a dependency.
-
-If you are using Poetry as a dependency manager you can execute the following commands:
-
-[source,bash]
-----
-poetry add samm-aspect-meta-model
-poetry install
-----
-
-The `pyproject.toml` file of your project should then include the following:
-[source,toml]
-
-----
-[tool.poetry.dependencies]
-samm-aspect-meta-model = "^x.y.z"
-----
-
-In the future it is planned to publish all packages of the Python SDK on public repositories.
-The authentication will then not be required anymore.

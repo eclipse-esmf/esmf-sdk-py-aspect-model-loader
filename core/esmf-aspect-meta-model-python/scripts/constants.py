@@ -13,8 +13,8 @@ from os.path import join
 from string import Template
 
 
-SAMM_VERSION = "2.1.0"
-JAVA_CLI_VERSION = "2.7.0"
+SAMM_VERSION = "2.2.0"
+JAVA_CLI_VERSION = "2.10.2"
 
 
 class SAMMCliConstants:
@@ -27,6 +27,7 @@ class SAMMCliConstants:
 
 class TestModelConstants:
     FOLDER_TO_EXTRACT = "valid"
+    TEST_MODELS_FOLDER = "org.eclipse.esmf.test"
     JAVA_CLI_VERSION = JAVA_CLI_VERSION
     MAVEN_URL = Template(
         "https://repo1.maven.org/maven2/org/eclipse/esmf/esmf-test-aspect-models/$version_number/"
