@@ -12,24 +12,19 @@ import requests
 import sys
 import zipfile
 
-from string import Template
-
-BASE_PATH = Template("https://github.com/eclipse-esmf/esmf-sdk/releases/download/v$version_number/$file_name")
-LINUX_FILE_NAME = Template("samm-cli-$version_number-linux-x86_64.tar.gz")
-SAMM_CLI_VERSION = "2.6.1"
-WIN_FILE_NAME = Template("samm-cli-$version_number-windows-x86_64.zip")
+from scripts.constants import SAMMCliConstants as Const
 
 
 def get_samm_cli_file_name():
     """Get a SAMM CLI file name for the current platform."""
 
     if platform.system() == "Windows":
-        file_name = WIN_FILE_NAME.substitute(version_number=SAMM_CLI_VERSION)
+        file_name = Const.WIN_FILE_NAME.substitute(version_number=Const.VERSION)
     elif platform.system() == "Linux":
-        file_name = LINUX_FILE_NAME.substitute(version_number=SAMM_CLI_VERSION)
+        file_name = Const.LINUX_FILE_NAME.substitute(version_number=Const.VERSION)
     else:
         raise NotImplementedError(
-            f"Please download a SAMM CLI manually for your operation system from '{BASE_PATH}'"
+            f"Please download a SAMM CLI manually for your operation system from '{Const.BASE_PATH}'"
         )
 
     return file_name
@@ -67,7 +62,7 @@ def download_samm_cli():
         print(error)
     else:
         print(f"Start downloading SAMM CLI {samm_cli_file_name}")
-        url = BASE_PATH.substitute(version_number=SAMM_CLI_VERSION, file_name=samm_cli_file_name)
+        url = Const.BASE_PATH.substitute(version_number=Const.VERSION, file_name=samm_cli_file_name)
         dir_path = Path(__file__).resolve().parents[1]
         archive_file = os.path.join(dir_path, samm_cli_file_name)
 

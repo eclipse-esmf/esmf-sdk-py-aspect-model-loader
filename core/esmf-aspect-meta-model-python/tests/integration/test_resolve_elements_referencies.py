@@ -20,7 +20,8 @@ RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.te
 def test_resolve_elements_references():
     file_path = RESOURCE_PATH / "AspectWithReferences.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     assert aspect.name == "test_aspect"
     assert aspect.get_preferred_name("en") == "Aspect with references"

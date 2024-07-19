@@ -17,7 +17,7 @@ from typing import Optional
 
 import requests
 
-from esmf_aspect_meta_model_python.samm_aspect_meta_model.github_folder import GitFolder, decoding_url_response
+from scripts.samm.github_folder import GitFolder, decoding_url_response
 
 
 def main():

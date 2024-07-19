@@ -47,9 +47,10 @@ types-requests = "^2.30.0.0"
 cache_dir = ".pytest_cache"
 
 [tool.poetry.scripts]
-download-samm-release = "esmf_aspect_meta_model_python.samm_aspect_meta_model.download_samm_release:main"
-download-samm-branch = "esmf_aspect_meta_model_python.samm_aspect_meta_model.download_samm_branch:main"
+download-samm-release = "scripts.samm.download_samm_release:main"
+download-samm-branch = "scripts.samm.download_samm_branch:main"
 download-samm-cli = "scripts.download_samm_cli:download_samm_cli"
+download-test-models = "scripts.download_test_models:download_test_models"
 
 [build-system]
 requires = ["poetry>=0.12"]

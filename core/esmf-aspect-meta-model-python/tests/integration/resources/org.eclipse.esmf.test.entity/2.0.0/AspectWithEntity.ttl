@@ -10,10 +10,10 @@
 # SPDX-License-Identifier: MPL-2.0
 
 @prefix : <urn:samm:org.eclipse.esmf.test.entity:2.0.0#> .
-@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .
-@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .
+@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .
+@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .
+@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .
 
 :AspectWithEntity a samm:Aspect ;
    samm:preferredName "Test Aspect"@en ;
@@ -43,4 +43,16 @@
 :entityProperty a samm:Property ;
    samm:preferredName "Entity Property"@en ;
    samm:description "This is a property for the test entity."@en ;
+   samm:characteristic samm-c:Text .
+
+:AnotherAspect a samm:Aspect ;
+   samm:preferredName "Another test Aspect"@en ;
+   samm:description "This is a test description for the second Aspect"@en ;
+   samm:see <http://example.com/> ;
+   samm:properties ( :someProperty ) ;
+   samm:operations ( ) .
+
+:someProperty a samm:Property ;
+   samm:preferredName "Some weird Property"@en ;
+   samm:description "This is a property for the test entity 2."@en ;
    samm:characteristic samm-c:Text .

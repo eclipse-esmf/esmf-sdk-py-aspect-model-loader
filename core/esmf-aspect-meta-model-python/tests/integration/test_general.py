@@ -20,7 +20,9 @@ RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.te
 def test_aspect_with_multiple_attributes():
     file_path = RESOURCE_PATH / "AspectWithMultipleAttributes.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
     assert aspect.get_preferred_name("en") == "Test Aspect"
     assert aspect.get_preferred_name("de") == "Test Aspekt"
     assert aspect.get_description("en") == "This is a test description"
@@ -34,7 +36,8 @@ def test_aspect_with_multiple_attributes():
 def test_aspect():
     file_path = RESOURCE_PATH / "AspectWithProperties.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     assert aspect.meta_model_version == "2.0.0"
     assert aspect.name == "TestAspect"
@@ -72,7 +75,9 @@ def test_aspect():
 def test_aspect_with_operation():
     file_path = RESOURCE_PATH / "AspectWithOperation.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
     assert aspect.meta_model_version == "2.1.0"
     assert aspect.name == "AspectWithOperation"
     assert aspect.urn == "urn:samm:org.eclipse.esmf.test.general:2.0.0#AspectWithOperation"
@@ -131,7 +136,9 @@ def test_aspect_with_operation():
 def test_aspect_with_operation_no_output():
     file_path = RESOURCE_PATH / "AspectWithOperationNoOutput.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
     assert aspect.meta_model_version == "2.0.0"
     assert aspect.name == "AspectWithOperationNoOutput"
     assert aspect.urn == "urn:samm:org.eclipse.esmf.test.general:2.0.0#AspectWithOperationNoOutput"
@@ -184,7 +191,8 @@ def test_aspect_with_operation_no_output():
 def test_aspect_with_property_multiple_references() -> None:
     file_path = RESOURCE_PATH / "AspectWithPropertyMultipleReferences.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
     property1 = aspect.properties[0]
     property2 = aspect.properties[1]
 
@@ -203,7 +211,8 @@ def test_aspect_with_property_multiple_references() -> None:
 def test_aspect_with_property_with_payload_name() -> None:
     file_path = RESOURCE_PATH / "AspectWithPropertyWithPayloadName.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     property1 = aspect.properties[0]
     assert property1.is_optional is False
@@ -214,7 +223,8 @@ def test_aspect_with_property_with_payload_name() -> None:
 def test_aspect_with_optional_property_with_payload_name() -> None:
     file_path = RESOURCE_PATH / "AspectWithOptionalPropertyWithPayloadName.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     property1 = aspect.properties[0]
     assert property1.is_optional is True
@@ -225,7 +235,8 @@ def test_aspect_with_optional_property_with_payload_name() -> None:
 def test_aspect_with_duplicate_property_with_payload_name() -> None:
     file_path = RESOURCE_PATH / "AspectWithDuplicatePropertyWithPayloadName.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     property1 = aspect.properties[0]
     assert property1.name == "testProperty"
@@ -238,7 +249,8 @@ def test_aspect_with_duplicate_property_with_payload_name() -> None:
 def test_aspect_with_duplicate_property_with_different_payload_names() -> None:
     file_path = RESOURCE_PATH / "AspectWithDuplicatePropertyWithDifferentPayloadNames.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     property1 = aspect.properties[0]
     assert property1.name == "testProperty"
@@ -251,7 +263,8 @@ def test_aspect_with_duplicate_property_with_different_payload_names() -> None:
 def test_aspect_with_extending_property_with_payload_name() -> None:
     file_path = RESOURCE_PATH / "AspectWithExtendingPropertyWithPayloadName.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     assert aspect.properties[0].characteristic is not None
     entity = aspect.properties[0].characteristic.data_type
@@ -269,8 +282,9 @@ def test_find_properties_by_name() -> None:
     file_path = RESOURCE_PATH / "AspectWithProperties.ttl"
     aspect_loader = AspectLoader()
     aspect_loader.load_aspect_model(file_path)
+    graph = aspect_loader.get_graph()
 
-    result = aspect_loader.find_by_name("testPropertyOne")
+    result = graph.find_by_name("testPropertyOne")
     assert result is not None
     assert len(result) == 1
     assert isinstance(result[0], BaseImpl)
@@ -280,7 +294,7 @@ def test_find_properties_by_name() -> None:
     assert len(result[0].see) == 0
     assert len(result[0].descriptions) == 0
 
-    result = aspect_loader.find_by_name("testPropertyTwo")
+    result = graph.find_by_name("testPropertyTwo")
     assert result is not None
     assert len(result) == 1
     assert isinstance(result[0], BaseImpl)
@@ -290,7 +304,7 @@ def test_find_properties_by_name() -> None:
     assert len(result[0].see) == 0
     assert len(result[0].descriptions) == 0
 
-    result = aspect_loader.find_by_name("Unknown")
+    result = graph.find_by_name("Unknown")
     assert len(result) == 0
 
 
@@ -298,7 +312,9 @@ def test_find_property_characteristic_by_name() -> None:
     file_path = RESOURCE_PATH / "AspectWithPropertyWithAllBaseAttributes.ttl"
     aspect_loader = AspectLoader()
     aspect_loader.load_aspect_model(file_path)
-    result = aspect_loader.find_by_name("BooleanTestCharacteristic")
+    graph = aspect_loader.get_graph()
+
+    result = graph.find_by_name("BooleanTestCharacteristic")
     assert result is not None
     assert len(result) == 1
     assert isinstance(result[0], BaseImpl)
@@ -313,8 +329,9 @@ def test_find_properties_by_urn() -> None:
     file_path = RESOURCE_PATH / "AspectWithProperties.ttl"
     aspect_loader = AspectLoader()
     aspect_loader.load_aspect_model(file_path)
+    graph = aspect_loader.get_graph()
 
-    result = aspect_loader.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.0.0#testPropertyOne")
+    result = graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.0.0#testPropertyOne")
     assert result is not None
     assert isinstance(result, BaseImpl)
     assert result.name == "testPropertyOne"
@@ -323,7 +340,7 @@ def test_find_properties_by_urn() -> None:
     assert len(result.see) == 0
     assert len(result.descriptions) == 0
 
-    result = aspect_loader.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.0.0#testPropertyTwo")
+    result = graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.0.0#testPropertyTwo")
     assert result is not None
     assert isinstance(result, BaseImpl)
     assert result.name == "testPropertyTwo"
@@ -332,7 +349,7 @@ def test_find_properties_by_urn() -> None:
     assert len(result.see) == 0
     assert len(result.descriptions) == 0
 
-    result = aspect_loader.find_by_urn("Unknown")
+    result = graph.find_by_urn("Unknown")
     assert result is None
 
 
@@ -340,7 +357,9 @@ def test_find_property_characteristic_by_urn() -> None:
     file_path = RESOURCE_PATH / "AspectWithPropertyWithAllBaseAttributes.ttl"
     aspect_loader = AspectLoader()
     aspect_loader.load_aspect_model(file_path)
-    result = aspect_loader.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.0.0#BooleanTestCharacteristic")
+    graph = aspect_loader.get_graph()
+    result = graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.0.0#BooleanTestCharacteristic")
+
     assert result is not None
     assert isinstance(result, BaseImpl)
     assert result.name == "BooleanTestCharacteristic"
@@ -349,42 +368,15 @@ def test_find_property_characteristic_by_urn() -> None:
     assert len(result.see) == 0
     assert len(result.descriptions) == 0
 
-    result = aspect_loader.find_by_urn("Unknown")
+    result = graph.find_by_urn("Unknown")
     assert result is None
-
-
-def test_load_aspect_from_multiple_files() -> None:
-    file_path1 = RESOURCE_PATH / "ProductTypes.ttl"
-    file_path2 = RESOURCE_PATH / "ProductType_shared.ttl"
-    aspect_loader = AspectLoader()
-    aspect = aspect_loader._load_aspect_model_from_multiple_files(
-        [file_path1, file_path2],
-        "urn:samm:org.eclipse.esmf.test.general:2.0.0#ProductTypes",
-    )
-
-    assert aspect.meta_model_version == "2.0.0"
-    assert aspect.name == "ProductTypes"
-    assert aspect.urn == "urn:samm:org.eclipse.esmf.test.general:2.0.0#ProductTypes"
-    assert len(aspect.properties) == 1
-    assert aspect.properties[0] is not None
-    first_property = aspect.properties[0]
-    assert first_property.name == "productTypes"
-    assert first_property.data_type is not None
-    data_type = first_property.data_type
-    assert data_type.is_complex
-    assert data_type.urn == "urn:samm:org.eclipse.esmf.test.general:2.0.0#ProductType"
-    assert hasattr(data_type, "properties")
-    data_type_properties = data_type.properties  # type: ignore
-    assert len(data_type_properties) == 3
-    assert data_type_properties[0].urn == "urn:samm:org.eclipse.esmf.test.general:2.0.0#productClass"
-    assert data_type_properties[1].urn == "urn:samm:org.eclipse.esmf.test.general:2.0.0#productSubClass"
-    assert data_type_properties[2].urn == "urn:samm:org.eclipse.esmf.test.general:2.0.0#statisticsGroup"
 
 
 def test_loading_aspect_with_either():
     file_path = RESOURCE_PATH / "AspectWithEither.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     either_characteristic = first_property.characteristic

@@ -30,7 +30,8 @@ RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.te
 def test_loading_aspect_with_collection():
     file_path = RESOURCE_PATH / "AspectWithCollection.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     assert aspect.name == "AspectWithCollection"
     assert aspect.get_preferred_name("en") == "Test Aspect"
@@ -79,7 +80,8 @@ def test_loading_aspect_with_list():
 def test_loading_aspect_with_collection_with_element_characteristic():
     file_path = RESOURCE_PATH / "AspectWithCollectionWithElementCharacteristic.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     collection_characteristic = first_property.characteristic
@@ -99,7 +101,8 @@ def test_loading_aspect_with_collection_with_element_characteristic():
 def test_loading_aspect_with_simple_enum():
     file_path = RESOURCE_PATH / "AspectWithSimpleEnum.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     enum_characteristic = first_property.characteristic
@@ -116,7 +119,8 @@ def test_loading_aspect_with_simple_enum():
 def test_loading_aspect_with_quantifiable():
     file_path = RESOURCE_PATH / "AspectWithQuantifiableAndUnit.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     quantifiable_characteristic = first_property.characteristic
@@ -139,7 +143,8 @@ def test_loading_aspect_with_quantifiable():
 def test_loading_aspect_with_duration():
     file_path = RESOURCE_PATH / "AspectWithDuration.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     duration_characteristic = first_property.characteristic
@@ -152,7 +157,8 @@ def test_loading_aspect_with_duration():
 def test_loading_aspect_with_measurement():
     file_path = RESOURCE_PATH / "AspectWithMeasurement.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     measurement_characteristic = first_property.characteristic
@@ -165,7 +171,8 @@ def test_loading_aspect_with_measurement():
 def test_loading_aspect_with_structured_value():
     file_path = RESOURCE_PATH / "AspectWithStructuredValue.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     structured_value_characteristic = first_property.characteristic
@@ -191,7 +198,8 @@ def test_loading_aspect_with_structured_value():
 def test_loading_aspect_with_code():
     file_path = RESOURCE_PATH / "AspectWithCode.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     code_characteristic = first_property.characteristic
@@ -202,7 +210,9 @@ def test_loading_aspect_with_code():
 def test_loading_aspect_with_blank_node() -> None:
     file_path = RESOURCE_PATH / "AspectWithBlankNode.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
     first_property = aspect.properties[0]
     assert first_property.name == "list"
     either_characteristic = first_property.characteristic

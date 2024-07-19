@@ -16,7 +16,7 @@ from typing import List, Optional
 
 import requests
 
-from esmf_aspect_meta_model_python.samm_aspect_meta_model.github_file import GitFile
+from scripts.samm.github_file import GitFile
 
 
 class GitFolder(GitFile):

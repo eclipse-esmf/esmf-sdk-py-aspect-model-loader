@@ -14,7 +14,7 @@ import re
 
 from typing import Dict, Optional, Tuple
 
-import rdflib  # type: ignore
+import rdflib
 
 from rdflib.term import Node
 
@@ -28,7 +28,9 @@ from esmf_aspect_meta_model_python.vocabulary.UNIT import UNIT
 
 
 class ModelElementFactory:
-    """Central class that handles the instantiation of model elements.
+    """Aspect model element factory.
+
+    Central class that handles the instantiation of model elements.
     The responsibility for different groups of model elements (e.g. aspect, characteristic)
     is delegated to instantiator classes.
     """
@@ -48,6 +50,27 @@ class ModelElementFactory:
 
         self._instantiators: Dict[str, InstantiatorBase] = {}
 
+    def create_all_graph_elements(self, create_nodes: list[Node]):
+        """Create elements from the list of nodes.
+
+        Create python classes for the given list of nodes.
+
+        :param create_nodes: List of nodes to create elements from.
+        :return: List of python created elements.
+        """
+        all_nodes = []
+
+        for node in create_nodes:
+            try:
+                instance = self.create_element(node)
+            except Exception as error:
+                print(f"Could nod translate the node {node} to a Python object. Error: {error}")
+                raise error
+            else:
+                all_nodes.append(instance)
+
+        return all_nodes
+
     def create_element(self, element_node: Node):
         """
         searches for the right instantiator to create a new instance or
@@ -60,15 +83,16 @@ class ModelElementFactory:
             needed element
 
         Returns:
-            an instance of a the element with all the child attributes
+            an instance of the element with all the child attributes
         """
         element_type = self._get_element_type(element_node)
 
         if element_type in self._instantiators:
-            instance = self._instantiators[element_type].get_instance(element_node)
+            instantiator = self._instantiators[element_type]
         else:
-            instance = self._create_instantiator(element_type).get_instance(element_node)
+            instantiator = self._create_instantiator(element_type)
 
+        instance = instantiator.get_instance(element_node)
         if isinstance(instance, Base):
             self._cache.resolve_instance(instance)
 

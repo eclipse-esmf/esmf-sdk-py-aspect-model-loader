@@ -20,7 +20,8 @@ RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.te
 def test_loading_aspect_with_event() -> None:
     file_path = RESOURCE_PATH / "aspect_with_event.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     assert aspect.events is not None
     assert len(aspect.events) == 1
@@ -32,7 +33,8 @@ def test_loading_aspect_with_event() -> None:
 def test_loading_aspect_with_event_with_parameters() -> None:
     file_path = RESOURCE_PATH / "aspect_with_event_with_parameters.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     assert aspect.events is not None
     assert len(aspect.events) == 1
@@ -47,7 +49,8 @@ def test_loading_aspect_with_event_with_parameters() -> None:
 def test_loading_aspect_with_multiple_event() -> None:
     file_path = RESOURCE_PATH / "aspect_with_multiple_event.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     assert aspect.events is not None
     assert len(aspect.events) == 3

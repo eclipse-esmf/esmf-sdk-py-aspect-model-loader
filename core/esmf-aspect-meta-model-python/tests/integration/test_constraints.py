@@ -33,7 +33,8 @@ RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.te
 def test_loading_aspect_with_constrained_collection():
     file_path = RESOURCE_PATH / "AspectWithConstrainedCollection.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     trait_characteristic = first_property.characteristic
@@ -56,7 +57,9 @@ def test_loading_aspect_with_constrained_collection():
 def test_loading_aspect_with_range_constraint():
     file_path = RESOURCE_PATH / "AspectWithRangeConstraint.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
     first_property = aspect.properties[0]
     trait_characteristic = first_property.characteristic
     assert trait_characteristic.name == "TestRangeConstraint"
@@ -79,7 +82,8 @@ def test_loading_aspect_with_range_constraint():
 def test_loading_aspect_with_multiple_constraints():
     file_path = RESOURCE_PATH / "AspectWithMultipleConstraints.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     trait_characteristic = first_property.characteristic
@@ -106,7 +110,8 @@ def test_loading_aspect_with_multiple_constraints():
 def test_loading_aspect_with_multiple_one_value_constraints():
     file_path = RESOURCE_PATH / "AspectWithMultipleOneValueConstraints.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     trait_characteristic = first_property.characteristic
@@ -140,7 +145,8 @@ def test_loading_aspect_with_multiple_one_value_constraints():
 def test_loading_aspect_with_range_constraint_incl_bound_definition():
     file_path = RESOURCE_PATH / "AspectWithRangeConstraintInclBoundDefinitionProperties.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     trait_characteristic = first_property.characteristic
@@ -165,7 +171,8 @@ def test_loading_aspect_with_range_constraint_incl_bound_definition():
 def test_loading_aspect_with_language_constraint():
     file_path = RESOURCE_PATH / "AspectWithLanguageConstraint.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     trait_characteristic = first_property.characteristic
@@ -181,7 +188,8 @@ def test_loading_aspect_with_language_constraint():
 def test_loading_aspect_with_locale_constraint():
     file_path = RESOURCE_PATH / "AspectWithLocaleConstraint.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     trait_characteristic = first_property.characteristic
@@ -197,7 +205,8 @@ def test_loading_aspect_with_locale_constraint():
 def test_loading_aspect_with_fixed_point_constraint():
     file_path = RESOURCE_PATH / "AspectWithFixedPoint.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     trait_characteristic = first_property.characteristic
@@ -216,7 +225,8 @@ def test_loading_aspect_with_fixed_point_constraint():
 def test_loading_aspect_with_encoding_constraint():
     file_path = RESOURCE_PATH / "AspectWithEncodingConstraint.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     trait_characteristic = first_property.characteristic
@@ -231,7 +241,8 @@ def test_loading_aspect_with_encoding_constraint():
 def test_loading_aspect_with_regular_expression_constraint():
     file_path = RESOURCE_PATH / "AspectWithRegularExpressionConstraint.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     trait_characteristic = first_property.characteristic
@@ -245,7 +256,8 @@ def test_loading_aspect_with_regular_expression_constraint():
 def test_loading_aspect_with_length_constraint():
     file_path = RESOURCE_PATH / "AspectWithLengthConstraint.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     first_property = aspect.properties[0]
     trait_characteristic = first_property.characteristic

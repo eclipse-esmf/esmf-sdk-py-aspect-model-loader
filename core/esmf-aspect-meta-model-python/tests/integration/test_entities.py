@@ -20,7 +20,8 @@ RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.te
 def test_loading_aspect_with_entity_enum():
     file_path = RESOURCE_PATH / "AspectWithEntityEnum.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     properties = aspect.properties
     assert len(properties) == 1
@@ -57,7 +58,8 @@ def test_loading_aspect_with_entity_enum():
 def test_loading_aspect_with_entity():
     file_path = RESOURCE_PATH / "AspectWithEntity.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     property = aspect.properties[0]
     single_entity_characteristic = property.characteristic
@@ -79,7 +81,8 @@ def test_loading_aspect_with_entity():
 def test_aspect_with_abstract_entity():
     file_path = RESOURCE_PATH / "AspectWithAbstractEntity.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     aspect_properties = aspect.properties
     assert len(aspect_properties) == 1
@@ -108,7 +111,8 @@ def test_aspect_with_abstract_entity():
 def test_aspect_with_multiple_entities_same_extend():
     file_path = RESOURCE_PATH / "AspectWithMultipleEntitiesSameExtend.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     properties = aspect.properties
     assert len(properties) == 2
@@ -138,7 +142,9 @@ def test_aspect_with_unused_extending_entity() -> None:
     """
     file_path = RESOURCE_PATH / "AspectWithUnusedExtendingEntity.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
     properties = aspect.properties
     assert len(properties) == 1
 
@@ -168,7 +174,8 @@ def test_aspect_with_unused_extending_entity() -> None:
 def test_aspect_with_abstract_coordinate_properties_list() -> None:
     file_path = RESOURCE_PATH / "AspectWithPoint3d.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     properties = aspect.properties
     assert len(properties) == 1
@@ -204,7 +211,9 @@ def test_attribute_inheritance_entity() -> None:
     """
     file_path = RESOURCE_PATH / "AspectWithAbstractEntityMultipleAttributes.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
     properties = aspect.properties
     assert len(properties) == 1
     characteristic = properties[0].characteristic
@@ -240,7 +249,8 @@ def test_multiple_attribute_inheritance_entity() -> None:
     """
     file_path = RESOURCE_PATH / "AspectWithMultipleAbstractEntitiesMultipleAttributes.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     properties = aspect.properties
     assert len(properties) == 1
@@ -278,7 +288,9 @@ def test_multiple_attribute_inheritance_entity() -> None:
 def test_attribute_inheritance_property() -> None:
     file_path = RESOURCE_PATH / "AspectWithAbstractPropertyMultipleAttributes.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
     properties = aspect.properties
     assert len(properties) == 1
     characteristic = properties[0].characteristic
@@ -305,7 +317,9 @@ def test_attribute_inheritance_property() -> None:
 def test_multiple_properties_same_extend() -> None:
     file_path = RESOURCE_PATH / "AspectWithMultiplePropertiesSameExtend.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
     assert len(aspect.properties) == 2
     characteristic = aspect.properties[0].characteristic
     assert characteristic is not None
@@ -338,7 +352,9 @@ def test_multiple_properties_same_extend() -> None:
 def test_abstract_property_blank_node() -> None:
     file_path = RESOURCE_PATH / "AspectWithAbstractPropertyBlankNode.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
     assert len(aspect.properties) == 1
     characteristic = aspect.properties[0].characteristic
     assert characteristic is not None
@@ -370,7 +386,9 @@ def test_abstract_property_blank_node() -> None:
 def test_abstract_property_multiple_abstract_entities() -> None:
     file_path = RESOURCE_PATH / "AspectWithAbstractPropertyMultipleAbstractEntities.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
     assert len(aspect.properties) == 1
     characteristic = aspect.properties[0].characteristic
     assert characteristic is not None
@@ -409,7 +427,8 @@ def test_abstract_property_multiple_abstract_entities() -> None:
 def test_aspect_with_time_series():
     file_path = RESOURCE_PATH / "AspectWithTimeSeries.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
 
     property1 = aspect.properties[0]
     time_series_characteristic = property1.characteristic
@@ -455,7 +474,9 @@ def test_aspect_with_time_series():
 def test_aspect_with_time_series_with_complex_type() -> None:
     file_path = RESOURCE_PATH / "AspectWithTimeSeriesWithComplexType.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
     property1 = aspect.properties[0]
     time_series_characteristic = property1.characteristic
     assert time_series_characteristic is not None
@@ -491,7 +512,9 @@ def test_aspect_with_time_series_with_complex_type() -> None:
 def test_aspect_with_file_resource_entity() -> None:
     file_path = RESOURCE_PATH / "AspectWithFileResourceEntity.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
     characteristic = aspect.properties[0].characteristic
     assert characteristic is not None
     fileResource = characteristic.data_type
@@ -523,7 +546,9 @@ def test_aspect_with_file_resource_entity() -> None:
 def test_aspect_with_entity_extending_file_resource() -> None:
     file_path = RESOURCE_PATH / "AspectWithEntityExtendingFileResource.ttl"
     aspect_loader = AspectLoader()
-    aspect = aspect_loader.load_aspect_model(file_path)
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
     characteristic = aspect.properties[0].characteristic
     assert characteristic is not None
     advancedFileResource = characteristic.data_type
