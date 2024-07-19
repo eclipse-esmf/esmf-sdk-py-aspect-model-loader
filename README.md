@@ -22,28 +22,26 @@
 ## Introduction
 
 The ESMF SDK Python Aspect Model Loader contains artifacts and resources for all parties that intent to use, extend or
-integrate with the Semantic Aspect Meta Model, e.g., Solution Developers,
-Domain Experts or OEMs.
+integrate with the Semantic Aspect Meta Model, e.g., Solution Developers, Domain Experts or OEMs.
 
 At its core are components which help to work with the Semantic Aspect Meta Model (SAMM).
 
-This repository contains a detailed developer documentation written in AsciiDoc. The source files (AsciiDoc) are
-located [here](documentation/python-sdk-guide)
-and are built using
-[Antora](https://antora.org/) which generates the documentation as HTML files.
+This repository contains a detailed developer documentation written in AsciiDoc. The source files (AsciiDoc) are 
+[python-sdk-guide](documentation/python-sdk-guide) and are built using [Antora](https://antora.org/) 
+which generates the documentation as HTML files.
 
 ## Getting help
 
-Are you having trouble with ESMF SDK Python? We want to help!
+Are you having trouble with ESMF SDK Python Aspect Model Loader? We want to help!
 
 * Check the [developer documentation](https://eclipse-esmf.github.io)
-* Having issues with the ESMF SDK Python? Open
-  a [GitHub issue](https://github.com/eclipse-esmf/esmf-sdk-py-aspect-model-loader/issues).
+* Check the SAMM [specification](https://eclipse-esmf.github.io/samm-specification/snapshot/index.html)
+* Having issues with the ESMF SDK Python Aspect Model Loader? Open a [GitHub issue](https://github.com/eclipse-esmf/esmf-sdk-py-aspect-model-loader/issues).
 
 ## Getting Started
 
 This document provides an overall overview of the SDK and the concepts applied throughout it. Detailed documentation and
-concepts for each component can be found in the respective subfolders or subrepositories.
+concepts for each component can be found in the respective subfolders or sub-repositories.
 
 ## SDK Structure
 
@@ -55,7 +53,6 @@ esmf-sdk-py-aspect-model-loader
  ├─── core                                      # e.g. meta model implementation etc.
  │     ├─── esmf-aspect-meta-model-python
  │     ├─── ...
- └─── samples                                   # sample projects to get you started quickly
 ```
 
 ## Python Core Components
@@ -73,7 +70,8 @@ generated source code artifacts. Any form of source code generator will use the 
 
 ## Version Handling
 
-The aspect meta model loader work with the SAMM versions specified in the [download_samm_release.py](core/esmf-aspect-meta-model-python/esmf_aspect_meta_model_python//samm_aspect_meta_model/download_samm_release.py). This version will be used for deployment.
+The aspect meta model loader work with the SAMM versions specified in the [download_samm_release.py](core/esmf-aspect-meta-model-python/esmf_aspect_meta_model_python//samm_aspect_meta_model/download_samm_release.py). 
+This version will be used for deployment.
 
 As SAMM evolves over time, the Aspect Meta Model Loader should also adapt and evolve accordingly.
 Due to this fact it is important to understand the versioning concept that is applied to the SAMM,

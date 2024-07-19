@@ -34,9 +34,6 @@ Required
 - [Install poetry](#install-poetry)
 - [Install project dependencies](#install-project-dependencies)
 - [Download SAMM files](#download-samm-files)
-Optional
-- [Download SAMM CLI](#download-samm-cli) (needed  to use SAMM CLI functions)
-- [Download SAMM test models](#download-test-models) (for running integration tests)
 
 ### Install poetry
 
@@ -109,13 +106,20 @@ aspect = model_elements[0]
 
 SAMMUnitsGraph is a class contains functions for accessing units of measurement.
 ```python 
-from esmf_aspect_meta_model_python.samm_meta_model import SammUnitsGraph
+from esmf_aspect_meta_model_python.samm_meta_model import units
 
-units_graph = SammUnitsGraph()
-unit_data = units_graph.get_info("unit:volt")
+unit_name = "unit:volt"
+units.print_description(units.get_info(unit_name))
+# preferredName: volt
+# commonCode: VLT
+# ...
+# symbol: V
+
+# Get unit data as dictionary
+volt_info = units.get_info("unit:volt")
 # {'preferredName': rdflib.term.Literal('volt', lang='en'), 'commonCode': rdflib.term.Literal('VLT'), ... }
 
-units_graph.print_description(unit_data)
+units.print_description(volt_info)
 # preferredName: volt
 # commonCode: VLT
 # ...

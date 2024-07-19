@@ -29,11 +29,9 @@ def get_resources_folder_path() -> str:
     return models_path
 
 
-def clear_folder():
+def clear_folder(resources_folder):
     """Remove all files to clear test models directory."""
-    resources_folder = get_resources_folder_path()
-
-    if exists(resources_folder) or len(listdir(resources_folder)) != 0:
+    if exists(resources_folder) and len(listdir(resources_folder)) != 0:
         shutil.rmtree(resources_folder)
 
     mkdir(resources_folder)
@@ -66,7 +64,7 @@ def download_test_models(version: str = Const.JAVA_CLI_VERSION):
     jar_file_path = join(resources_folder, jar_file_name)
 
     print(f"Remove previous version of test models from the folder {resources_folder}")
-    clear_folder()
+    clear_folder(resources_folder)
 
     print(f"Start downloading esmf-test-aspect-models version {version}")
     download_jar_file(jar_file_path)

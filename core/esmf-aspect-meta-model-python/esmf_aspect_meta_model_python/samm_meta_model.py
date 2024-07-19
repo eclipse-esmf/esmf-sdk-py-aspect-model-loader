@@ -81,17 +81,20 @@ class SammUnitsGraph:
 
         return unit_data
 
-    def print_description(self, unit_data: Dict, tabs: int = 0):
+    def print_info(self, unit_data: Dict, tabs: int = 0):
         """Pretty print a unit data."""
         for key, value in unit_data.items():
             if isinstance(value, dict):
                 print("\t" * tabs + f"{key}:")
-                self.print_description(value, tabs + 1)
+                self.print_info(value, tabs + 1)
             elif isinstance(value, list):
                 print("\t" * tabs + f"{key}:")
                 for node in value:
                     for key, sub_value in node.items():
                         print("\t" * (tabs + 1) + f"{key}:")
-                        self.print_description(sub_value, tabs + 2)
+                        self.print_info(sub_value, tabs + 2)
             else:
                 print("\t" * tabs + f"{key}: {value}")
+
+
+units = SammUnitsGraph()

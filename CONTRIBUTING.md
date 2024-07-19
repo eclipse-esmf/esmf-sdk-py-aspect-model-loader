@@ -1,31 +1,31 @@
 
-# Contribution Guideline ESMF SDK PY Aspect Model Loader
-Thank you for your interest in contributing to the ESMF SDK PY Aspect Model Loader. Use this repository to contribute to the SDK as easy and 
-transparent as possible, whether it is:
+# Contribution Guideline ESMF SDK Python Aspect Model Loader
+
+Thank you for your interest in contributing to the ESMF SDK Python Aspect Model Loader. Use this repository 
+to contribute to the ESMF SDK Python Aspect Model Loader as easy and transparent as possible, whether it is:
 
 * Reporting a bug
 * Submitting a fix
 * Proposing new features
 * other
 
-
-## IDTA ESMF and Roles
-The ESMF SDK PY Aspect Model Loader is developed in the context of the Eclipse Semantic Modeling Framework (ESMF).
-More information about the ESMF is available under
-[https://projects.eclipse.org/projects/dt.esmf](https://projects.eclipse.org/projects/dt.esmf). 
-The overall goal of the ESMF is to work on a Semantic Data Structuring Layer that addresses the needs 
-to share, join, and reuse heterogeneous data of the manufacturing. 
-The ESMF SDK PY Aspect Model Loader is based on the Semantic Aspect Meta Model and supports its use. 
+The ESMF SDK Python Aspect Model Loader is developed in the context of the [Eclipse Semantic Modeling
+Framework](https://projects.eclipse.org/projects/dt.esmf/). 
+It is based on the Semantic Aspect Meta Model (SAMM) and supports its use.
 
 # Contributing Source Code (using GitHub)
-* We use this GitHub repository to track issues and feature requests, as well as discuss and manage all PR's related to 
-this project.
-* Opening `Issues` and `PRs` in GitHub is the preferred way to interact with the community around the ESMF SDK PY Aspect Model Loader.
+
+* We use this GitHub repository to track issues and feature requests.
+* For general discussions of the ESMF, modeling questions etc. we use
+  the [community forum](https://www.eclipse.org/forums/index.php/f/617/).
+* For discussions specific to development, the preferred way is
+  the [developer mailing list](https://accounts.eclipse.org/mailing-list/esmf-dev).
 
 ## Architecture Decision Records
 
 Decisions on code and architecture are documented using [Markdown Any Decision
-Records](https://adr.github.io/madr/) in [documentation/decisions/](https://github.com/eclipse-esmf/esmf-sdk-py-aspect-model-loader/tree/main/documentation/decisions).
+Records](https://adr.github.io/madr/) in [documentation/decisions/](documentation/decisions).
+
 ## Branching
 
 We follow the [Git branching guidance](https://docs.microsoft.com/en-us/azure/devops/repos/git/git-branching-guidance?view=azure-devops).
@@ -37,10 +37,9 @@ More specifically the repository has the following branches:
 | `main`                                   | Contains the latest state of the repository                                                                                                                                                                                                                           |
 | `v{version_number}-RC{rc_number}`        | A state on which the working group agreed on as a release candidate but which is missing the approval by the OMP.                                                                                                                                                     |
 | `v{version_number}`                      | A release of the respective version which is approved by the working group and the OMP.                                                                                                                                                                               |
-| `feature/#{issue_number}-{feature_name}` | Contains the development on a specific feature and is intended to be merged back into the `main` branch as soon as possible. Note, that it is recommended for contributors to create and develop feature branches in a personal fork and not the upstream repository. |
-| `bug/#{issue_number}-{bug_name}`         | Contains the development of (usually smaller) changes in files of the repository that do not introduce new functionality but fix mistakes, errors or inconsistencies. These branches should be merged back into the `main`branch as soon as possible.                 |
 
 ## Issues
+
 We use the `Issues` feature of GitHub for tracking all types of work in the repository.
 
 We distinguish between the following types of issues;
@@ -55,129 +54,106 @@ We distinguish between the following types of issues;
  the overall user story for the referenced tasks.
  
 ## Pull Requests
+
 Proposals for changes to the content of the repository are managed through Pull Requests (`PRs`). 
 
 ### Opening Pull Requests
-To open such a `PR`, implement the changes in a new `feature branch`. Each `PR` must reference an issue and follows the 
-naming schema: `<issue-number>-<feature-name>`. For a new `PR` the target branch is the `main` branch while the source 
-branch is your `feature branch` The `feature branch` branch should be developed in a fork of the upstream repository. 
-So before working on your first feature, you need to create such a fork (e.g., by pressing the `Fork` button in the top 
+
+To open such a `PR`, implement the changes in a new `feature branch`. Each `PR` must reference an issue and follows the
+naming schema: `<issue-number>-<feature-name>`. For a new `PR` the target branch is the `main` branch while the source
+branch is your `feature branch` The `feature branch` branch should be developed in a fork of the upstream repository.
+So before working on your first feature, you need to create such a fork (e.g., by pressing the `Fork` button in the top
 right corner of the GitHub page)
 
 When opening a `PR` please consider the following topics:
 
 * optional: Rebase your development on the branch to which you plan to create the `PR`.
 * Each `PR` must be linked to an `Issue`:
-    - Reference the `Issue` number in the name of your `feature branch` and the description of the `PR`.
-    - Mention the `Issue` in one of the commit messages associated to the `PR` together with a GitHub keyword like 
+  - Reference the `Issue` number in the name of your `feature branch` and the description of the `PR`.
+  - Mention the `Issue` in one of the commit messages associated to the `PR` together with a GitHub keyword like
     `closes #IssueNumber` or `fixes #IssuesNumber`. For more details visit the
-     [GitHub documentation on linking PR with Issues](https://docs.github.com/en/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)
-* Each `PR` should only contain changes related to a single work item. If the changes cover more than one work item or 
-  feature, then create one `PR` per work item. You may need to create new more specific `Issues` to reference if you 
+    [GitHub documentation on linking PR with Issues](https://docs.github.com/en/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)
+* Each `PR` should only contain changes related to a single work item. If the changes cover more than one work item or
+  feature, then create one `PR` per work item. You may need to create new more specific `Issues` to reference if you
   split up the work into multiple `feature branches`.
 * Commit changes often. A `PR` may contain one or more commits.
 
-## Labeling
-After new `Issues` or `PRs` are created, the `bug` and `task` label will be added automatically according to the chosen issue type.
-Later on the Chair or one of the maintainers may further assign a `label` to it according to this table:
+## Eclipse Development Process
 
-| Label Types               | Description                                                                                                                                                                                                        |
-|---------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `to be discussed`         | Involvement and Discussion in one of the `working group` meetings are needed.                                                                                                                                      |
-| `request for information` | The `working group` or the `maintainers` are requesting further information from the creator of the `Issue` or `PR`. If for a pre-defined time no information is received, then the `Issue` or `PR` can be closed. |
-| `approved`                | Has been discussed and approved in the `working group`.                                                                                                                                                            |
-| `not accepted`            | Has been discussed in the `working group` with the decision to close this issue.                                                                                                                                   |
+This Eclipse Foundation open project is governed by the Eclipse Foundation Development Process and
+operates under the terms of the Eclipse IP Policy.
 
-### PR or Issue Discussion and Decision
-* You can provide comments to any `PR` or `Issue` via the comment function in GitHub
-* If no further involvement from the working group is required, a `maintainer` may merge a `PR`. 
-This mostly applies to bug fixes and non-API-breaking changes. 
-A `PR` for a bug fix has to reference an issue of type `Bug Report`.
-* The `maintainers` may assign the label `to be discussed` to a proposal when further involvement from 
-  the `working group` is required. This then triggers the following steps:
-  1. The `Chair` of the `working group` puts the proposal up for discussion in one of the next `working group` meetings. 
-  2. The `working group` then uses Consensus Decision-Making with one of the outcomes listed below.
-  3. The label `to be discussed` is removed.
+* https://eclipse.org/projects/dev_process
+* https://www.eclipse.org/org/documents/Eclipse_IP_Policy.pdf
 
-  | Decision | Next Steps |
-  | ------ | ------- |
-  |`Approved`| The `Issue` or the `PR` gets the label `approved`. In the case of a `PR`, the `maintainers` merge the respective `PR`. |
-  | `Discussion`| The `Issue` or the `PR` get the label `request for information`. |
-  |`Close` | The `Issue` or the `PR` are closed and get the label `not accepted`. |
+## Eclipse Contributor Agreement
 
-* If the `working group` or the `maintainers` feel that further information is required to explain a `PR` or an `Issue`, 
-  they may request this information through the comment section of the `PR` or `Issue` and assign the label 
-  `request for information`. The `maintainers` may close the issue if no answer is received after a pre-defined time. 
+In order to be able to contribute to Eclipse Foundation projects you must electronically sign the
+Eclipse Contributor Agreement (ECA).
 
-Note, that merging a `PR` leads to the closing of the `Issue` if it is linked in the `PR`. 
+* http://www.eclipse.org/legal/ECA.php
 
-### Review Checklist
-The following checklist can be seen as a basis for performing reviews on new `PRs`:
+The ECA provides the Eclipse Foundation with a permanent record that you agree that each of your
+contributions will comply with the commitments documented in the Developer Certificate of Origin
+(DCO). Having an ECA on file associated with the email address matching the "Author" field of your
+contribution's Git commits fulfills the DCO's requirement that you sign-off on your contributions.
 
-- [ ] brief and useful commit messages
-- [ ] code convention is followed
-- [ ] the contribution matches to the linked issue and the description of the PR
-- [ ] provide clear documentation of new features (if applicable) 
-- [ ] outline added third party dependencies
+For more information, please see the Eclipse Committer Handbook:
+https://www.eclipse.org/projects/handbook/#resources-commit
 
-### Commit Messages 
-Separate the subject from the body with a blank line because the subject line is shown in the Git history and should 
-summarize the commit body. 
-Use the body to explain what and why with less focus on the details of the how. 
-This [blog post](https://chris.beams.io/posts/git-commit/#seven-rules) has more tips and details.
-Before you push your commits to a repository, you should squash your commits into one or more logical units of work, e.g., 
-you should organize a new feature in a single commit.
+## Commit Messages
+
+Separate the subject from the body with a blank line because the subject line is shown in the Git
+history and should summarize the commit body. Use the body to explain what and why with less focus
+on the details of the how. This [blog post](https://chris.beams.io/posts/git-commit/#seven-rules)
+has more tips and details. Before you push your commits to a repository, you should squash your
+commits into one or more logical units of work, e.g., you should organize a new feature in a single
+commit.
 
 ## License Headers & Licensing
-All files contributed require headers - this will ensure the license and copyright clearing at the end. Also, all 
-contributions must have the same license as the source.
-The header should follow the following template:
+
+All files contributed require headers - this will ensure the license and copyright clearing at the
+end. Also, all contributions must have the same license as the source. The header should follow the
+following template:
 
 ```
-##
- # Copyright (c) {YEAR} {NAME OF COMPANY X} 
- # Copyright (c) {YEAR} {NAME OF COMPANY Y} 
- #
- # See the AUTHORS file(s) distributed with this work for additional
- # information regarding authorship.
- #
- # This Source Code Form is subject to the terms of the Mozilla Public
- # License, v. 2.0. If a copy of the MPL was not distributed with this
- # file, You can obtain one at https://mozilla.org/MPL/2.0/.
- #
- # SPDX-License-Identifier: MPL-2.0
-##
+/*
+ * Copyright (c) {YEAR} {NAME OF COMPANY X} 
+ * Copyright (c) {YEAR} {NAME OF COMPANY Y} 
+ *
+ * See the AUTHORS file(s) distributed with this work for additional
+ * information regarding authorship.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
 ```
-When using the template, one must replace "{NAME OF COMPANY X}" with the name of the involved companies and "{YEAR}" 
-with the year of the contribution. For each involved company you need a new line starting with "Copyright" as outlined 
-in the example. 
 
-The example is taken from a Python class file. If your file is of another type you may have to adapt the comment syntax 
-accordingly. 
+When using the template, one must replace "{NAME OF COMPANY X}" with the name of the involved
+companies and "{YEAR}" with the year of the contribution. For each involved company you need a new
+line starting with "Copyright" as outlined in the example.
 
-If you use third-party content (e.g., import / include ...), you are required to list each third-party content 
-explicitly with its version number in the documentation and your pull-request comment. 
-Please also check used third party material for license compatibility with the MPL-2.0.
+The example is taken from a Python source file. If your file is of another type you may have to adapt
+the comment syntax accordingly.
+
+If you use third-party content (e.g., import / include ...), you are required to list each
+third-party content explicitly with its version number in the documentation and your pull-request
+comment. Please also check used third party material for license compatibility with the MPL-2.0.
 E.g. software licensed under GPL, AGPL or, a similar strong copy-left license cannot be approved.
 
 # Code Conventions
-The ESMF SDK PY Aspect Model Loader is written in the Python Programming Language. Please have a look into our [Code Conventions](CONVENTIONS.md).
 
-# Release Process
-The working group may decide that it reached a stable state for the contents of the repository. 
-To settle an agreement on this and provide downstream users with a stable version of the ESMF SDK, 
-a release process can be triggered. 
-
-For such a release the `working group` must approve the current state of the `main` branch as agreement. 
-A `maintainer` of the repository then forks the `main` branch into a new branch that follows the naming 
-convention `v{version_number}-RC`. The organization team of the OMP is then asked to `review & approve` 
-the `v{version_number}-RC` branch. If the organization agrees on the approval the OMP steering committee needs to be 
-notified. After that notification, a `maintainer` triggers the release feature from GitHub based on the commit on 
-which the `v{version_number}-RC` branch is based.
+The ESMF SDK Python Aspect Model Loader is written in Python using a poetry as dependency management and packaging. 
+Please have a look into our [Code Conventions](CONVENTIONS.md).
 
 ## Versioning
-We use Semantic Versioning to identify released versions of the ESMF SDK PY Aspect Model Loader. Semantic Versioning is documented 
-[here](https://semver.org). It proposes to have a versioning number with the following elements:
+
+We use Semantic Versioning to identify released versions of the ESMF SDK Python Aspect Model Loader. 
+Semantic Versioning is documented [here](https://semver.org). It proposes to have a versioning number with the following
+elements:
 
 ````
 Given a version number MAJOR.MINOR.PATCH, increment the:
@@ -186,14 +162,18 @@ Given a version number MAJOR.MINOR.PATCH, increment the:
 - PATCH version when you make backwards compatible bug fixes.
 Additional labels for pre-release and build metadata are available as extensions to the MAJOR.MINOR.PATCH format.
 ````
- 
-Whereas the Major version must be incremented if the API has backward-incompatible changes (e.g., has breaking changes), 
-the Minor version must be changed if new backward-compatible features are introduced and, 
+
+Whereas the Major version must be incremented if the API has backward-incompatible changes (e.g., has breaking changes),
+the Minor version must be changed if new backward-compatible features are introduced and,
 the Patch version must be incremented if backward-compatible bugfixes are introduced.
 
 ### Breaking Changes
-For the definition of a breaking change, we follow the definition as in the 
-[Microsoft REST API Guidelines](https://github.com/Microsoft/api-guidelines/blob/vNext/Guidelines.md#123-definition-of-a-breaking-change) which are licensed under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0). This definition states:
+
+For the definition of a breaking change, we follow the definition as in the [Microsoft REST API
+Guidelines](https://github.com/Microsoft/api-guidelines/blob/vNext/Guidelines.md#123-definition-of-a-breaking-change)
+which are licensed under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0). This definition
+states:
+
 ````
 Changes to the contract of an API are considered a breaking change. Changes that impact the backwards compatibility 
 of an API are a breaking change.
@@ -214,5 +194,3 @@ v1.0.0-RC1, v1.0.0
 * [For a Repo](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork)
 * [Issue Creation](https://help.github.com/en/github/managing-your-work-on-github/creating-an-issue)
 * [PR Creation](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request)
-
-
