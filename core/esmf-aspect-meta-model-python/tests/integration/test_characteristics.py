@@ -22,6 +22,7 @@ from esmf_aspect_meta_model_python import (
     Measurement,
     Quantifiable,
     StructuredValue,
+    State
 )
 
 RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.characteristics/2.0.0")
@@ -114,6 +115,27 @@ def test_loading_aspect_with_simple_enum():
     assert "foo" in values
     assert "bar" in values
     assert "baz" in values
+
+
+def test_loading_aspect_with_simple_state():
+    print(RESOURCE_PATH)
+    file_path = RESOURCE_PATH / "AspectWithState.ttl"
+    aspect_loader = AspectLoader()
+    model_elements = aspect_loader.load_aspect_model(file_path)
+    aspect = model_elements[0]
+
+    first_property = aspect.properties[0]
+    state_characteristic = first_property.characteristic
+    assert isinstance(state_characteristic, State)
+    assert state_characteristic.name == "testPropertyOne_characteristic"
+
+    values = state_characteristic.values
+    assert len(values) == 3
+    assert "default" in values
+    assert "good" in values
+    assert "bad" in values
+    default = state_characteristic.default_value
+    assert default == "default"
 
 
 def test_loading_aspect_with_quantifiable():
