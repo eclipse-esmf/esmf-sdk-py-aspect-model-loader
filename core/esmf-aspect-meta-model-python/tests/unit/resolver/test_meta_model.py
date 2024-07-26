@@ -24,18 +24,6 @@ class TestAspectMetaModelResolver:
         assert result._base_path == "parent_3"
         path_mock.assert_called_once()
 
-    @mock.patch("esmf_aspect_meta_model_python.resolver.meta_model.glob")
-    @mock.patch("esmf_aspect_meta_model_python.resolver.meta_model.join")
-    def test_get_samm_files(self, join_mock, glob_mock):
-        join_mock.return_value = "path_template"
-        glob_mock.return_value = ["samm_file_1", "samm_file_2"]
-        aspect_resolver = AspectMetaModelResolver("base_path")
-        aspect_resolver.samm_folder_path = "samm_folder_path"
-        result = aspect_resolver.get_samm_files("meta_model_version")
-
-        assert sorted(result) == ["samm_file_1", "samm_file_2"]
-        join_mock.assert_called_once_with("base_path", "samm_folder_path", "**", "meta_model_version", "*.ttl")
-
     @mock.patch("esmf_aspect_meta_model_python.resolver.meta_model.exists")
     def test_validate_file(self, exists_mock):
         exists_mock.return_value = False
@@ -49,14 +37,14 @@ class TestAspectMetaModelResolver:
         exists_mock.assert_called_once_with("file_path")
 
     @mock.patch("esmf_aspect_meta_model_python.resolver.meta_model.AspectMetaModelResolver.validate_file")
-    @mock.patch("esmf_aspect_meta_model_python.resolver.meta_model.AspectMetaModelResolver.get_samm_files")
-    def test_parse(self, get_samm_files_mock, validate_file_mock):
-        get_samm_files_mock.return_value = ["samm_file_path"]
+    @mock.patch("esmf_aspect_meta_model_python.resolver.meta_model.AspectMetaModelResolver._get_samm_files_path")
+    def test_parse(self, get_samm_files_path_mock, validate_file_mock):
+        get_samm_files_path_mock.return_value = ["samm_file_path"]
         aspect_graph_mock = mock.MagicMock(name="graph")
         aspect_resolver = AspectMetaModelResolver("base_path")
         result = aspect_resolver.parse(aspect_graph_mock, "meta_model_version")
 
         assert result is None
-        get_samm_files_mock.assert_called_once_with("meta_model_version")
+        get_samm_files_path_mock.assert_called_once_with("meta_model_version")
         validate_file_mock.assert_called_once_with("samm_file_path")
         aspect_graph_mock.parse.assert_called_once_with("samm_file_path", format="turtle")

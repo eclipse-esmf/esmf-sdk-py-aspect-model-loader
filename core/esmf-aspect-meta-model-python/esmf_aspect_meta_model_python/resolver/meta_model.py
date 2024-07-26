@@ -17,8 +17,6 @@ from typing import List
 
 from rdflib import Graph
 
-from scripts.samm.download_samm_release import main as download_samm_release
-
 
 class BaseMetaModelResolver(ABC):
     """Interface for meta-model resolver class."""
@@ -51,19 +49,6 @@ class AspectMetaModelResolver(BaseMetaModelResolver):
 
         return samm_files
 
-    def get_samm_files(self, meta_model_version: str) -> List[str]:
-        """Check and collect paths to SAMM files.
-
-        :param meta_model_version: meta-model version
-        :return: List of all path to SAMM files for the given meta-model version
-        """
-        samm_files = self._get_samm_files_path(meta_model_version)
-        if not samm_files:
-            download_samm_release()
-            samm_files = self._get_samm_files_path(meta_model_version)
-
-        return samm_files
-
     @staticmethod
     def validate_file(file_path: str):
         """Validate a SAMM file.
@@ -89,6 +74,6 @@ class AspectMetaModelResolver(BaseMetaModelResolver):
         :param aspect_graph: RDF Graph
         :param meta_model_version: version of the meta-model to extract the right SAMM turtle files
         """
-        for file_path in self.get_samm_files(meta_model_version):
+        for file_path in self._get_samm_files_path(meta_model_version):
             self.validate_file(file_path)
             aspect_graph.parse(file_path, format="turtle")
