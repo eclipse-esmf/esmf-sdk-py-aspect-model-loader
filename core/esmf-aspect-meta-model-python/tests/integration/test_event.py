@@ -12,15 +12,19 @@
 from os import getcwd
 from pathlib import Path
 
-from esmf_aspect_meta_model_python import AspectLoader, Event
+from esmf_aspect_meta_model_python import Event
+from esmf_aspect_meta_model_python.loader.aspect_loader import AspectLoader
+from esmf_aspect_meta_model_python.resolver.handler import InputHandler
 
-RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.event/2.0.0")
+RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.event/2.1.0")
 
 
 def test_loading_aspect_with_event() -> None:
     file_path = RESOURCE_PATH / "aspect_with_event.ttl"
-    aspect_loader = AspectLoader()
-    model_elements = aspect_loader.load_aspect_model(file_path)
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
+    loader = AspectLoader()
+    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
     aspect = model_elements[0]
 
     assert aspect.events is not None
@@ -32,8 +36,10 @@ def test_loading_aspect_with_event() -> None:
 
 def test_loading_aspect_with_event_with_parameters() -> None:
     file_path = RESOURCE_PATH / "aspect_with_event_with_parameters.ttl"
-    aspect_loader = AspectLoader()
-    model_elements = aspect_loader.load_aspect_model(file_path)
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
+    loader = AspectLoader()
+    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
     aspect = model_elements[0]
 
     assert aspect.events is not None
@@ -48,8 +54,10 @@ def test_loading_aspect_with_event_with_parameters() -> None:
 
 def test_loading_aspect_with_multiple_event() -> None:
     file_path = RESOURCE_PATH / "aspect_with_multiple_event.ttl"
-    aspect_loader = AspectLoader()
-    model_elements = aspect_loader.load_aspect_model(file_path)
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
+    loader = AspectLoader()
+    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
     aspect = model_elements[0]
 
     assert aspect.events is not None

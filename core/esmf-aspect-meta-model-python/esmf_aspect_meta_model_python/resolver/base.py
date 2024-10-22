@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 Robert Bosch Manufacturing Solutions GmbH
+#  Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
 #
 #  See the AUTHORS file(s) distributed with this work for additional
 #  information regarding authorship.
@@ -13,73 +13,109 @@ from abc import ABC, abstractmethod
 
 from rdflib import Graph
 
-from esmf_aspect_meta_model_python.resolver.meta_model import AspectMetaModelResolver, BaseMetaModelResolver
-from esmf_aspect_meta_model_python.resolver.namespace import AspectNamespaceResolver, BaseNamespaceResolver
+from esmf_aspect_meta_model_python.samm_meta_model import SammUnitsGraph
 
 
-class BaseResolver(ABC):
-    """Base Aspect resolver."""
+class ResolverInterface(ABC):
+    """
+    Abstract class defining the interface for resolver classes.
 
-    @abstractmethod
-    def resolve(self, aspect_graph: Graph, aspect_file_path: str, meta_model_version: str):
-        """Resolve Aspect meta-model and namespace prefixes.
+    This class provides the template method `read` which all subclasses must implement to specify
+    how they read data and return it.
 
-        :param aspect_graph: Aspect model graph
-        :param meta_model_version: Meta model version
-        :param aspect_file_path:path to the aspect model file
-        """
-
-    @abstractmethod
-    def resolve_meta_model(self, aspect_graph: Graph, meta_model_version: str):
-        """Resolve SAMM meta-model with tha specific version
-
-        :param aspect_graph: Aspect graph
-        :param meta_model_version: Meta model version
-        """
-
-    @abstractmethod
-    def resolve_namespaces(self, aspect_graph: Graph, aspect_file_path: str):
-        """Resolve namespace dependencies of the aspect graph.
-
-        :param aspect_graph: Aspect graph
-        :param aspect_file_path: path to the aspect model file
-        """
-
-
-class AspectModelResolver(BaseResolver):
-    """Aspect model resolver class.
-
-    Provide a functions for resolving SAMM meta-model and Aspect model namespaces.
+    Methods:
+        read(): Method to be overridden by subclasses to provide specific reading logic.
+        get_aspect_urn(): Method to be overridden by subclasses to provide specific to provide specific logic to find
+            the appropriate aspect urn.
+        get_samm_version(): Method to find a SAMM version.
     """
 
-    def __init__(
-        self,
-        meta_model_resolver: BaseMetaModelResolver | None = None,
-        namespace_resolver: BaseNamespaceResolver | None = None,
-    ):
-        self._meta_model_resolver = meta_model_resolver if meta_model_resolver else AspectMetaModelResolver()
-        self._namespace_resolver = namespace_resolver if namespace_resolver else AspectNamespaceResolver()
+    def __init__(self):
+        self.graph = Graph()
+        self.aspect_urn = ""
+        self.samm_version = ""
 
-    def resolve(self, aspect_graph: Graph, aspect_file_path: str, meta_model_version: str):
-        """Resolve Aspect meta-model and namespace prefixes.
-
-        :param aspect_graph: Aspect model graph
-        :param meta_model_version: Meta model version
-        :param aspect_file_path:path to the aspect model file
+    @abstractmethod
+    def read(self, input_data: str) -> Graph:
         """
-        self.resolve_meta_model(aspect_graph, meta_model_version)
-        self.resolve_namespaces(aspect_graph, aspect_file_path)
+        Abstract method to read data.
 
-    def resolve_meta_model(self, aspect_graph: Graph, meta_model_version: str):
-        """Resolve SAMM meta-model with tha specific version
+        Subclasses must implement this method to handle the specific details of reading data
+        from their respective sources and return the data in the required format.
 
-        :param aspect_graph: Aspect graph
-        :param meta_model_version: Meta model version"""
-        self._meta_model_resolver.parse(aspect_graph, meta_model_version)
+        Args:
+            input_data (str): The input data to be read.
 
-    def resolve_namespaces(self, aspect_graph: Graph, aspect_file_path: str):
-        """Resolve namespace dependencies of the aspect graph.
+        Returns:
+            Data read from the source, the type of the data can be decided based on the specific subclass.
+        """
 
-        :param aspect_graph: Aspect graph
-        :param aspect_file_path: path to the aspect model file"""
-        self._namespace_resolver.parse(aspect_graph, aspect_file_path)
+    @abstractmethod
+    def get_aspect_urn(self) -> str:
+        """
+        Abstract method to get an aspect urn.
+
+        Subclasses must implement this method to handle the specific details of getting a URN of aspect.
+
+        Returns:
+            String with URN of the aspect.
+        """
+
+    @staticmethod
+    def _validate_samm_version(samm_version: str):
+        """
+        Validates the provided SAMM version string against a supported version.
+
+        This method checks if the `samm_version` provided and matches of the SAMM version supported by the system.
+
+        Args:
+            samm_version (str): The version string of SAMM to be validated. Expected to be in the format like '1.2.3'.
+
+        Raises:
+            ValueError: If `samm_version` is empty or not supplied.
+        """
+        if not samm_version:
+            raise ValueError("SAMM version not found in the Graph.")
+        elif samm_version != SammUnitsGraph.SAMM_VERSION:
+            raise ValueError(f"{samm_version} is not supported SAMM version.")
+
+    def _get_samm_version_from_graph(self):
+        """
+        Extracts the SAMM version from the RDF graph.
+
+        This method searches through the RDF graph namespaces to find a prefix that indicate the SAMM version.
+
+        Returns:
+            str: The SAMM version as a string extracted from the graph. Returns an empty string if no version
+                 can be conclusively identified.
+        """
+        version = ""
+
+        for prefix, namespace in self.graph.namespace_manager.namespaces():
+            if prefix == "samm":
+                urn_parts = namespace.split(":")
+                version = urn_parts[-1].replace("#", "")
+
+        return version
+
+    def get_samm_version(self) -> str:
+        """
+        Retrieves and validates the specified SAMM version from the provided Aspect model graph.
+
+        This method attempts to extract the version information of the SAMM from a graph. There is also a validation
+        against known SAMM versions to ensure the version is supported and recognized.
+
+
+        Returns:
+            str: The validated version of SAMM if it is recognized and supported. If the version is not valid,
+                 an appropriate message or value indicating non-recognition is returned.
+
+        Raises:
+            ValueError: If the extracted version is not supported or if it is not found in the Graph.
+
+        """
+        version = self._get_samm_version_from_graph()
+        self._validate_samm_version(version)
+        self.samm_version = version
+
+        return version

@@ -87,3 +87,4 @@ from .impl import (
 )
 from .loader.aspect_loader import AspectLoader
 from .loader.samm_graph import SAMMGraph
+from .resolver.handler import InputHandler
