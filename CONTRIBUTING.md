@@ -16,8 +16,6 @@ It is based on the Semantic Aspect Meta Model (SAMM) and supports its use.
 # Contributing Source Code (using GitHub)
 
 * We use this GitHub repository to track issues and feature requests.
-* For general discussions of the ESMF, modeling questions etc. we use
-  the [community forum](https://www.eclipse.org/forums/index.php/f/617/).
 * For discussions specific to development, the preferred way is
   the [developer mailing list](https://accounts.eclipse.org/mailing-list/esmf-dev).
 
