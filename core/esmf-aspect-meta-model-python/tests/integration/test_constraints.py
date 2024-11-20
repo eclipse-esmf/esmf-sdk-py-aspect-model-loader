@@ -26,14 +26,17 @@ from esmf_aspect_meta_model_python import (
     RegularExpressionConstraint,
     Trait,
 )
+from esmf_aspect_meta_model_python.resolver.handler import InputHandler
 
-RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.constraints/2.0.0")
+RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.constraints/2.1.0")
 
 
 def test_loading_aspect_with_constrained_collection():
     file_path = RESOURCE_PATH / "AspectWithConstrainedCollection.ttl"
-    aspect_loader = AspectLoader()
-    model_elements = aspect_loader.load_aspect_model(file_path)
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
+    loader = AspectLoader()
+    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
     aspect = model_elements[0]
 
     first_property = aspect.properties[0]
@@ -56,8 +59,10 @@ def test_loading_aspect_with_constrained_collection():
 
 def test_loading_aspect_with_range_constraint():
     file_path = RESOURCE_PATH / "AspectWithRangeConstraint.ttl"
-    aspect_loader = AspectLoader()
-    model_elements = aspect_loader.load_aspect_model(file_path)
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
+    loader = AspectLoader()
+    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
     aspect = model_elements[0]
 
     first_property = aspect.properties[0]
@@ -81,8 +86,10 @@ def test_loading_aspect_with_range_constraint():
 
 def test_loading_aspect_with_multiple_constraints():
     file_path = RESOURCE_PATH / "AspectWithMultipleConstraints.ttl"
-    aspect_loader = AspectLoader()
-    model_elements = aspect_loader.load_aspect_model(file_path)
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
+    loader = AspectLoader()
+    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
     aspect = model_elements[0]
 
     first_property = aspect.properties[0]
@@ -109,8 +116,10 @@ def test_loading_aspect_with_multiple_constraints():
 
 def test_loading_aspect_with_multiple_one_value_constraints():
     file_path = RESOURCE_PATH / "AspectWithMultipleOneValueConstraints.ttl"
-    aspect_loader = AspectLoader()
-    model_elements = aspect_loader.load_aspect_model(file_path)
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
+    loader = AspectLoader()
+    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
     aspect = model_elements[0]
 
     first_property = aspect.properties[0]
@@ -144,8 +153,10 @@ def test_loading_aspect_with_multiple_one_value_constraints():
 
 def test_loading_aspect_with_range_constraint_incl_bound_definition():
     file_path = RESOURCE_PATH / "AspectWithRangeConstraintInclBoundDefinitionProperties.ttl"
-    aspect_loader = AspectLoader()
-    model_elements = aspect_loader.load_aspect_model(file_path)
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
+    loader = AspectLoader()
+    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
     aspect = model_elements[0]
 
     first_property = aspect.properties[0]
@@ -170,8 +181,10 @@ def test_loading_aspect_with_range_constraint_incl_bound_definition():
 
 def test_loading_aspect_with_language_constraint():
     file_path = RESOURCE_PATH / "AspectWithLanguageConstraint.ttl"
-    aspect_loader = AspectLoader()
-    model_elements = aspect_loader.load_aspect_model(file_path)
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
+    loader = AspectLoader()
+    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
     aspect = model_elements[0]
 
     first_property = aspect.properties[0]
@@ -187,8 +200,10 @@ def test_loading_aspect_with_language_constraint():
 
 def test_loading_aspect_with_locale_constraint():
     file_path = RESOURCE_PATH / "AspectWithLocaleConstraint.ttl"
-    aspect_loader = AspectLoader()
-    model_elements = aspect_loader.load_aspect_model(file_path)
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
+    loader = AspectLoader()
+    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
     aspect = model_elements[0]
 
     first_property = aspect.properties[0]
@@ -204,8 +219,10 @@ def test_loading_aspect_with_locale_constraint():
 
 def test_loading_aspect_with_fixed_point_constraint():
     file_path = RESOURCE_PATH / "AspectWithFixedPoint.ttl"
-    aspect_loader = AspectLoader()
-    model_elements = aspect_loader.load_aspect_model(file_path)
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
+    loader = AspectLoader()
+    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
     aspect = model_elements[0]
 
     first_property = aspect.properties[0]
@@ -224,8 +241,10 @@ def test_loading_aspect_with_fixed_point_constraint():
 
 def test_loading_aspect_with_encoding_constraint():
     file_path = RESOURCE_PATH / "AspectWithEncodingConstraint.ttl"
-    aspect_loader = AspectLoader()
-    model_elements = aspect_loader.load_aspect_model(file_path)
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
+    loader = AspectLoader()
+    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
     aspect = model_elements[0]
 
     first_property = aspect.properties[0]
@@ -240,8 +259,10 @@ def test_loading_aspect_with_encoding_constraint():
 
 def test_loading_aspect_with_regular_expression_constraint():
     file_path = RESOURCE_PATH / "AspectWithRegularExpressionConstraint.ttl"
-    aspect_loader = AspectLoader()
-    model_elements = aspect_loader.load_aspect_model(file_path)
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
+    loader = AspectLoader()
+    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
     aspect = model_elements[0]
 
     first_property = aspect.properties[0]
@@ -255,8 +276,10 @@ def test_loading_aspect_with_regular_expression_constraint():
 
 def test_loading_aspect_with_length_constraint():
     file_path = RESOURCE_PATH / "AspectWithLengthConstraint.ttl"
-    aspect_loader = AspectLoader()
-    model_elements = aspect_loader.load_aspect_model(file_path)
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
+    loader = AspectLoader()
+    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
     aspect = model_elements[0]
 
     first_property = aspect.properties[0]

@@ -9,7 +9,6 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from abc import ABC, abstractmethod
 from glob import glob
 from os.path import exists, join
 from pathlib import Path
@@ -18,19 +17,7 @@ from typing import List
 from rdflib import Graph
 
 
-class BaseMetaModelResolver(ABC):
-    """Interface for meta-model resolver class."""
-
-    @abstractmethod
-    def parse(self, aspect_graph: Graph, meta_model_version: str):
-        """Parse SAMM meta-model files.
-
-        :param aspect_graph: RDF Graph
-        :param meta_model_version: version of the meta-model to extract the right SAMM turtle files
-        """
-
-
-class AspectMetaModelResolver(BaseMetaModelResolver):
+class AspectMetaModelResolver:
     """SAMM meta-model resolver class."""
 
     samm_folder_path = join("esmf_aspect_meta_model_python", "samm_aspect_meta_model", "samm")
@@ -61,7 +48,7 @@ class AspectMetaModelResolver(BaseMetaModelResolver):
                 "Try to install SAMM Meta Model using 'download-samm-release' or 'download-samm-branch' command",
             )
 
-    def parse(self, aspect_graph: Graph, meta_model_version: str):
+    def parse(self, rdf_graph: Graph, meta_model_version: str):
         """Resolve SAMM meta-model data.
 
         Merges the information of the global SAMM from turtle files into the aspect graph.
@@ -71,9 +58,9 @@ class AspectMetaModelResolver(BaseMetaModelResolver):
             - entity
             - unit
 
-        :param aspect_graph: RDF Graph
+        :param rdf_graph: RDF graph
         :param meta_model_version: version of the meta-model to extract the right SAMM turtle files
         """
         for file_path in self._get_samm_files_path(meta_model_version):
             self.validate_file(file_path)
-            aspect_graph.parse(file_path, format="turtle")
+            rdf_graph.parse(file_path, format="turtle")

@@ -13,20 +13,25 @@ from pathlib import Path
 
 import pytest
 
-from esmf_aspect_meta_model_python.loader.aspect_loader import AspectLoader
+from esmf_aspect_meta_model_python import AspectLoader
+from esmf_aspect_meta_model_python.resolver.handler import InputHandler
 
 RESOURCE_PATH = Path("tests_invalid/resources")
 
 
 def test_trait_missing_base_characteristic():
+    file_path = RESOURCE_PATH / "trait_missing_base_characteristic.ttl"
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
     with pytest.raises(ValueError):
-        file_path = RESOURCE_PATH / "trait_missing_base_characteristic.ttl"
         loader = AspectLoader()
-        loader.load_aspect_model(file_path)
+        _ = loader.load_aspect_model(rdf_graph, aspect_urn)
 
 
 def test_trait_missing_constraint():
+    file_path = RESOURCE_PATH / "trait_missing_constraint.ttl"
+    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
+    rdf_graph, aspect_urn = handler.get_rdf_graph()
     with pytest.raises(ValueError):
-        file_path = RESOURCE_PATH / "trait_missing_constraint.ttl"
         loader = AspectLoader()
-        loader.load_aspect_model(file_path)
+        _ = loader.load_aspect_model(rdf_graph, aspect_urn)

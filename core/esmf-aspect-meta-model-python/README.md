@@ -9,6 +9,7 @@ https://projects.eclipse.org/projects/dt.esmf).
     * [Download SAMM files](#download-samm-files)
       * [Download SAMM release](#download-samm-release)
       * [Download SAMM branch](#download-samm-branch)
+  * [Input data handler usage](#input-data-handler-usage)
   * [Aspect Meta Model Loader usage](#aspect-meta-model-loader-usage)
   * [Samm Units](#samm-units)
   * [SAMM CLI wrapper class](#samm-cli-wrapper-class)
@@ -84,14 +85,47 @@ poetry run download-samm-branch
 ```
 Link to all branches: [SAMM Releases](https://github.com/eclipse-esmf/esmf-semantic-aspect-meta-model/branches)
 
+## Input data handler usage
+
+The InputHandler is a general-purpose class designed for loading input data into an RDF graph. 
+It easily accommodates different input sources such as local files (.ttl) or direct data strings containing 
+RDF formatted data.
+
+```python
+from esmf_aspect_meta_model_python.resolver.handler import InputHandler
+
+# Instantiating the Handler
+# The InputHandler requires a path or data string upon instantiation, which defines the source of RDF data
+# local file
+model_path = "path/to/local/file/AspectName.ttl"
+handler = InputHandler(model_path)
+graph, aspect_urn = handler.get_rdf_graph()
+
+# returns a tuple containing the RDF graph and the aspect URN derived from the provided data source
+```
+
+```python
+from esmf_aspect_meta_model_python.resolver.handler import InputHandler
+
+# Alternatively, if you have RDF data in a string format, you can directly pass it as follows:
+rdf_data_string = "your RDF data string here"
+handler = InputHandler(rdf_data_string)
+graph, aspect_urn = handler.get_rdf_graph()
+```
+
 ## Aspect Meta Model Loader usage
 
 An Aspect of the Meta Model can be loaded as follows:
 ```python
 from esmf_aspect_meta_model_python import AspectLoader
+from esmf_aspect_meta_model_python.resolver.handler import InputHandler
+
+model_path = "absolute/path/to/turtle.ttl"
+handler = InputHandler(model_path)
+graph, aspect_urn = handler.get_rdf_graph()
 
 loader = AspectLoader()
-model_elements = loader.load_aspect_model("absolute/path/to/turtle.ttl")
+model_elements = loader.load_aspect_model(graph, aspect_urn)
 aspect = model_elements[0]
 
 # or you can provide an Aspect URN

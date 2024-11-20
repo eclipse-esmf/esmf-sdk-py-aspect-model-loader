@@ -9,10 +9,11 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from pathlib import Path
-from typing import Union
+from typing import List
 
-from esmf_aspect_meta_model_python.loader.default_element_cache import DefaultElementCache
+from rdflib import Graph, URIRef
+
+from esmf_aspect_meta_model_python.base.aspect import Aspect
 from esmf_aspect_meta_model_python.loader.samm_graph import SAMMGraph
 
 
@@ -24,55 +25,37 @@ class AspectLoader:
     The default cache strategy ignores inline defined elements.
     """
 
-    def __init__(self) -> None:
-        self._cache = DefaultElementCache()
-        self._graph = SAMMGraph()
+    def __init__(self):
+        self.graph = None
 
-    def get_graph(self) -> SAMMGraph:
-        """Get SAMM graph.
-
-        :return: parsed SAMM Aspect model Graph.
+    def load_aspect_model(self, rdf_graph: Graph, aspect_urn: URIRef | str = "") -> List[Aspect]:
         """
-        return self._graph
+        Creates a python object(s) to represent the Aspect model graph.
 
-    def get_samm_version(self) -> str:
-        """Get SAMM version of the graph."""
-        return self._graph.get_samm_version()
+        This function takes an RDF graph and a URN for an Aspect node and converts it into
+        a set of structured and connected Python objects that represents the Aspect model graph. The output is a
+        list of Python objects derived from the RDF graph centered around the specified Aspect node.
 
-    @staticmethod
-    def convert_file_path(file_path: Union[str, Path]) -> str:
-        """Convert file_path to the string.
+        Args:
+            rdf_graph (RDFGraph): The RDF graph from which to create the model.
+            aspect_urn (str): The URN identifier for the main Aspect node in the RDF graph.
 
-        :param file_path: path to model file
+        Returns:
+            list: A list of Python objects that represent the Aspect elements of the Aspect model graph.
+
+        Examples:
+            # Assuming 'graph' is a predefined RDFGraph object and 'aspect_urn' is defined:
+            aspect_model = create_aspect_model_graph(graph, "urn:example:aspectNode")
+            print(aspect_model)  # This prints the list of Python objects.
+
+        Notes:
+            It's crucial that the aspect_urn corresponds to a valid Aspect node within the RDF graph;
+            otherwise, the function may not perform as expected.
         """
-        if isinstance(file_path, Path):
-            file_path = str(file_path)
+        self.graph = SAMMGraph(graph=rdf_graph)
+        loaded_aspect_model = self.graph.to_python(aspect_urn)
 
-        tmp_path = Path(file_path)
-        if not tmp_path.exists():
-            raise FileNotFoundError(f"Could not found the file {tmp_path}")
-
-        return file_path
-
-    def _reset_graph(self):
-        """Reset graph and cache data."""
-        if self._graph:
-            self._graph = SAMMGraph()
-
-        if self._cache:
-            self._cache = DefaultElementCache()
-
-    def load_aspect_model(self, file_path: Union[Path, str]):
-        """Load aspect model to RDF GRAPH.
-
-        Create an aspect object with all the including properties and operations with the turtle file
-
-        :param file_path: path to the turtle file. Can be either a string or a Path object
-        :return: instance of the aspect
-        """
-        file_path = self.convert_file_path(file_path)
-        self._reset_graph()
-        _ = self._graph.parse(file_path)
-        loaded_aspect_model = self._graph.to_python()
+        # Add check that loaded_aspect_model is not empty
+        # Add check that aspect_urn is ref to an Aspect node
 
         return loaded_aspect_model

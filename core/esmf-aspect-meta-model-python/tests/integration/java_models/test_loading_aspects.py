@@ -8,6 +8,7 @@ from os.path import exists, join
 from pathlib import Path
 
 from esmf_aspect_meta_model_python.loader.aspect_loader import AspectLoader
+from esmf_aspect_meta_model_python.resolver.handler import InputHandler
 from scripts.constants import TestModelConstants
 from scripts.download_test_models import download_test_models
 
@@ -65,8 +66,10 @@ def load_test_models():
         }
 
         try:
+            handler = InputHandler(str(test_file))
+            rdf_graph, aspect_urn = handler.get_rdf_graph()
             loader = AspectLoader()
-            model_elements = loader.load_aspect_model(test_file)
+            model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
             if not model_elements:
                 raise Exception("No elements loaded")
         except Exception as error:
