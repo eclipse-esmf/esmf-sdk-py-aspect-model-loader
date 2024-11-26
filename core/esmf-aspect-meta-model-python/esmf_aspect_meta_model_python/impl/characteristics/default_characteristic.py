@@ -19,6 +19,8 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 class DefaultCharacteristic(BaseImpl, Characteristic):
     """Default Characteristic class."""
 
+    SCALAR_ATTR_NAMES = BaseImpl.SCALAR_ATTR_NAMES + ["data_type"]
+
     def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, data_type: DataType):
         super().__init__(meta_model_base_attributes)
         self._data_type = data_type
