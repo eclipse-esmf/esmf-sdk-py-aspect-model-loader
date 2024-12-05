@@ -25,6 +25,8 @@ class DefaultComplexType(BaseImpl, ComplexType):
     """
 
     _instances: Dict[str, ComplexType] = {}
+    SCALAR_ATTR_NAMES = BaseImpl.SCALAR_ATTR_NAMES + ["extends"]
+    LIST_ATTR_NAMES = BaseImpl.LIST_ATTR_NAMES + ["properties"]
 
     def __init__(
         self,

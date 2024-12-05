@@ -20,6 +20,13 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 class DefaultRangeConstraint(DefaultConstraint, RangeConstraint):
     """Default Range Constraint class."""
 
+    SCALAR_ATTR_NAMES = DefaultConstraint.SCALAR_ATTR_NAMES + [
+        "min_value",
+        "max_value",
+        "lower_bound_definition",
+        "upper_bound_definition",
+    ]
+
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,

@@ -20,6 +20,9 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 class DefaultOperation(BaseImpl, Operation):
     """Default Operation class."""
 
+    SCALAR_ATTR_NAMES = BaseImpl.SCALAR_ATTR_NAMES + ["output_property"]
+    LIST_ATTR_NAMES = BaseImpl.LIST_ATTR_NAMES + ["input_properties"]
+
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,

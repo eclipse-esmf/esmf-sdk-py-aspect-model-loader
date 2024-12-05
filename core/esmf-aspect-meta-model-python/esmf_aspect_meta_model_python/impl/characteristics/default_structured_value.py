@@ -20,6 +20,9 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 class DefaultStructuredValue(DefaultCharacteristic, StructuredValue):
     """Default Structured Value class"""
 
+    SCALAR_ATTR_NAMES = DefaultCharacteristic.SCALAR_ATTR_NAMES + ["deconstruction_rule"]
+    LIST_ATTR_NAMES = DefaultCharacteristic.LIST_ATTR_NAMES + ["elements"]
+
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,

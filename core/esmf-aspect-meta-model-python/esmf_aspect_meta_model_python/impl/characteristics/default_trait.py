@@ -21,6 +21,9 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 class DefaultTrait(DefaultCharacteristic, Trait):
     """Default Trait class."""
 
+    SCALAR_ATTR_NAMES = DefaultCharacteristic.SCALAR_ATTR_NAMES + ["base_characteristic"]
+    LIST_ATTR_NAMES = DefaultCharacteristic.LIST_ATTR_NAMES + ["constraints"]
+
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,

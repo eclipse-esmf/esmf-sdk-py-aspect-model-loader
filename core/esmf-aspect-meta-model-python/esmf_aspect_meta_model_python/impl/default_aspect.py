@@ -22,6 +22,8 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 class DefaultAspect(Aspect, BaseImpl):
     """Default Aspect class."""
 
+    LIST_ATTR_NAMES = BaseImpl.LIST_ATTR_NAMES + ["properties", "operations", "events"]
+
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,

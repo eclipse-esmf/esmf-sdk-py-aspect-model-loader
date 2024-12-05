@@ -30,3 +30,6 @@ class DataType(HasUrn, ABC):
     def is_complex(self) -> bool:
         """Is complex flag."""
         return not self.is_scalar
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.urn})"

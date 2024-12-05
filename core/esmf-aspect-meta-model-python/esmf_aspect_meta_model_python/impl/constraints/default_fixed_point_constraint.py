@@ -17,6 +17,8 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 class DefaultFixedPointConstraint(DefaultConstraint, FixedPointConstraint):
     """Default Fixed Point Constraint class."""
 
+    SCALAR_ATTR_NAMES = DefaultConstraint.SCALAR_ATTR_NAMES + ["scale", "integer"]
+
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,

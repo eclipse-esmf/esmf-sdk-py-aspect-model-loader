@@ -178,6 +178,11 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
                 subject=element_characteristic_node,
                 predicate=self._samm.get_urn(SAMM.data_type),
             )
+            if not data_type_node:
+                data_type_node = self._aspect_graph.value(
+                    subject=element_characteristic_node,
+                    predicate=rdflib.RDF.type,
+                )
         else:
             data_type_node = self._aspect_graph.value(
                 subject=element_node,

@@ -27,3 +27,9 @@ class TestScalar:
         result = scalar.meta_model_version
 
         assert result == self.meta_model_mock
+
+    def test_str(self):
+        scalar = DefaultScalar("urn", "meta_model_version")
+        result = str(scalar)
+
+        assert result == "Scalar:\n\tmeta_model_version: meta_model_version\n\turn: urn"
