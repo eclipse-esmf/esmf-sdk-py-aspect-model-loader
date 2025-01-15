@@ -21,6 +21,8 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 class DefaultAbstractEntity(DefaultComplexType, AbstractEntity):
     """Default Abstract Entity class."""
 
+    LIST_ATTR_NAMES = DefaultComplexType.LIST_ATTR_NAMES + ["extending_elements"]
+
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,

@@ -28,3 +28,10 @@ class DefaultScalar(Scalar):
     def meta_model_version(self) -> str:
         """Meta model version."""
         return self._meta_model_version
+
+    def __str__(self):
+        message = self.__class__.__name__
+        message = message.replace("Default", "")
+        message += f":\n\tmeta_model_version: {self.meta_model_version}\n\turn: {self.urn}"
+
+        return message

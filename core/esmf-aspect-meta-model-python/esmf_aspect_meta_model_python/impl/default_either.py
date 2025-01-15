@@ -18,6 +18,8 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 class DefaultEither(BaseImpl, Either):
     """Default Either class."""
 
+    SCALAR_ATTR_NAMES = BaseImpl.SCALAR_ATTR_NAMES + ["left", "right"]
+
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,

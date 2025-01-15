@@ -34,3 +34,7 @@ class Base(IsDescribed, ABC):
     @abstractmethod
     def append_parent_element(self, element: "Base") -> None:
         """Add parent element."""
+
+    def __repr__(self):
+        """Object representation."""
+        return f"{self.__class__.__name__}({self.name})"

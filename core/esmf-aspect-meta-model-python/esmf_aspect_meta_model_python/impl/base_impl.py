@@ -14,11 +14,15 @@ import abc
 from typing import Dict, List, Optional
 
 from esmf_aspect_meta_model_python.base.base import Base
+from esmf_aspect_meta_model_python.base.is_described import IsDescribed
 from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import MetaModelBaseAttributes
 
 
 class BaseImpl(Base, metaclass=abc.ABCMeta):
     """Base Implemented class."""
+
+    SCALAR_ATTR_NAMES = ["meta_model_version", "urn", "preferred_names", "descriptions"]
+    LIST_ATTR_NAMES = ["see"]
 
     def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes):
         self._meta_model_version = meta_model_base_attributes.meta_model_version
@@ -75,3 +79,67 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
     def name(self) -> str:
         """Name."""
         return self._name
+
+    def _get_base_message(self):
+        """Get base string message."""
+        message = self.__class__.__name__
+        message = message.replace("Default", "")
+        message = f"({message}){self.name}"
+
+        return message
+
+    @staticmethod
+    def _prepare_attr_message(name, value):
+        """Prepare a message with scalar attribute value."""
+        message = f"{name}: "
+        if isinstance(value, dict):
+            for k, v in value.items():
+                message += f"\n\t\t{k.upper()}: {v}"
+        else:
+            if isinstance(value, BaseImpl):
+                message += repr(value)
+            else:
+                value_str = str(value)
+                message += value_str.replace("\t", "\t\t")
+
+        return message
+
+    def _get_scalar_attr_info(self):
+        """Get info about all scalar attributes."""
+        message = ""
+        for attr_name in self.SCALAR_ATTR_NAMES:
+            attr_value = getattr(self, attr_name, None)
+            if attr_value:
+                message += f"\n\t{self._prepare_attr_message(attr_name, attr_value)}"
+
+        return message
+
+    @staticmethod
+    def _prepare_list_attr_message(name, value):
+        """Prepare a message for the list data type attribute value."""
+        message = f"{name}:"
+        for elem in value:
+            if isinstance(elem, IsDescribed):
+                message += f"\n\t\t{elem.name}"
+            else:
+                message += f"\n\t\t{elem}"
+
+        return message
+
+    def _get_list_attr_info(self):
+        """Get info about all list data type attributes."""
+        message = ""
+        for attr_name in self.LIST_ATTR_NAMES:
+            attr_value = getattr(self, attr_name, [])
+            if attr_value:
+                message += f"\n\t{self._prepare_list_attr_message(attr_name, attr_value)}"
+
+        return message
+
+    def __str__(self):
+        """String representation."""
+        message = self._get_base_message()
+        message += self._get_scalar_attr_info()
+        message += self._get_list_attr_info()
+
+        return message
