@@ -21,6 +21,8 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 class DefaultCollection(DefaultCharacteristic, Collection):
     """Default Collection class."""
 
+    SCALAR_ATTR_NAMES = DefaultCharacteristic.SCALAR_ATTR_NAMES + ["element_characteristic"]
+
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,

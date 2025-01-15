@@ -20,6 +20,8 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 class DefaultState(DefaultEnumeration, State):
     """Default State class."""
 
+    SCALAR_ATTR_NAMES = DefaultEnumeration.SCALAR_ATTR_NAMES + ["default_value"]
+
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,
