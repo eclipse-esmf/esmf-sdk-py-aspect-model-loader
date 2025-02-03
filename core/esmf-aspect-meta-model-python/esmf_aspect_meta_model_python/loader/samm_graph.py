@@ -107,7 +107,11 @@ class SAMMGraph:
         """Convert SAMM graph to Python objects."""
         base_nodes = self.get_base_nodes(aspect_urn)
         if not base_nodes:
-            raise ValueError(f"Could not found Aspect node by the URN {aspect_urn}.")
+            error_message = "Could not found Aspect node in the model"
+            if aspect_urn:
+                error_message += f" by the URN {aspect_urn}"
+
+            raise ValueError(error_message)
 
         model_element_factory = ModelElementFactory(self._samm_version, self._graph, self._cache)
         aspect_elements = model_element_factory.create_all_graph_elements(base_nodes)

@@ -32,9 +32,9 @@ class TestResolverInterface:
     def test_validate_samm_version_not_supported_version(self, samm_units_graph_mock):
         samm_units_graph_mock.SAMM_VERSION = "2"
         with pytest.raises(ValueError) as error:
-            ResolverInterface._validate_samm_version("1")
+            ResolverInterface._validate_samm_version("3")
 
-        assert str(error.value) == "1 is not supported SAMM version."
+        assert str(error.value) == "3 is not supported SAMM version."
 
     def test_get_samm_version_from_graph(self):
         graph_mock = mock.MagicMock(name="graph")

@@ -76,7 +76,7 @@ class ResolverInterface(ABC):
         """
         if not samm_version:
             raise ValueError("SAMM version not found in the Graph.")
-        elif samm_version != SammUnitsGraph.SAMM_VERSION:
+        elif samm_version > SammUnitsGraph.SAMM_VERSION:
             raise ValueError(f"{samm_version} is not supported SAMM version.")
 
     def _get_samm_version_from_graph(self):

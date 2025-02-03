@@ -136,7 +136,7 @@ class TestEnumerationInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.enumeration_instantiator.isinstance")
     def test_to_enum_node_value_node_is_URIRef_raise_exception(self, isinstance_mock):
-        isinstance_mock.side_effect = (False, False)
+        isinstance_mock.side_effect = (False, False, False)
         base_class_mock = mock.MagicMock(name="EnumerationInstantiator_class")
         with pytest.raises(TypeError) as error:
             EnumerationInstantiator._EnumerationInstantiator__to_enum_node_value(base_class_mock, "value_node")
