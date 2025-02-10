@@ -218,19 +218,3 @@ poetry run tox -e pep8
 # run tests
 poetry run tox -e py310
 ```
-
-## GitHub actions
-
-There are two actions on the GitHub repo:
-- [Check New Pull Request](../../.github/workflows/push_request_check.yml)
-- [Build release](../../.github/workflows/tagged_release.yml)
-
-### Check New Pull Request
-This action run after creation or updating a pull request and run all automation tests with tox command.
-
-### Build release
-Prepare and publish a new release for the `esmf-aspect-model-loader` to the PyPi: 
-[esmf-aspect-model-loader](https://pypi.org/project/esmf-aspect-model-loader/.)
-
-A list of the available releases on the GitHub: 
-[Releases](https://github.com/eclipse-esmf/esmf-sdk-py-aspect-model-loader/releases). 
