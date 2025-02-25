@@ -8,3 +8,9 @@
 #  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #
 #   SPDX-License-Identifier: MPL-2.0
+
+
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.samme import SAMME
+from esmf_aspect_meta_model_python.vocabulary.unit import UNIT

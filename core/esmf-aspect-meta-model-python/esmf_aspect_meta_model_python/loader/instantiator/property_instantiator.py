@@ -9,15 +9,16 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-import rdflib  # type: ignore
+from rdflib import BNode, Node, URIRef
 
-from rdflib.term import Node
-
-from esmf_aspect_meta_model_python.base.characteristics.characteristic import Characteristic
 from esmf_aspect_meta_model_python.base.property import Property
-from esmf_aspect_meta_model_python.impl.default_property import DefaultProperty
+from esmf_aspect_meta_model_python.impl.default_property import (
+    DefaultBlankProperty,
+    DefaultProperty,
+    DefaultPropertyWithExtends,
+)
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class PropertyInstantiator(InstantiatorBase[Property]):
@@ -49,87 +50,52 @@ class PropertyInstantiator(InstantiatorBase[Property]):
 
         :return: an instance of the property
         """
-        if isinstance(element_node, rdflib.URIRef):
-            return self._create_property_direct_reference(element_node)
+        property_instance = None
 
-        elif isinstance(element_node, rdflib.BNode):
+        if isinstance(element_node, URIRef):
+            property_instance = self._create_property_direct_reference(element_node)
+
+        elif isinstance(element_node, BNode):
             if self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.property)) is not None:
-                return self._create_property_blank_node(element_node)
+                property_instance = self._create_property_blank_node(element_node)
             elif self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.extends)) is not None:
-                return self._create_property_with_extends(element_node)
+                property_instance = self._create_property_with_extends(element_node)
 
-        raise ValueError("The syntax of the property is not allowed.")
+        if not property_instance:
+            raise ValueError("The syntax of the property is not allowed.")
 
-    def _create_property_direct_reference(self, element_node: rdflib.URIRef) -> Property:
+        return property_instance
+
+    def _create_property_direct_reference(self, element_node: URIRef) -> Property:
         """The given node is a named node representing the property"""
-        meta_model_base_attributes = self._get_base_attributes(element_node)
-
-        characteristic: Characteristic = self._get_child(
-            element_node,
-            self._samm.get_urn(SAMM.characteristic),
-            required=True,
-        )
-
-        example_value = self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.example_value))
-
-        return DefaultProperty(meta_model_base_attributes, characteristic, example_value)
-
-    def _create_property_blank_node(self, element_node: rdflib.BNode) -> Property:
-        """The given node is a blank node holding a reference to the property
-        and having additional attributes like optional or not_in_payload"""
-        optional = (
-            self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.optional)) is not None
-        )
-        not_in_payload = (
-            self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.not_in_payload))
-            is not None
-        )
-        payload_name = self._get_child(element_node, self._samm.get_urn(SAMM.payload_name))
-
-        property_node = self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.property))
-
-        meta_model_base_attributes = self._get_base_attributes(property_node)  # type: ignore
-
-        characteristic: Characteristic = self._get_child(
-            property_node,  # type: ignore
-            self._samm.get_urn(SAMM.characteristic),
-            required=True,
-        )
-
-        example_value = self._aspect_graph.value(
-            subject=property_node,
-            predicate=self._samm.get_urn(SAMM.example_value),
-        )
-
         return DefaultProperty(
-            meta_model_base_attributes,
-            characteristic,
-            example_value,
-            optional=optional,
-            not_in_payload=not_in_payload,
-            payload_name=payload_name,
+            meta_model_base_attributes=self._get_base_attributes(element_node),
+            elements_factory=self._model_element_factory,
+            graph_node=element_node,
         )
 
-    def _create_property_with_extends(self, element_node: rdflib.BNode) -> Property:
+    def _create_property_blank_node(self, element_node: BNode) -> Property:
+        """The given node is a blank node holding a reference to the property
+        and having additional attributes like optional or not_in_payload."""
+        property_node = self._aspect_graph.value(
+            subject=element_node,
+            predicate=self._samm.get_urn(SAMM.property),
+        )
+        if not property_node:
+            raise ValueError(f"Could not found property for the node {element_node}")
+
+        return DefaultBlankProperty(
+            base_element_node=element_node,
+            meta_model_base_attributes=self._get_base_attributes(property_node),
+            elements_factory=self._model_element_factory,
+            graph_node=property_node,
+        )
+
+    def _create_property_with_extends(self, element_node: BNode) -> Property:
         """The given node is a blank node representing a property extending
         another property."""
-        payload_name = self._get_child(element_node, self._samm.get_urn(SAMM.payload_name))
-        extends = self._get_child(element_node, self._samm.get_urn(SAMM.extends), required=True)
-
-        meta_model_base_attributes = self._get_base_attributes(element_node)
-
-        characteristic: Characteristic = self._get_child(
-            element_node,
-            self._samm.get_urn(SAMM.characteristic),
-            required=True,
-        )
-
-        example_value = self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.example_value))
-
-        return DefaultProperty(
-            meta_model_base_attributes,
-            characteristic,
-            example_value,
-            extends,
-            payload_name=payload_name,
+        return DefaultPropertyWithExtends(
+            meta_model_base_attributes=self._get_base_attributes(element_node),
+            elements_factory=self._model_element_factory,
+            graph_node=element_node,
         )

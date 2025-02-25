@@ -12,20 +12,16 @@
 from os import getcwd
 from pathlib import Path
 
-from esmf_aspect_meta_model_python import Event
-from esmf_aspect_meta_model_python.loader.aspect_loader import AspectLoader
-from esmf_aspect_meta_model_python.resolver.handler import InputHandler
+from esmf_aspect_meta_model_python import Event, SAMMGraph
 
 RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.event/2.1.0")
 
 
 def test_loading_aspect_with_event() -> None:
     file_path = RESOURCE_PATH / "aspect_with_event.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     assert aspect.events is not None
     assert len(aspect.events) == 1
@@ -36,11 +32,9 @@ def test_loading_aspect_with_event() -> None:
 
 def test_loading_aspect_with_event_with_parameters() -> None:
     file_path = RESOURCE_PATH / "aspect_with_event_with_parameters.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     assert aspect.events is not None
     assert len(aspect.events) == 1
@@ -54,11 +48,9 @@ def test_loading_aspect_with_event_with_parameters() -> None:
 
 def test_loading_aspect_with_multiple_event() -> None:
     file_path = RESOURCE_PATH / "aspect_with_multiple_event.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     assert aspect.events is not None
     assert len(aspect.events) == 3

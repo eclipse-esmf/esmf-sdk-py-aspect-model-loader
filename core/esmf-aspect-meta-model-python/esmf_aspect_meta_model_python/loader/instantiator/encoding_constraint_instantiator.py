@@ -15,7 +15,7 @@ from esmf_aspect_meta_model_python.base.contraints.encoding_constraint import En
 from esmf_aspect_meta_model_python.impl.constraints.default_encoding_constraint import DefaultEncodingConstraint
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class EncodingConstraintInstantiator(InstantiatorBase[EncodingConstraint]):

@@ -1,31 +1,17 @@
 The Aspect Model Loader as part of the Python SDK provided by the [*Eclipse Semantic Modeling Framework*](
 https://projects.eclipse.org/projects/dt.esmf).
 
-<!-- TOC -->
-* [An Aspect of the Meta Model](#an-aspect-of-the-meta-model)
-  * [Set Up SAMM Aspect Meta Model](#set-up-samm-aspect-meta-model)
-    * [Install poetry](#install-poetry)
-    * [Install project dependencies](#install-project-dependencies)
-    * [Download SAMM files](#download-samm-files)
-      * [Download SAMM release](#download-samm-release)
-      * [Download SAMM branch](#download-samm-branch)
-  * [Input data handler usage](#input-data-handler-usage)
-  * [Aspect Meta Model Loader usage](#aspect-meta-model-loader-usage)
-  * [Samm Units](#samm-units)
-  * [SAMM CLI wrapper class](#samm-cli-wrapper-class)
-* [Scripts](#scripts)
-* [Automation Tasks](#automation-tasks)
-  * [tox](#tox)
-  * [GitHub actions](#github-actions)
-    * [Check New Pull Request](#check-new-pull-request)
-    * [Build release](#build-release)
-<!-- TOC -->
-
 # An Aspect of the Meta Model
 
 The `esmf-aspect-model-loader` package provides the Python implementation for the SAMM Aspect Meta Model, or SAMM.
 Each Meta Model element and each Characteristic class is represented by an interface with a corresponding
 implementation.
+
+## Documentation
+
+* Check the [developer documentation](https://eclipse-esmf.github.io)
+* Check the SAMM [specification](https://eclipse-esmf.github.io/samm-specification/snapshot/index.html)
+* Having issues with the ESMF SDK Python Aspect Model Loader? Open a [GitHub issue](https://github.com/eclipse-esmf/esmf-sdk-py-aspect-model-loader/issues).
 
 ## Set Up SAMM Aspect Meta Model
 
@@ -85,55 +71,42 @@ poetry run download-samm-branch
 ```
 Link to all branches: [SAMM Releases](https://github.com/eclipse-esmf/esmf-semantic-aspect-meta-model/branches)
 
-## Input data handler usage
+## SAMMGraph usage
 
-The InputHandler is a general-purpose class designed for loading input data into an RDF graph. 
-It easily accommodates different input sources such as local files (.ttl) or direct data strings containing 
-RDF formatted data.
-
+SAMMGraph is a class that allows you to load and interact with the Semantic Data Aspect Meta Model graph. 
+Below is an example of how to use SAMMGraph in your Python code:
 ```python
-from esmf_aspect_meta_model_python.resolver.handler import InputHandler
+from esmf_aspect_meta_model_python import SAMMGraph
 
-# Instantiating the Handler
-# The InputHandler requires a path or data string upon instantiation, which defines the source of RDF data
-# local file
-model_path = "path/to/local/file/AspectName.ttl"
-handler = InputHandler(model_path)
-graph, aspect_urn = handler.get_rdf_graph()
-
-# returns a tuple containing the RDF graph and the aspect URN derived from the provided data source
-```
-
-```python
-from esmf_aspect_meta_model_python.resolver.handler import InputHandler
-
-# Alternatively, if you have RDF data in a string format, you can directly pass it as follows:
-rdf_data_string = "your RDF data string here"
-handler = InputHandler(rdf_data_string)
-graph, aspect_urn = handler.get_rdf_graph()
-```
-
-## Aspect Meta Model Loader usage
-
-An Aspect of the Meta Model can be loaded as follows:
-```python
-from esmf_aspect_meta_model_python import AspectLoader
-from esmf_aspect_meta_model_python.resolver.handler import InputHandler
-
+# Define the path to your Turtle file
 model_path = "absolute/path/to/turtle.ttl"
-handler = InputHandler(model_path)
-graph, aspect_urn = handler.get_rdf_graph()
 
-loader = AspectLoader()
-model_elements = loader.load_aspect_model(graph, aspect_urn)
-aspect = model_elements[0]
+# Create an instance of SAMMGraph
+samm_graph = SAMMGraph()
 
-# or you can provide an Aspect URN
+# Parse the Turtle file to load the graph
+samm_graph.parse(model_path)
 
-loader = AspectLoader()
-aspect_urn = "urn:samm:org.eclipse.esmf.samm:aspect.model:0.0.1#AspectName"
-model_elements = loader.load_aspect_model("absolute/path/to/turtle.ttl", aspect_urn)
-aspect = model_elements[0]
+# Load the aspect model from the graph
+aspect = samm_graph.load_aspect_model()
+```
+
+The `load_model_elements` method in the SAMMGraph class creates Python objects to represent all nodes from the Aspect 
+model graph. It retrieves all SAMM elements from the RDF graph and converts them into structured Python objects.
+```python
+from esmf_aspect_meta_model_python import SAMMGraph
+
+# Define the path to your Turtle file
+model_path = "absolute/path/to/turtle.ttl"
+
+# Create an instance of SAMMGraph
+samm_graph = SAMMGraph()
+
+# Parse the Turtle file to load the graph
+samm_graph.parse(model_path)
+
+# Load all model elements from the graph
+model_elements = samm_graph.load_model_elements()
 ```
 
 ## Samm Units
@@ -200,7 +173,7 @@ Provided scripts:
 All scripts run like a poetry command. The poetry is available from the folder where [pyproject.toml](pyproject.toml) 
 is located.
 
-# Automation Tasks
+# Tests running
 ## tox
 
 `tox` is used for the tests automation purpose. There are two environments with different purposes and tests can 

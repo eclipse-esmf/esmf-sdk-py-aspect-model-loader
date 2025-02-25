@@ -42,6 +42,6 @@ from .default_aspect import DefaultAspect
 from .default_either import DefaultEither
 from .default_event import DefaultEvent
 from .default_operation import DefaultOperation
-from .default_property import DefaultProperty
+from .default_property import DefaultBlankProperty, DefaultProperty, DefaultPropertyWithExtends
 from .default_quantity_kind import DefaultQuantityKind
 from .default_unit import DefaultUnit

@@ -3,7 +3,7 @@
 from unittest import mock
 
 from esmf_aspect_meta_model_python.loader.instantiator.unit_instantiator import UnitInstantiator
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class TestUnitInstantiator:
@@ -44,7 +44,7 @@ class TestUnitInstantiator:
                 mock.call(SAMM.symbol),
                 mock.call(SAMM.common_code),
                 mock.call(SAMM.reference_unit),
-                mock.call(SAMM.numericConversionFactor),
+                mock.call(SAMM.numeric_conversion_factor),
                 mock.call(SAMM.quantity_kind),
             ]
         )

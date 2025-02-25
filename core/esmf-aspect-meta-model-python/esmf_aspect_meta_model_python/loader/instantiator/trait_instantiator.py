@@ -17,7 +17,7 @@ from esmf_aspect_meta_model_python.base.characteristics.trait import Trait
 from esmf_aspect_meta_model_python.base.contraints.constraint import Constraint
 from esmf_aspect_meta_model_python.impl.characteristics.default_trait import DefaultTrait
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class TraitInstantiator(InstantiatorBase[Trait]):
@@ -29,9 +29,14 @@ class TraitInstantiator(InstantiatorBase[Trait]):
             predicate=self._sammc.get_urn(SAMMC.constraint),
         )
 
-        constraints: List[Constraint] = [
-            self._model_element_factory.create_element(constraint_subject) for constraint_subject in constraint_subjects
-        ]
+        constraints: List[Constraint] = []
+        for constraint_subject in constraint_subjects:
+            element = self._model_element_factory.create_element(constraint_subject)
+            if isinstance(element, Constraint):
+                constraints.append(element)
+            else:
+                raise ValueError(f"Trait {element_node} has element {element} that is not a Constraint.")
+
         if not constraints:
             raise ValueError("Trait must have at least one constraint.")
 

@@ -15,7 +15,7 @@ from esmf_aspect_meta_model_python.base.characteristics.collection.sorted_set im
 from esmf_aspect_meta_model_python.impl.characteristics.collection.default_sorted_set import DefaultSortedSet
 from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class SortedSetInstantiator(InstantiatorBase[SortedSet]):

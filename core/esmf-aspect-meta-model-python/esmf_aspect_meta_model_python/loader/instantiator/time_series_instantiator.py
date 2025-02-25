@@ -15,7 +15,7 @@ from esmf_aspect_meta_model_python.base.characteristics.collection.time_series i
 from esmf_aspect_meta_model_python.impl.characteristics.collection.default_time_series import DefaultTimeSeries
 from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class TimeSeriesInstantiator(InstantiatorBase[TimeSeries]):

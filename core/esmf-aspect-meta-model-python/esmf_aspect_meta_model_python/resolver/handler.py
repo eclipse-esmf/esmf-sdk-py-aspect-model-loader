@@ -11,10 +11,10 @@
 
 import os
 
-from typing import Optional, Tuple
+from pathlib import Path
+from typing import Optional, Union
 
-from rdflib import Graph
-
+from esmf_aspect_meta_model_python.resolver.base import ResolverInterface
 from esmf_aspect_meta_model_python.resolver.data_string import DataStringResolver
 from esmf_aspect_meta_model_python.resolver.local_file import LocalFileResolver
 
@@ -43,7 +43,7 @@ class InputHandler:
     DATA_STRING = "data_string"
     FILE_PATH_TYPE = "file_path"
 
-    def __init__(self, input_data: str, input_type: Optional[str] = None):
+    def __init__(self, input_data: Union[str, Path], input_type: Optional[str] = None):
         """
         Initializes the InputHandler with provided input data and optional input type.
 
@@ -55,7 +55,7 @@ class InputHandler:
         self.input_data = input_data
         self.input_type = input_type if input_type else self.guess_input_type(input_data)
 
-    def get_reader(self):
+    def get_reader(self) -> ResolverInterface:
         """
         Factory method that returns a reader instance based on the input type.
 
@@ -68,7 +68,7 @@ class InputHandler:
         Raises:
             ValueError: If the 'input_type' does not correspond to a known reader type.
         """
-        reader = None
+        reader: Optional[ResolverInterface] = None
 
         if self.input_type == self.FILE_PATH_TYPE:
             reader = LocalFileResolver()
@@ -80,20 +80,7 @@ class InputHandler:
 
         return reader
 
-    def get_rdf_graph(self) -> Tuple[Graph, str]:
-        """
-        Determines the type of input and retrieves the RDF graph from it.
-
-        Returns:
-            An RDF graph object based on the parsed input data.
-        """
-        reader = self.get_reader()
-        graph = reader.read(self.input_data)
-        aspect_urn = reader.get_aspect_urn()
-
-        return graph, aspect_urn
-
-    def guess_input_type(self, input_str: str) -> str:
+    def guess_input_type(self, input_str: Union[str, Path]) -> str:
         """
         Guesses the type of input based on its content and configuration.
 
@@ -103,6 +90,9 @@ class InputHandler:
         Returns:
             str: Guessed input type ('file' or 'string').
         """
+        if isinstance(input_str, Path):
+            input_str = str(input_str)
+
         if not self.contains_newline(input_str) and os.path.isfile(input_str):
             return self.FILE_PATH_TYPE
         return self.DATA_STRING

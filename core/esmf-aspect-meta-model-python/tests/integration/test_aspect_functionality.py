@@ -12,32 +12,27 @@
 from os import getcwd
 from pathlib import Path
 
-from esmf_aspect_meta_model_python import BaseImpl
-from esmf_aspect_meta_model_python.loader.aspect_loader import AspectLoader
-from esmf_aspect_meta_model_python.resolver.handler import InputHandler
+from esmf_aspect_meta_model_python import BaseImpl, SAMMGraph
 
 RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.general/2.1.0")
 
 
 def test_get_access_path():
     file_path = RESOURCE_PATH / "Movement.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
-    graph = loader.graph
-    path = graph.determine_element_access_path(aspect.properties[2].data_type.properties[2])  # type: ignore
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
+    path = samm_graph.determine_element_access_path(aspect.properties[2].data_type.properties[2])
 
     assert path[0][0] == "position"
     assert path[0][1] == "z"
 
-    path = graph.determine_access_path("y")
+    path = samm_graph.determine_access_path("y")
 
     assert path[0][0] == "position"
     assert path[0][1] == "y"
 
-    path = graph.determine_access_path("x")
+    path = samm_graph.determine_access_path("x")
 
     assert path[0][0] == "position"
     assert path[0][1] == "x"
@@ -45,30 +40,25 @@ def test_get_access_path():
 
 def test_get_access_path_input_property():
     file_path = RESOURCE_PATH / "AspectWithOperationNoOutput.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
-    graph = loader.graph
-    path = graph.determine_element_access_path(aspect.operations[0].input_properties[0])
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
+    path = samm_graph.determine_element_access_path(aspect.operations[0].input_properties[0])
 
     assert path[0][0] == "input"
 
-    path = graph.determine_element_access_path(aspect.operations[1].input_properties[0])
+    path = samm_graph.determine_element_access_path(aspect.operations[1].input_properties[0])
 
     assert path[0][0] == "input"
 
 
 def test_find_properties_by_name() -> None:
     file_path = RESOURCE_PATH / "AspectWithProperties.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    _ = loader.load_aspect_model(rdf_graph, aspect_urn)
-    graph = loader.graph
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    _ = samm_graph.load_aspect_model()
 
-    result = graph.find_by_name("testPropertyOne")
+    result = samm_graph.find_by_name("testPropertyOne")
     assert result is not None
     assert len(result) == 1
     assert isinstance(result[0], BaseImpl)
@@ -78,7 +68,7 @@ def test_find_properties_by_name() -> None:
     assert len(result[0].see) == 0
     assert len(result[0].descriptions) == 0
 
-    result = graph.find_by_name("testPropertyTwo")
+    result = samm_graph.find_by_name("testPropertyTwo")
     assert result is not None
     assert len(result) == 1
     assert isinstance(result[0], BaseImpl)
@@ -88,18 +78,17 @@ def test_find_properties_by_name() -> None:
     assert len(result[0].see) == 0
     assert len(result[0].descriptions) == 0
 
-    result = graph.find_by_name("Unknown")
+    result = samm_graph.find_by_name("Unknown")
     assert len(result) == 0
 
 
 def test_find_property_chaticaristic_by_name() -> None:
     file_path = RESOURCE_PATH / "AspectWithPropertyWithAllBaseAttributes.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    _ = loader.load_aspect_model(rdf_graph, aspect_urn)
-    graph = loader.graph
-    result = graph.find_by_name("BooleanTestCharacteristic")
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
+    _ = aspect.properties[0].characteristic
+    result = samm_graph.find_by_name("BooleanTestCharacteristic")
 
     assert result is not None
     assert len(result) == 1
@@ -113,12 +102,10 @@ def test_find_property_chaticaristic_by_name() -> None:
 
 def test_find_properties_by_urn() -> None:
     file_path = RESOURCE_PATH / "AspectWithProperties.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    _ = loader.load_aspect_model(rdf_graph, aspect_urn)
-    graph = loader.graph
-    element = graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.1.0#testPropertyOne")
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    _ = samm_graph.load_aspect_model()
+    element = samm_graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.1.0#testPropertyOne")
 
     assert element is not None
     assert isinstance(element, BaseImpl)
@@ -128,7 +115,7 @@ def test_find_properties_by_urn() -> None:
     assert len(element.see) == 0
     assert len(element.descriptions) == 0
 
-    element = graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.1.0#testPropertyTwo")
+    element = samm_graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.1.0#testPropertyTwo")
     assert element is not None
     assert isinstance(element, BaseImpl)
     assert element.name == "testPropertyTwo"
@@ -137,18 +124,17 @@ def test_find_properties_by_urn() -> None:
     assert len(element.see) == 0
     assert len(element.descriptions) == 0
 
-    element = graph.find_by_urn("Unknown")
+    element = samm_graph.find_by_urn("Unknown")
     assert element is None
 
 
-def test_find_property_chaticaristic_by_urn() -> None:
+def test_find_property_characteristic_by_urn() -> None:
     file_path = RESOURCE_PATH / "AspectWithPropertyWithAllBaseAttributes.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    _ = loader.load_aspect_model(rdf_graph, aspect_urn)
-    graph = loader.graph
-    element = graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.1.0#BooleanTestCharacteristic")
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
+    _ = aspect.properties[0].characteristic
+    element = samm_graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.1.0#BooleanTestCharacteristic")
 
     assert element is not None
     assert isinstance(element, BaseImpl)
@@ -158,5 +144,5 @@ def test_find_property_chaticaristic_by_urn() -> None:
     assert len(element.see) == 0
     assert len(element.descriptions) == 0
 
-    element = graph.find_by_urn("Unknown")
+    element = samm_graph.find_by_urn("Unknown")
     assert element is None

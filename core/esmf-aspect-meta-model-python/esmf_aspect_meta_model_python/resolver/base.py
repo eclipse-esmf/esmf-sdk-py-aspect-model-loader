@@ -10,6 +10,8 @@
 #   SPDX-License-Identifier: MPL-2.0
 
 from abc import ABC, abstractmethod
+from pathlib import Path
+from typing import Union
 
 from rdflib import Graph
 
@@ -32,11 +34,11 @@ class ResolverInterface(ABC):
 
     def __init__(self):
         self.graph = Graph()
-        self.aspect_urn = ""
+        self.samm_graph = None
         self.samm_version = ""
 
     @abstractmethod
-    def read(self, input_data: str) -> Graph:
+    def read(self, input_data: Union[str, Path]):
         """
         Abstract method to read data.
 
@@ -48,17 +50,6 @@ class ResolverInterface(ABC):
 
         Returns:
             Data read from the source, the type of the data can be decided based on the specific subclass.
-        """
-
-    @abstractmethod
-    def get_aspect_urn(self) -> str:
-        """
-        Abstract method to get an aspect urn.
-
-        Subclasses must implement this method to handle the specific details of getting a URN of aspect.
-
-        Returns:
-            String with URN of the aspect.
         """
 
     @staticmethod
@@ -79,7 +70,7 @@ class ResolverInterface(ABC):
         elif samm_version > SammUnitsGraph.SAMM_VERSION:
             raise ValueError(f"{samm_version} is not supported SAMM version.")
 
-    def _get_samm_version_from_graph(self):
+    def _get_samm_version_from_graph(self) -> str:
         """
         Extracts the SAMM version from the RDF graph.
 
@@ -119,3 +110,6 @@ class ResolverInterface(ABC):
         self.samm_version = version
 
         return version
+
+    def prepare_aspect_model(self, graph: Graph):
+        """Resolve all additional graph elements if needed."""

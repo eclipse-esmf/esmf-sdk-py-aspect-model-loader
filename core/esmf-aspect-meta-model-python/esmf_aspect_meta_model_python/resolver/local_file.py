@@ -11,16 +11,17 @@
 
 from os.path import exists, join
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
-from rdflib import RDF, Graph
+from rdflib import Graph
 
 from esmf_aspect_meta_model_python.resolver.base import ResolverInterface
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
 
 
 class LocalFileResolver(ResolverInterface):
     """Local storage aspect model file resolver."""
+
+    samm_namespace_prefix = "samm"
 
     def __init__(self):
         super().__init__()
@@ -28,13 +29,34 @@ class LocalFileResolver(ResolverInterface):
         self.file_path = None
 
     @staticmethod
-    def validate_file(file_path: str):
+    def validate_file(file_path: Union[str, Path]):
         """Validate a SAMM file.
 
         :param file_path: path to the file
         """
         if not exists(file_path):
             raise FileNotFoundError(f"Could not find a file {file_path}")
+
+    def read(self, file_path: Union[str, Path]) -> Graph:
+        """
+        Read an RDF graph stored in the local file.
+
+        This method takes a string with a path to the file with RDF graph description in a serialization format
+        (such as Turtle, XML, or JSON-LD) and converts it into an RDF graph object.
+
+        Args:
+            file_path (str): A string with path to the file with RDF graph description.
+
+        Returns:
+            RDFGraph: An object representing the RDF graph constructed from the input data.
+        """
+        self.file_path = file_path
+
+        self.validate_file(self.file_path)
+        self.graph = Graph()
+        self.graph.parse(self.file_path)
+
+        return self.graph
 
     @staticmethod
     def _parse_namespace(prefix_namespace: str) -> Tuple[Optional[str], Optional[str]]:
@@ -139,59 +161,13 @@ class LocalFileResolver(ResolverInterface):
 
         return file_dependencies
 
-    def parse_namespaces(self, aspect_file_path: str):
+    def prepare_aspect_model(self, graph: Graph):
         """Parse namespaces from the Aspect model.
 
-        :param aspect_graph: RDF Graph
-        :param aspect_file_path: path to the Aspect model file
+        :param graph: RDF Graph
         """
+        self.graph = graph
         file_dependencies: Dict[str, List[str]] = {}
         folder_dependencies: Dict[str, List[str]] = {}
 
-        self._get_dependency_files(file_dependencies, folder_dependencies, aspect_file_path)
-
-    def read(self, file_path: str) -> Graph:
-        """
-        Read an RDF graph stored in the local file.
-
-        This method takes a string with a path to the file with RDF graph description in a serialization format
-        (such as Turtle, XML, or JSON-LD) and converts it into an RDF graph object.
-
-        Args:
-            file_path (str): A string with path to the file with RDF graph description.
-
-        Returns:
-            RDFGraph: An object representing the RDF graph constructed from the input data.
-        """
-        self.file_path = file_path
-        self.graph.parse(file_path)
-        self._find_aspect_urn()
-        self.parse_namespaces(self.file_path)
-
-        return self.graph
-
-    def _find_aspect_urn(self):
-        """
-        Find a main aspect node in the RDF graph.
-
-        Searches the node with RDF.type predicate and SAMM Aspect obkect type.
-        """
-        samm = SAMM(self.get_samm_version())
-        file_name = Path(self.file_path).stem
-        for aspect in self.graph.subjects(predicate=RDF.type, object=samm.get_urn(SAMM.aspect)):
-            if str(aspect).split("#")[-1] == file_name:
-                self.aspect_urn = aspect
-                break
-
-    def get_aspect_urn(self):
-        """
-        Retrieves the URN pointing to the main aspect node of the RDF graph.
-
-        This method searches the RDF graph for the node with predicate RDF.type and object a SAMM Aspect,
-        The URN (Uniform Resource Name) of this node is then returned. This method assumes
-        that the graph contains exactly one main aspect node.
-
-        Returns:
-            str: The URN of the SAMM aspect node in the RDF graph.
-        """
-        return self.aspect_urn
+        self._get_dependency_files(file_dependencies, folder_dependencies, self.file_path)

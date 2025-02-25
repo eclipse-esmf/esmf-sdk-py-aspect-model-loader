@@ -8,7 +8,6 @@
 #  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #
 #   SPDX-License-Identifier: MPL-2.0
-
 from abc import ABC, abstractmethod
 
 from esmf_aspect_meta_model_python.base.base import Base

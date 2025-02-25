@@ -9,114 +9,227 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
+from pathlib import Path
 from typing import List, Optional, Union
 
-from rdflib import RDF, Graph, URIRef
-from rdflib.graph import Node
+from rdflib import RDF, Graph, Node
 
 from esmf_aspect_meta_model_python.base.aspect import Aspect
 from esmf_aspect_meta_model_python.base.base import Base
 from esmf_aspect_meta_model_python.base.property import Property
+from esmf_aspect_meta_model_python.impl.base_impl import BaseImpl
 from esmf_aspect_meta_model_python.loader.default_element_cache import DefaultElementCache
 from esmf_aspect_meta_model_python.loader.model_element_factory import ModelElementFactory
+from esmf_aspect_meta_model_python.resolver.handler import InputHandler
 from esmf_aspect_meta_model_python.resolver.meta_model import AspectMetaModelResolver
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class SAMMGraph:
-    """SAMM graph."""
+    """Class representing the SAMM graph and its operations."""
 
-    samm_prefix = "urn:samm:org.eclipse.esmf.samm"
+    samm_namespace_prefix = "samm"
 
-    def __init__(
-        self,
-        graph: Graph | None = None,
-        cache: Union[DefaultElementCache, None] = None,
-    ):
-        self._graph = graph if graph else Graph()
-        self._cache = cache if cache else DefaultElementCache()
-        self._samm_version = ""
+    def __init__(self):
+        self.rdf_graph = Graph()
+        self.samm_graph = Graph()
+        self._cache = DefaultElementCache()
 
-        self.populate_with_meta_data()
-
-    def __repr__(self) -> str:
-        return repr(self._graph)
+        self.samm_version = None
+        self.aspect = None
+        self.model_elements = None
+        self._samm = None
+        self._reader = None
 
     def __str__(self) -> str:
-        return f"SAMM {self._graph}"
+        """Object string representation."""
+        str_data = "SAMMGraph"
+        if self.samm_version:
+            str_data += f" v{self.samm_version}"
 
-    def get_rdf_graph(self) -> Graph:
-        """Get RDF graph."""
-        return self._graph
+        return str_data
 
-    def _get_samm_version_from_graph(self):
-        """Get SAMM version from the graph."""
+    def __repr__(self) -> str:
+        """Object representation."""
+        return (
+            f"<SAMMGraph identifier={id(self)} (<class 'esmf_aspect_meta_model_python.loader.samm_graph.SAMMGraph'>)>"
+        )
+
+    def _get_rdf_graph(self, input_data: Union[str, Path], input_type: Optional[str] = None):
+        """Read the RDF graph from the given input data.
+
+        This method initializes the `InputHandler` with the provided input data and type,
+        retrieves the reader, and reads the RDF graph into `self.rdf_graph`.
+
+        Args:
+            input_data (Union[str, Path]): The input data to read the RDF graph from. This can be a file path or a str.
+            input_type (Optional[str]): The type of the input data. If not provided, the type will be inferred.
+
+        Returns:
+            None
+        """
+        self._reader = InputHandler(input_data, input_type).get_reader()
+        self.rdf_graph = self._reader.read(input_data)
+
+    def _get_samm_version_from_rdf_graph(self) -> str:
+        """Extracts the SAMM version from the RDF graph.
+
+        This method searches through the RDF graph namespaces to find a prefix that indicates the SAMM version.
+
+        Returns:
+            str: The SAMM version as a string extracted from the graph. Returns an empty string if no version
+                 can be conclusively identified.
+        """
         version = ""
 
-        for prefix, namespace in self._graph.namespace_manager.namespaces():
-            if prefix == "samm":
+        for prefix, namespace in self.rdf_graph.namespace_manager.namespaces():
+            if prefix == self.samm_namespace_prefix:
                 urn_parts = namespace.split(":")
                 version = urn_parts[-1].replace("#", "")
 
         return version
 
-    def get_samm_version(self):
-        """Get SAMM version from the graph."""
-        version = self._get_samm_version_from_graph()
+    def _get_samm_version(self):
+        """Retrieve and set the SAMM version from the RDF graph.
 
-        if not version:
-            raise ValueError("SAMM version not found in the Graph.")
-        else:
-            self._samm_version = version
+        This method extracts the SAMM version from the RDF graph and assigns it to the `samm_version` attribute.
+        If the SAMM version is not found, it raises a ValueError.
 
-    def populate_with_meta_data(self):
-        """Populate RDF graph with SAMM data."""
-        if not self._samm_version:
-            self.get_samm_version()
-
-        meta_model_reader = AspectMetaModelResolver()
-        meta_model_reader.parse(self._graph, self._samm_version)
-
-    def get_aspect_nodes_from_graph(self) -> List[Node]:
-        """Get a list of Aspect nodes from the graph."""
-        nodes = []
-        samm = SAMM(self._samm_version)
-
-        # Search for Aspect elements
-        for subject in self._graph.subjects(predicate=RDF.type, object=samm.get_urn(SAMM.aspect)):  # type: ignore
-            nodes.append(subject)
-
-        return nodes
-
-    def get_base_nodes(self, aspect_urn: URIRef | str = "") -> List[Node]:
-        """Get a list of base graph elements.
-
-        :param model_pointer: pointer to the model
-        :return: List of base graph elements.
+        Raises:
+            ValueError: If the SAMM version is not found in the RDF graph.
         """
-        base_elements: list[Node] = []
+        self.samm_version = self._get_samm_version_from_rdf_graph()
 
-        if aspect_urn:
-            base_elements += [aspect_urn if isinstance(aspect_urn, URIRef) else URIRef(aspect_urn)]
+        if not self.samm_version:
+            raise ValueError(
+                f"SAMM version number was not found in graph. Could not process RDF graph {self.rdf_graph}."
+            )
+
+    def _get_samm(self):
+        """Initialize the SAMM object with the current SAMM version."""
+        self._samm = SAMM(self.samm_version)
+
+    def _get_samm_graph(self):
+        """Parse SAMM graph base data.
+
+        This method uses the AspectMetaModelResolver to populate samm_graph with info about SAMM elements
+        based on the current SAMM version.
+        """
+        AspectMetaModelResolver().parse(self.samm_graph, self.samm_version)
+
+    def parse(self, input_data: Union[str, Path], input_type: Optional[str] = None):
+        """Parse the RDF graph and initialize SAMM elements.
+
+        This method reads the RDF graph from the given input data, retrieves and sets the SAMM version,
+        initializes the SAMM object, and populates the SAMM graph with base data.
+
+        Args:
+            input_data (Union[str, Path]): The input data to read the RDF graph from.
+                This can be a file path or a string.
+            input_type (Optional[str]): The type of the input data. If not provided, the type will be inferred.
+
+        Returns:
+            SAMMGraph: The instance of the SAMMGraph with the parsed data.
+        """
+        self._get_rdf_graph(input_data, input_type)
+        self._get_samm_version()
+        self._get_samm()
+        self._get_samm_graph()
+
+        return self
+
+    def get_aspect_urn(self) -> Node:
+        """Retrieves the URN pointing to the main aspect node of the RDF graph.
+
+        This method searches the RDF graph for the node with predicate RDF.type and object a SAMM Aspect,
+        The URN (Uniform Resource Name) of this node is then returned. This method assumes
+        that the graph contains exactly one main aspect node.
+
+        Returns:
+            URIRef: reference to the Aspect node.
+        """
+        for subject in self.rdf_graph.subjects(predicate=RDF.type, object=self._samm.get_urn(self._samm.Aspect)):
+            aspect_urn = subject
+            break
         else:
-            base_elements += self.get_aspect_nodes_from_graph()
+            raise ValueError("Could not found Aspect node in the RDF graph.")
 
-        return base_elements
+        return aspect_urn
 
-    def to_python(self, aspect_urn: URIRef | str = "") -> List[Aspect]:
-        """Convert SAMM graph to Python objects."""
-        base_nodes = self.get_base_nodes(aspect_urn)
-        if not base_nodes:
-            error_message = "Could not found Aspect node in the model"
-            if aspect_urn:
-                error_message += f" by the URN {aspect_urn}"
+    def _get_node_from_graph(self, node: Node) -> List[Node]:
+        """Retrieve nodes from the RDF graph that match the given node type.
 
-            raise ValueError(error_message)
+        Args:
+            node (Node): The RDF node type to search for in the graph.
 
-        model_element_factory = ModelElementFactory(self._samm_version, self._graph, self._cache)
-        aspect_elements = model_element_factory.create_all_graph_elements(base_nodes)
+        Returns:
+            List[Optional[Node]]: A list of nodes from the RDF graph that match the given node type.
+        """
+        return [subject for subject in self.rdf_graph.subjects(predicate=RDF.type, object=node) if subject]
 
-        return aspect_elements
+    def get_all_model_elements(self) -> List[Node]:
+        """Retrieve all SAMM elements from the RDF graph.
+
+        Returns:
+            List[Node]: A list of nodes representing all model elements in the RDF graph.
+
+        Raises:
+            ValueError: If no SAMM elements are found in the RDF graph.
+        """
+        model_elements: List[Node] = []
+        for element in self._samm.meta_model_elements:
+            model_elements += self._get_node_from_graph(self._samm.get_urn(element))
+
+        if not model_elements:
+            raise ValueError("There are no SAMM elements in the RDF graph.")
+
+        return model_elements
+
+    def load_aspect_model(self) -> Aspect:
+        """Creates a python object(s) to represent the Aspect model graph.
+
+        This function takes an RDF graph and a URN for an Aspect node and converts it into
+        a set of structured and connected Python objects that represents the Aspect model graph. The output is a
+        list of Python objects derived from the RDF graph centered around the specified Aspect node.
+
+        Args:
+            rdf_graph (RDFGraph): The RDF graph from which to create the model.
+            aspect_urn (str): The URN identifier for the main Aspect node in the RDF graph.
+
+        Returns:
+            list: A list of Python objects that represent the Aspect elements of the Aspect model graph.
+
+        Examples:
+            # Assuming 'graph' is a predefined RDFGraph object and 'aspect_urn' is defined:
+            aspect_model = create_aspect_model_graph(graph, "urn:example:aspectNode")
+            print(aspect_model)  # This prints the list of Python objects.
+
+        Notes:
+            It's crucial that the aspect_urn corresponds to a valid Aspect node within the RDF graph;
+            otherwise, the function may not perform as expected.
+        """
+        if not self.aspect:
+            aspect_urn = self.get_aspect_urn()
+
+            graph = self.rdf_graph + self.samm_graph
+            self._reader.prepare_aspect_model(graph)
+
+            model_element_factory = ModelElementFactory(self.samm_version, graph, self._cache)
+            self.aspect = model_element_factory.create_element(aspect_urn)
+
+        return self.aspect
+
+    def load_model_elements(self) -> list[BaseImpl]:
+        """Creates a python object(s) to represent the Aspect model graph."""
+        if self.model_elements is None:
+            model_elements = self.get_all_model_elements()
+            graph = self.rdf_graph + self.samm_graph
+            self._reader.prepare_aspect_model(graph)
+
+            model_element_factory = ModelElementFactory(self.samm_version, graph, self._cache)
+            self.model_elements = model_element_factory.create_all_graph_elements(model_elements)
+
+        return self.model_elements
 
     def find_by_name(self, element_name: str) -> list[Base]:
         """Find a specific model element by name, and returns the found elements

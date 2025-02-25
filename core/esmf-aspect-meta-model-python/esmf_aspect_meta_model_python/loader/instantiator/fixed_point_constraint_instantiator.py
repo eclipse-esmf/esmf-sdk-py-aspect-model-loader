@@ -15,7 +15,7 @@ from esmf_aspect_meta_model_python.base.contraints.fixed_point_constraint import
 from esmf_aspect_meta_model_python.impl.constraints.default_fixed_point_constraint import DefaultFixedPointConstraint
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class FixedPointConstraintInstantiator(InstantiatorBase[FixedPointConstraint]):

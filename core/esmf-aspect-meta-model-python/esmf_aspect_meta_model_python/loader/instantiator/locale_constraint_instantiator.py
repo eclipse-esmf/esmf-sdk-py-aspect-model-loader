@@ -15,7 +15,7 @@ from esmf_aspect_meta_model_python.base.contraints.locale_constraint import Loca
 from esmf_aspect_meta_model_python.impl.constraints.default_locale_constraint import DefaultLocaleConstraint
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class LocaleConstraintInstantiator(InstantiatorBase[LocaleConstraint]):

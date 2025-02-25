@@ -7,8 +7,8 @@ import rdflib
 
 from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator.enumeration_instantiator import EnumerationInstantiator
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class TestEnumerationInstantiator:
