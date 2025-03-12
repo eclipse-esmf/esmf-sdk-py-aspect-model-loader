@@ -71,10 +71,10 @@ poetry run download-samm-branch
 ```
 Link to all branches: [SAMM Releases](https://github.com/eclipse-esmf/esmf-semantic-aspect-meta-model/branches)
 
-## SAMMGraph usage
+## SAMM Aspect Model Graph usage
 
-SAMMGraph is a class that allows you to load and interact with the Semantic Data Aspect Meta Model graph. 
-Below is an example of how to use SAMMGraph in your Python code:
+SAMM Aspect Model Graph is a class that allows you to load and interact with the Semantic Data Aspect Meta Model graph. 
+Below is an example of how to use SAMM Aspect Model Graph in your Python code:
 ```python
 from esmf_aspect_meta_model_python import SAMMGraph
 

@@ -82,7 +82,7 @@ class PropertyInstantiator(InstantiatorBase[Property]):
             predicate=self._samm.get_urn(SAMM.property),
         )
         if not property_node:
-            raise ValueError(f"Could not found property for the node {element_node}")
+            raise ValueError(f"Could not find property for the node {element_node}")
 
         return DefaultBlankProperty(
             base_element_node=element_node,

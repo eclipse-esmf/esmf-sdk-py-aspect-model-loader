@@ -156,6 +156,6 @@ def run_model_elements_load_test():
             writer.writerow(row)
 
 
-if __name__ == "__main__":
+def test_loading_aspects():
     run_aspect_load_test()
     run_model_elements_load_test()

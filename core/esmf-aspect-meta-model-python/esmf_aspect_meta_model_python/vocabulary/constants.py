@@ -97,8 +97,9 @@ class CharacteristicElements:
 
 
 class SAMMEElements:
-    TimeSeriesEntity = "TimeSeriesEntity"
+    FileResource = "FileResource"
     Point3d = "Point3d"
+    TimeSeriesEntity = "TimeSeriesEntity"
 
 
 class MetaModelElementAttributes:

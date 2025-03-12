@@ -174,7 +174,7 @@ class TestPropertyInstantiator:
         with pytest.raises(ValueError) as error:
             instantiator_cls._create_property_blank_node(element_node_mock)
 
-        assert str(error.value) == "Could not found property for the node element_node"
+        assert str(error.value) == "Could not find property for the node element_node"
         samm_mock.get_urn.assert_called_once_with(SAMM.property)
         graph_mock.value.assert_called_once_with(subject=element_node_mock, predicate="urn")
 
