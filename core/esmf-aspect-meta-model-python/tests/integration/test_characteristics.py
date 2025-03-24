@@ -20,22 +20,19 @@ from esmf_aspect_meta_model_python import (
     Enumeration,
     Measurement,
     Quantifiable,
+    SAMMGraph,
     State,
     StructuredValue,
 )
-from esmf_aspect_meta_model_python.loader.aspect_loader import AspectLoader
-from esmf_aspect_meta_model_python.resolver.handler import InputHandler
 
 RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.characteristics/2.1.0")
 
 
 def test_loading_aspect_with_collection():
     file_path = RESOURCE_PATH / "AspectWithCollection.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     assert aspect.name == "AspectWithCollection"
     assert aspect.get_preferred_name("en") == "Test Aspect"
@@ -65,35 +62,36 @@ def test_loading_aspect_with_collection():
 
 def test_loading_aspect_with_set():
     file_path = RESOURCE_PATH / "AspectWithSet.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    aspect = loader.load_aspect_model(rdf_graph, aspect_urn)  # noqa: F841
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
+
+    assert aspect is not None
 
 
 def test_loading_aspect_with_sorted_set():
     file_path = RESOURCE_PATH / "AspectWithSortedSet.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    aspect = loader.load_aspect_model(rdf_graph, aspect_urn)  # noqa: F841
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
+
+    assert aspect is not None
 
 
 def test_loading_aspect_with_list():
     file_path = RESOURCE_PATH / "AspectWithList.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    aspect = loader.load_aspect_model(rdf_graph, aspect_urn)  # noqa: F841
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
+
+    assert aspect is not None
 
 
 def test_loading_aspect_with_collection_with_element_characteristic():
     file_path = RESOURCE_PATH / "AspectWithCollectionWithElementCharacteristic.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     first_property = aspect.properties[0]
     collection_characteristic = first_property.characteristic
@@ -112,11 +110,9 @@ def test_loading_aspect_with_collection_with_element_characteristic():
 
 def test_loading_aspect_with_simple_enum():
     file_path = RESOURCE_PATH / "AspectWithSimpleEnum.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     first_property = aspect.properties[0]
     enum_characteristic = first_property.characteristic
@@ -133,11 +129,9 @@ def test_loading_aspect_with_simple_enum():
 def test_loading_aspect_with_simple_state():
     print(RESOURCE_PATH)
     file_path = RESOURCE_PATH / "AspectWithState.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     first_property = aspect.properties[0]
     state_characteristic = first_property.characteristic
@@ -155,11 +149,9 @@ def test_loading_aspect_with_simple_state():
 
 def test_loading_aspect_with_quantifiable():
     file_path = RESOURCE_PATH / "AspectWithQuantifiableAndUnit.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     first_property = aspect.properties[0]
     quantifiable_characteristic = first_property.characteristic
@@ -181,11 +173,9 @@ def test_loading_aspect_with_quantifiable():
 
 def test_loading_aspect_with_duration():
     file_path = RESOURCE_PATH / "AspectWithDuration.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     first_property = aspect.properties[0]
     duration_characteristic = first_property.characteristic
@@ -197,11 +187,9 @@ def test_loading_aspect_with_duration():
 
 def test_loading_aspect_with_measurement():
     file_path = RESOURCE_PATH / "AspectWithMeasurement.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     first_property = aspect.properties[0]
     measurement_characteristic = first_property.characteristic
@@ -213,11 +201,9 @@ def test_loading_aspect_with_measurement():
 
 def test_loading_aspect_with_structured_value():
     file_path = RESOURCE_PATH / "AspectWithStructuredValue.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     first_property = aspect.properties[0]
     structured_value_characteristic = first_property.characteristic
@@ -242,11 +228,9 @@ def test_loading_aspect_with_structured_value():
 
 def test_loading_aspect_with_code():
     file_path = RESOURCE_PATH / "AspectWithCode.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     first_property = aspect.properties[0]
     code_characteristic = first_property.characteristic
@@ -256,11 +240,9 @@ def test_loading_aspect_with_code():
 
 def test_loading_aspect_with_blank_node() -> None:
     file_path = RESOURCE_PATH / "AspectWithBlankNode.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     first_property = aspect.properties[0]
     assert first_property.name == "list"

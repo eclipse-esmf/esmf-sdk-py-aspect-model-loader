@@ -4,7 +4,7 @@ from unittest import mock
 
 from esmf_aspect_meta_model_python.base.bound_definition import BoundDefinition
 from esmf_aspect_meta_model_python.loader.instantiator.range_constraint_instantiator import RangeConstraintInstantiator
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class TestRangeConstraintInstantiator:

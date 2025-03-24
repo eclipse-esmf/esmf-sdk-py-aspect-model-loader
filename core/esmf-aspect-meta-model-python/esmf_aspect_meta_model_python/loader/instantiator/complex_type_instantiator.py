@@ -17,7 +17,7 @@ import rdflib  # type: ignore
 
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase, T
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class ComplexTypeInstantiator(InstantiatorBase[T], metaclass=abc.ABCMeta):

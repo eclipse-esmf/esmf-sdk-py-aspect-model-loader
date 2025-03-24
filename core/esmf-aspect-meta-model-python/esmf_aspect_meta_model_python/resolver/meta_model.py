@@ -16,6 +16,8 @@ from typing import List
 
 from rdflib import Graph
 
+from esmf_aspect_meta_model_python.vocabulary import SAMM, SAMMC, SAMME, UNIT
+
 
 class AspectMetaModelResolver:
     """SAMM meta-model resolver class."""
@@ -64,3 +66,13 @@ class AspectMetaModelResolver:
         for file_path in self._get_samm_files_path(meta_model_version):
             self.validate_file(file_path)
             rdf_graph.parse(file_path, format="turtle")
+
+    @staticmethod
+    def get_samm_prefixes(meta_model_version: str) -> list[str]:
+        """Get all SAMM prefix values."""
+        return [
+            SAMM.samm_prefix[:-1],
+            SAMMC.sammc_prefix[:-1],
+            SAMME.samme_prefix[:-1],
+            UNIT.samm_prefix[:-1],
+        ]

@@ -19,7 +19,7 @@ from esmf_aspect_meta_model_python.impl.characteristics.default_structured_value
 from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class StructuredValueInstantiator(InstantiatorBase[StructuredValue]):

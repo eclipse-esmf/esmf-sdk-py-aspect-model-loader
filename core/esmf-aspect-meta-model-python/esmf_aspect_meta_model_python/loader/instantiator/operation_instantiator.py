@@ -17,7 +17,7 @@ from esmf_aspect_meta_model_python.base.operation import Operation
 from esmf_aspect_meta_model_python.base.property import Property
 from esmf_aspect_meta_model_python.impl.default_operation import DefaultOperation
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class OperationInstantiator(InstantiatorBase[Operation]):

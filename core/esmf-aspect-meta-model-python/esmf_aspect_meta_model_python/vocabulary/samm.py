@@ -11,17 +11,19 @@
 
 import rdflib  # type: ignore
 
+from esmf_aspect_meta_model_python.vocabulary.constants import MetaModelElementAttributes, MetaModelElements
 from esmf_aspect_meta_model_python.vocabulary.namespace import Namespace
 
 
-class UNIT(Namespace):
-    __samm_prefix = "urn:samm:org.eclipse.esmf.samm:unit:"
+class SAMM(Namespace, MetaModelElements, MetaModelElementAttributes):
+    samm_prefix = "urn:samm:org.eclipse.esmf.samm:meta-model:"
 
+    # Constants listed in the constant classes
     def __init__(self, meta_model_version: str):
-        self.__meta_model_version: str = meta_model_version
+        self.meta_model_version: str = meta_model_version
 
     def get_urn(self, element_type: str) -> rdflib.URIRef:
         """returns the URN string of the given element type.
-        Example: get_urn(SAMM.reference_unit) -> "urn:samm:org.eclipse.esmf.samm:unit:2.0.0#referenceUnit"
+        Example: get_urn(SAMM.characteristic) -> "urn:samm:org.eclipse.esmf.samm:meta-model:1.0.0#characteristic"
         """
-        return rdflib.URIRef(f"{UNIT.__samm_prefix}{self.__meta_model_version}#{element_type}")
+        return rdflib.URIRef(f"{SAMM.samm_prefix}{self.meta_model_version}#{element_type}")

@@ -14,7 +14,7 @@ from rdflib.term import Node
 from esmf_aspect_meta_model_python.base.either import Either
 from esmf_aspect_meta_model_python.impl.default_either import DefaultEither
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class EitherInstantiator(InstantiatorBase[Either]):

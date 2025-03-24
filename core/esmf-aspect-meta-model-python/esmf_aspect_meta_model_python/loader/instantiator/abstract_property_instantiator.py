@@ -16,7 +16,7 @@ from rdflib.term import Node
 from esmf_aspect_meta_model_python.base.property import Property
 from esmf_aspect_meta_model_python.impl.default_property import DefaultProperty
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class AbstractPropertyInstantiator(InstantiatorBase[Property]):

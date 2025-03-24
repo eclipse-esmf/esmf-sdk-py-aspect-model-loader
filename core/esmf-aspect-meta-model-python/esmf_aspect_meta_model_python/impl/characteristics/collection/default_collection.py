@@ -26,7 +26,7 @@ class DefaultCollection(DefaultCharacteristic, Collection):
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,
-        data_type: DataType,
+        data_type: Optional[DataType],
         element_characteristic: Optional[Characteristic],
     ):
         super().__init__(meta_model_base_attributes, data_type)
@@ -35,7 +35,7 @@ class DefaultCollection(DefaultCharacteristic, Collection):
 
     def _set_parent_element_on_child_element(self) -> None:
         """Set a parent element on child elements."""
-        if self._element_characteristic is not None:
+        if self._element_characteristic:
             self._element_characteristic.append_parent_element(self)
 
     @property

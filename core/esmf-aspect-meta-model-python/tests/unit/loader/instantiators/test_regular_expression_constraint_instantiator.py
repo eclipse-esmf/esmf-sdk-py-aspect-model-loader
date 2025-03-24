@@ -5,7 +5,7 @@ from unittest import mock
 from esmf_aspect_meta_model_python.loader.instantiator.regular_expression_constraint_instantiator import (
     RegularExpressionConstraintInstantiator,
 )
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class TestRegularExpressionConstraintInstantiator:

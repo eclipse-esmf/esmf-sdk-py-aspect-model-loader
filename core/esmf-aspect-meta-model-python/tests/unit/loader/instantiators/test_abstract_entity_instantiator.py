@@ -5,7 +5,7 @@ from unittest import mock
 import pytest
 
 from esmf_aspect_meta_model_python.loader.instantiator.abstract_entity_instantiator import AbstractEntityInstantiator
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class TestAbstractEntityInstantiator:

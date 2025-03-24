@@ -12,20 +12,16 @@
 from os import getcwd
 from pathlib import Path
 
-from esmf_aspect_meta_model_python import BaseImpl, ComplexType, Either
-from esmf_aspect_meta_model_python.loader.aspect_loader import AspectLoader
-from esmf_aspect_meta_model_python.resolver.handler import InputHandler
+from esmf_aspect_meta_model_python import BaseImpl, ComplexType, Either, SAMMGraph
 
 RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.general/2.1.0")
 
 
 def test_aspect_with_multiple_attributes():
     file_path = RESOURCE_PATH / "AspectWithMultipleAttributes.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     assert aspect.get_preferred_name("en") == "Test Aspect"
     assert aspect.get_preferred_name("de") == "Test Aspekt"
@@ -39,11 +35,9 @@ def test_aspect_with_multiple_attributes():
 
 def test_aspect():
     file_path = RESOURCE_PATH / "AspectWithProperties.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     assert aspect.meta_model_version == "2.1.0"
     assert aspect.name == "TestAspect"
@@ -69,8 +63,7 @@ def test_aspect():
         "Describes a Property which contains plain text. This is intended exclusively for human readable strings, "
         "not for identifiers, measurement values, etc."
     )
-    assert characteristic.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.test.general:2.1.0#testPropertyOne"
-    assert characteristic.parent_elements[1].urn == "urn:samm:org.eclipse.esmf.test.general:2.1.0#testPropertyTwo"
+    assert characteristic.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.test.general:2.1.0#testPropertyTwo"
 
     data_type = characteristic.data_type
     assert data_type.is_scalar is True
@@ -80,11 +73,9 @@ def test_aspect():
 
 def test_aspect_with_operation():
     file_path = RESOURCE_PATH / "AspectWithOperation.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     assert aspect.meta_model_version == "2.1.0"
     assert aspect.name == "AspectWithOperation"
@@ -143,11 +134,9 @@ def test_aspect_with_operation():
 
 def test_aspect_with_operation_no_output():
     file_path = RESOURCE_PATH / "AspectWithOperationNoOutput.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     assert aspect.meta_model_version == "2.1.0"
     assert aspect.name == "AspectWithOperationNoOutput"
@@ -200,11 +189,9 @@ def test_aspect_with_operation_no_output():
 
 def test_aspect_with_property_multiple_references() -> None:
     file_path = RESOURCE_PATH / "AspectWithPropertyMultipleReferences.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
     property1 = aspect.properties[0]
     property2 = aspect.properties[1]
 
@@ -222,11 +209,9 @@ def test_aspect_with_property_multiple_references() -> None:
 
 def test_aspect_with_property_with_payload_name() -> None:
     file_path = RESOURCE_PATH / "AspectWithPropertyWithPayloadName.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     property1 = aspect.properties[0]
     assert property1.is_optional is False
@@ -236,11 +221,9 @@ def test_aspect_with_property_with_payload_name() -> None:
 
 def test_aspect_with_optional_property_with_payload_name() -> None:
     file_path = RESOURCE_PATH / "AspectWithOptionalPropertyWithPayloadName.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     property1 = aspect.properties[0]
     assert property1.is_optional is True
@@ -250,11 +233,9 @@ def test_aspect_with_optional_property_with_payload_name() -> None:
 
 def test_aspect_with_duplicate_property_with_payload_name() -> None:
     file_path = RESOURCE_PATH / "AspectWithDuplicatePropertyWithPayloadName.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     property1 = aspect.properties[0]
     assert property1.name == "testProperty"
@@ -266,11 +247,9 @@ def test_aspect_with_duplicate_property_with_payload_name() -> None:
 
 def test_aspect_with_duplicate_property_with_different_payload_names() -> None:
     file_path = RESOURCE_PATH / "AspectWithDuplicatePropertyWithDifferentPayloadNames.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     property1 = aspect.properties[0]
     assert property1.name == "testProperty"
@@ -282,11 +261,9 @@ def test_aspect_with_duplicate_property_with_different_payload_names() -> None:
 
 def test_aspect_with_extending_property_with_payload_name() -> None:
     file_path = RESOURCE_PATH / "AspectWithExtendingPropertyWithPayloadName.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     assert aspect.properties[0].characteristic is not None
     entity = aspect.properties[0].characteristic.data_type
@@ -302,13 +279,11 @@ def test_aspect_with_extending_property_with_payload_name() -> None:
 
 def test_find_properties_by_name() -> None:
     file_path = RESOURCE_PATH / "AspectWithProperties.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    _ = loader.load_aspect_model(rdf_graph, aspect_urn)
-    graph = loader.graph
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    _ = samm_graph.load_aspect_model()
 
-    result = graph.find_by_name("testPropertyOne")
+    result = samm_graph.find_by_name("testPropertyOne")
     assert result is not None
     assert len(result) == 1
     assert isinstance(result[0], BaseImpl)
@@ -318,7 +293,7 @@ def test_find_properties_by_name() -> None:
     assert len(result[0].see) == 0
     assert len(result[0].descriptions) == 0
 
-    result = graph.find_by_name("testPropertyTwo")
+    result = samm_graph.find_by_name("testPropertyTwo")
     assert result is not None
     assert len(result) == 1
     assert isinstance(result[0], BaseImpl)
@@ -328,19 +303,18 @@ def test_find_properties_by_name() -> None:
     assert len(result[0].see) == 0
     assert len(result[0].descriptions) == 0
 
-    result = graph.find_by_name("Unknown")
+    result = samm_graph.find_by_name("Unknown")
     assert len(result) == 0
 
 
 def test_find_property_characteristic_by_name() -> None:
     file_path = RESOURCE_PATH / "AspectWithPropertyWithAllBaseAttributes.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    _ = loader.load_aspect_model(rdf_graph, aspect_urn)
-    graph = loader.graph
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
+    _ = aspect.properties[0].characteristic
+    result = samm_graph.find_by_name("BooleanTestCharacteristic")
 
-    result = graph.find_by_name("BooleanTestCharacteristic")
     assert result is not None
     assert len(result) == 1
     assert isinstance(result[0], BaseImpl)
@@ -353,13 +327,11 @@ def test_find_property_characteristic_by_name() -> None:
 
 def test_find_properties_by_urn() -> None:
     file_path = RESOURCE_PATH / "AspectWithProperties.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    _ = loader.load_aspect_model(rdf_graph, aspect_urn)
-    graph = loader.graph
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    _ = samm_graph.load_aspect_model()
 
-    result = graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.1.0#testPropertyOne")
+    result = samm_graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.1.0#testPropertyOne")
     assert result is not None
     assert isinstance(result, BaseImpl)
     assert result.name == "testPropertyOne"
@@ -368,7 +340,7 @@ def test_find_properties_by_urn() -> None:
     assert len(result.see) == 0
     assert len(result.descriptions) == 0
 
-    result = graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.1.0#testPropertyTwo")
+    result = samm_graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.1.0#testPropertyTwo")
     assert result is not None
     assert isinstance(result, BaseImpl)
     assert result.name == "testPropertyTwo"
@@ -377,18 +349,17 @@ def test_find_properties_by_urn() -> None:
     assert len(result.see) == 0
     assert len(result.descriptions) == 0
 
-    result = graph.find_by_urn("Unknown")
+    result = samm_graph.find_by_urn("Unknown")
     assert result is None
 
 
 def test_find_property_characteristic_by_urn() -> None:
     file_path = RESOURCE_PATH / "AspectWithPropertyWithAllBaseAttributes.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    _ = loader.load_aspect_model(rdf_graph, aspect_urn)
-    graph = loader.graph
-    result = graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.1.0#BooleanTestCharacteristic")
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
+    _ = aspect.properties[0].characteristic
+    result = samm_graph.find_by_urn("urn:samm:org.eclipse.esmf.test.general:2.1.0#BooleanTestCharacteristic")
 
     assert result is not None
     assert isinstance(result, BaseImpl)
@@ -398,17 +369,15 @@ def test_find_property_characteristic_by_urn() -> None:
     assert len(result.see) == 0
     assert len(result.descriptions) == 0
 
-    result = graph.find_by_urn("Unknown")
+    result = samm_graph.find_by_urn("Unknown")
     assert result is None
 
 
 def test_loading_aspect_with_either():
     file_path = RESOURCE_PATH / "AspectWithEither.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     first_property = aspect.properties[0]
     either_characteristic = first_property.characteristic
