@@ -4,8 +4,6 @@ from unittest import mock
 
 import pytest
 
-from rdflib import RDF
-
 from esmf_aspect_meta_model_python.resolver.local_file import LocalFileResolver
 
 
@@ -35,6 +33,18 @@ class TestLocalFileResolver:
 
         assert str(error.value) == "Could not find a file file_path"
         exists_mock.assert_called_once_with("file_path")
+
+    @mock.patch("esmf_aspect_meta_model_python.resolver.local_file.Graph")
+    @mock.patch("esmf_aspect_meta_model_python.resolver.local_file.LocalFileResolver.validate_file")
+    def test_read(self, validate_file_mock, graph_mock):
+        rdf_graph_mock = mock.MagicMock(name="rdf_graph")
+        graph_mock.return_value = rdf_graph_mock
+        resolver = LocalFileResolver()
+        result = resolver.read("file_path")
+
+        assert result == rdf_graph_mock
+        validate_file_mock.assert_called_once_with("file_path")
+        rdf_graph_mock.parse.assert_called_once_with("file_path")
 
     def test_parse_namespace_no_data(self):
         resolver = LocalFileResolver()
@@ -148,54 +158,11 @@ class TestLocalFileResolver:
         get_additional_files_from_dir_mock.assert_called_once_with("dependency_folder")
 
     @mock.patch("esmf_aspect_meta_model_python.resolver.local_file.LocalFileResolver._get_dependency_files")
-    def test_parse_namespaces(self, get_dependency_files_mock):
+    def test_prepare_aspect_model(self, get_dependency_files_mock):
+        graph_mock = mock.MagicMock(name="graph")
         resolver = LocalFileResolver()
-        result = resolver.parse_namespaces("aspect_file_path")
+        resolver.file_path = "aspect_file_path"
+        result = resolver.prepare_aspect_model(graph_mock)
 
         assert result is None
         get_dependency_files_mock.assert_called_once_with({}, {}, "aspect_file_path")
-
-    @mock.patch("esmf_aspect_meta_model_python.resolver.local_file.LocalFileResolver.parse_namespaces")
-    @mock.patch("esmf_aspect_meta_model_python.resolver.local_file.LocalFileResolver._find_aspect_urn")
-    def test_read(self, find_aspect_urn_mock, parse_namespaces_mock):
-        graph_mock = mock.MagicMock(name="graph")
-        resolver = LocalFileResolver()
-        resolver.graph = graph_mock
-        result = resolver.read("file_path")
-
-        assert result == graph_mock
-        assert resolver.file_path == "file_path"
-        graph_mock.parse.assert_called_once_with("file_path")
-        find_aspect_urn_mock.assert_called_once()
-        parse_namespaces_mock.assert_called_once_with("file_path")
-
-    @mock.patch("esmf_aspect_meta_model_python.resolver.local_file.Path")
-    @mock.patch("esmf_aspect_meta_model_python.resolver.local_file.SAMM")
-    @mock.patch("esmf_aspect_meta_model_python.resolver.local_file.LocalFileResolver.get_samm_version")
-    def test_find_aspect_urn(self, get_samm_version_mock, samm_class_mock, path_mock):
-        samm_mock = mock.MagicMock(name="samm")
-        samm_mock.get_urn.return_value = "aspect_urn"
-        samm_class_mock.return_value = samm_mock
-        samm_class_mock.aspect = "aspect"
-        get_samm_version_mock.return_value = "1.2.3"
-        graph_mock = mock.MagicMock(mname="graph")
-        graph_mock.subjects.return_value = ["path#aspect_name", "path#another_aspect_urn"]
-        path_mock.return_value = path_mock
-        path_mock.stem = "aspect"
-        resolver = LocalFileResolver()
-        resolver.file_path = "path/to/file/aspect_name.ttl"
-        resolver.graph = graph_mock
-        result = resolver._find_aspect_urn()
-
-        assert result is None
-        get_samm_version_mock.assert_called_once()
-        samm_mock.get_urn.assert_called_once_with("aspect")
-        graph_mock.subjects.assert_called_once_with(predicate=RDF.type, object="aspect_urn")
-        path_mock.assert_called_once_with("path/to/file/aspect_name.ttl")
-
-    def test_get_aspect_urn(self):
-        resolver = LocalFileResolver()
-        resolver.aspect_urn = "aspect_urn"
-        result = resolver.get_aspect_urn()
-
-        assert result == "aspect_urn"

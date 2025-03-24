@@ -12,19 +12,20 @@
 import importlib
 import re
 
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Type, Union
 
 import rdflib
 
 from rdflib.term import Node
 
 from esmf_aspect_meta_model_python.base.base import Base
+from esmf_aspect_meta_model_python.base.data_types.data_type import DataType
 from esmf_aspect_meta_model_python.loader import instantiator
 from esmf_aspect_meta_model_python.loader.default_element_cache import DefaultElementCache
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase, T
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
-from esmf_aspect_meta_model_python.vocabulary.UNIT import UNIT
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.unit import UNIT
 
 
 class ModelElementFactory:
@@ -71,7 +72,12 @@ class ModelElementFactory:
 
         return all_nodes
 
-    def create_element(self, element_node: Node):
+    def _add_to_cache(self, instance):
+        """Add an instance to the cache."""
+        if isinstance(instance, Base):
+            self._cache.resolve_instance(instance)
+
+    def create_element(self, element_node: Node) -> Union[Type[Base], DataType, Type[DataType]]:
         """
         searches for the right instantiator to create a new instance or
          find an existing one.
@@ -86,17 +92,11 @@ class ModelElementFactory:
             an instance of the element with all the child attributes
         """
         element_type = self._get_element_type(element_node)
+        instantiator_class = self._instantiators.get(element_type, self._create_instantiator(element_type))
+        instance = instantiator_class.get_instance(element_node)
+        self._add_to_cache(instance)
 
-        if element_type in self._instantiators:
-            instantiator = self._instantiators[element_type]
-        else:
-            instantiator = self._create_instantiator(element_type)
-
-        instance = instantiator.get_instance(element_node)
-        if isinstance(instance, Base):
-            self._cache.resolve_instance(instance)
-
-        return instance  # type: ignore
+        return instance
 
     def _get_element_type(self, element_node: Optional[Node]) -> str:
         """Gets the element type of a node and returns it."""
@@ -120,6 +120,7 @@ class ModelElementFactory:
                 element_type = self._get_element_type(property_node)
             else:
                 element_type = "Scalar"
+
         return element_type
 
     def _create_instantiator(self, element_type: str) -> InstantiatorBase[T]:

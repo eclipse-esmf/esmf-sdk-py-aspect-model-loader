@@ -8,6 +8,7 @@
 #  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #
 #   SPDX-License-Identifier: MPL-2.0
+from typing import Optional
 
 from esmf_aspect_meta_model_python.base.characteristics.characteristic import Characteristic
 from esmf_aspect_meta_model_python.base.data_types.complex_type import ComplexType
@@ -21,8 +22,12 @@ class DefaultCharacteristic(BaseImpl, Characteristic):
 
     SCALAR_ATTR_NAMES = BaseImpl.SCALAR_ATTR_NAMES + ["data_type"]
 
-    def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, data_type: DataType):
+    def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, data_type: Optional[DataType]):
+        if data_type is None:
+            raise ValueError("Attribute 'data_type' is required for Characteristic class.")
+
         super().__init__(meta_model_base_attributes)
+
         self._data_type = data_type
 
         if isinstance(self._data_type, ComplexType):

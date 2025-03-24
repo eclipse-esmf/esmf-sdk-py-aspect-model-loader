@@ -14,10 +14,10 @@ from typing import Optional, Set
 from rdflib import URIRef  # type: ignore
 
 from esmf_aspect_meta_model_python.vocabulary.namespace import Namespace
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
-from esmf_aspect_meta_model_python.vocabulary.SAMME import SAMME
-from esmf_aspect_meta_model_python.vocabulary.UNIT import UNIT
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.samme import SAMME
+from esmf_aspect_meta_model_python.vocabulary.unit import UNIT
 
 SAMM_VERSION = "2.1.0"
 UNIT_URN = f"urn:samm:org.eclipse.esmf.samm:unit:{SAMM_VERSION}#referenceUnit"
@@ -51,7 +51,7 @@ def test_samm_unit_fields() -> None:
 
 def test_samm_unit_get_urn() -> None:
     unit = UNIT(SAMM_VERSION)
-    uri_ref = unit.get_urn(SAMM.referenceUnit)
+    uri_ref = unit.get_urn(SAMM.reference_unit)
     assert issubclass(type(uri_ref), URIRef)
     assert uri_ref.toPython() == UNIT_URN
 
@@ -84,7 +84,7 @@ def test_samm_samme_fields() -> None:
 
 def test_samm_samme_get_urn() -> None:
     samme = SAMME(SAMM_VERSION)
-    uri_ref = samme.get_urn(SAMM.referenceUnit)
+    uri_ref = samme.get_urn(SAMM.reference_unit)
     assert issubclass(type(uri_ref), URIRef)
     assert uri_ref.toPython() == SAMME_URN
 
@@ -213,7 +213,7 @@ def test_samm_samm_fields() -> None:
 
 def test_samm_samm_get_urn() -> None:
     samm = SAMM(SAMM_VERSION)
-    uri_ref = samm.get_urn(SAMM.aspect)
+    uri_ref = samm.get_urn(SAMM.Aspect)
     assert issubclass(type(uri_ref), URIRef)
     assert uri_ref.toPython() == SAMM_URN
 

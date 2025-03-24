@@ -16,7 +16,7 @@ import rdflib  # type: ignore
 
 from rdflib.term import Node
 
-from ..vocabulary.SAMM import SAMM
+from ..vocabulary.samm import SAMM
 from .rdf_helper import RdfHelper
 
 

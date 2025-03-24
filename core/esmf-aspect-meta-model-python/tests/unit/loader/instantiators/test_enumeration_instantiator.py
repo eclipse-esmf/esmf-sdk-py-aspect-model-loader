@@ -7,8 +7,8 @@ import rdflib
 
 from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator.enumeration_instantiator import EnumerationInstantiator
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class TestEnumerationInstantiator:
@@ -136,7 +136,7 @@ class TestEnumerationInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.enumeration_instantiator.isinstance")
     def test_to_enum_node_value_node_is_URIRef_raise_exception(self, isinstance_mock):
-        isinstance_mock.side_effect = (False, False)
+        isinstance_mock.side_effect = (False, False, False)
         base_class_mock = mock.MagicMock(name="EnumerationInstantiator_class")
         with pytest.raises(TypeError) as error:
             EnumerationInstantiator._EnumerationInstantiator__to_enum_node_value(base_class_mock, "value_node")

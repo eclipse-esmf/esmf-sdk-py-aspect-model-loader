@@ -15,7 +15,7 @@ from esmf_aspect_meta_model_python.base.characteristics.quantifiable.measurement
 from esmf_aspect_meta_model_python.impl.characteristics.quantifiable.default_measurement import DefaultMeasurement
 from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class MeasurementInstantiator(InstantiatorBase[Measurement]):

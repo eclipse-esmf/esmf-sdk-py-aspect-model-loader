@@ -5,7 +5,7 @@ from unittest import mock
 from esmf_aspect_meta_model_python.loader.instantiator.locale_constraint_instantiator import (
     LocaleConstraintInstantiator,
 )
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class TestLocaleConstraintInstantiator:

@@ -12,19 +12,16 @@
 from os import getcwd
 from pathlib import Path
 
-from esmf_aspect_meta_model_python.loader.aspect_loader import AspectLoader
-from esmf_aspect_meta_model_python.resolver.handler import InputHandler
+from esmf_aspect_meta_model_python import SAMMGraph
 
 RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.general_with_references/2.1.0")
 
 
 def test_resolve_elements_references():
     file_path = RESOURCE_PATH / "AspectWithReferences.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     assert aspect.name == "test_aspect"
     assert aspect.get_preferred_name("en") == "Aspect with references"

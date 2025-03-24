@@ -19,7 +19,7 @@ from esmf_aspect_meta_model_python.base.data_types.abstract_entity import Abstra
 from esmf_aspect_meta_model_python.base.property import Property
 from esmf_aspect_meta_model_python.impl.data_types.default_abstract_entity import DefaultAbstractEntity
 from esmf_aspect_meta_model_python.loader.instantiator.complex_type_instantiator import ComplexTypeInstantiator
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class AbstractEntityInstantiator(ComplexTypeInstantiator[AbstractEntity]):

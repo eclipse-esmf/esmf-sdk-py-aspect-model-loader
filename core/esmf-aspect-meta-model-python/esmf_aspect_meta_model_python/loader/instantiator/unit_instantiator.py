@@ -20,7 +20,7 @@ from esmf_aspect_meta_model_python.impl.default_quantity_kind import DefaultQuan
 from esmf_aspect_meta_model_python.impl.default_unit import DefaultUnit
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class UnitInstantiator(InstantiatorBase[Unit]):

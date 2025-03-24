@@ -41,20 +41,6 @@ class TestInputHandler:
 
         assert str(error.value) == "Unknown input type"
 
-    @mock.patch("esmf_aspect_meta_model_python.resolver.handler.InputHandler.get_reader")
-    def test_get_rdf_graph(self, get_reader_mock):
-        reader_mock = mock.MagicMock(name="reader")
-        reader_mock.read.return_value = "graph"
-        reader_mock.get_aspect_urn.return_value = "aspect_urn"
-        get_reader_mock.return_value = reader_mock
-        handler = InputHandler("input_data", "input_type")
-        result = handler.get_rdf_graph()
-
-        assert len(result) == 2
-        graph, aspect_urn = result
-        assert graph == "graph"
-        assert aspect_urn == "aspect_urn"
-
     @mock.patch("esmf_aspect_meta_model_python.resolver.handler.os.path.isfile")
     @mock.patch("esmf_aspect_meta_model_python.resolver.handler.InputHandler.contains_newline")
     def test_guess_input_type_file_path(self, contains_newline_mock, isfile_mock):

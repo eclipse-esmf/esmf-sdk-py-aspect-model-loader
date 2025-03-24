@@ -36,4 +36,10 @@ class DefaultAbstractEntity(DefaultComplexType, AbstractEntity):
     @property
     def extending_elements(self) -> List[ComplexType]:
         """Extending elements."""
-        return [DefaultComplexType._instances[element_subject] for element_subject in self.__extending_elements]
+        extending_elements = []
+        for element_subject in self.__extending_elements:
+            element = DefaultComplexType._instances.get(element_subject)
+            if element:
+                extending_elements.append(element)
+
+        return extending_elements

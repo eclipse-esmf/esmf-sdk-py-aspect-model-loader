@@ -15,16 +15,17 @@ from esmf_aspect_meta_model_python.base.contraints.length_constraint import Leng
 from esmf_aspect_meta_model_python.impl.constraints.default_length_constraint import DefaultLengthConstraint
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class LengthConstraintInstantiator(InstantiatorBase[LengthConstraint]):
     def _create_instance(self, element_node: Node) -> LengthConstraint:
         meta_model_base_attributes = self._get_base_attributes(element_node)
-        min_value = RdfHelper.to_python(
-            self._aspect_graph.value(subject=element_node, predicate=self._sammc.get_urn(SAMMC.min_value)),
-        )
-        max_value = RdfHelper.to_python(
-            self._aspect_graph.value(subject=element_node, predicate=self._sammc.get_urn(SAMMC.max_value)),
-        )
-        return DefaultLengthConstraint(meta_model_base_attributes, int(min_value), int(max_value))
+
+        min_value_node = self._aspect_graph.value(subject=element_node, predicate=self._sammc.get_urn(SAMMC.min_value))
+        min_value = int(RdfHelper.to_python(min_value_node)) if min_value_node else None
+
+        max_value_node = self._aspect_graph.value(subject=element_node, predicate=self._sammc.get_urn(SAMMC.max_value))
+        max_value = int(RdfHelper.to_python(max_value_node)) if max_value_node else None
+
+        return DefaultLengthConstraint(meta_model_base_attributes, min_value, max_value)

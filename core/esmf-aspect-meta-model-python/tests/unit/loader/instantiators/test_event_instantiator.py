@@ -3,7 +3,7 @@
 from unittest import mock
 
 from esmf_aspect_meta_model_python.loader.instantiator.event_instantiator import EventInstantiator
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class TestEventInstantiator:

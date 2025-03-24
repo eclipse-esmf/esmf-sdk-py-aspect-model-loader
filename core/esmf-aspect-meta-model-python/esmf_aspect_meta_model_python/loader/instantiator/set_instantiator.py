@@ -15,7 +15,7 @@ from esmf_aspect_meta_model_python.base.characteristics.collection.set import Se
 from esmf_aspect_meta_model_python.impl.characteristics.collection.default_set import DefaultSet
 from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class SetInstantiator(InstantiatorBase[Set]):

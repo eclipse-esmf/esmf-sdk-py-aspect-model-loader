@@ -20,8 +20,8 @@ from esmf_aspect_meta_model_python.impl.characteristics.default_enumeration impo
 from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class EnumerationInstantiator(InstantiatorBase[Enumeration]):
@@ -49,13 +49,14 @@ class EnumerationInstantiator(InstantiatorBase[Enumeration]):
         - If value_node is a URIRef it will represent a value of a ComplexType
         :return: the one generated value of the enumeration
         """
+        value = {}
+
         if isinstance(value_node, rdflib.Literal):
             # value represents a simple data type
-            return value_node.toPython()
+            value = value_node.toPython()
 
         elif isinstance(value_node, rdflib.URIRef):
             # value represents a complex data type
-            value = {}
             value_node_properties = self._aspect_graph.predicate_objects(value_node)
             for property_urn, property_value in value_node_properties:
                 if property_urn != rdflib.RDF.type and isinstance(property_urn, str):
@@ -70,14 +71,16 @@ class EnumerationInstantiator(InstantiatorBase[Enumeration]):
             value_node_name = value_node.split("#")[1]
             value_key = self._samm.get_urn(SAMM.name).toPython()
             value[value_key] = value_node_name  # type: ignore
-            return value
 
         else:
-            # illegal node type for enumeration value (e.g., Blank Node)
-            raise TypeError(
-                f"Every value of an enumeration must either be a Literal (string, int, etc.) or "
-                f"a URI reference to a ComplexType. Values of type {type(value_node).__name__} are not allowed"
-            )
+            if not isinstance(value_node, rdflib.term.BNode) or value_node == rdflib.namespace.RDF.nil:
+                # illegal node type for enumeration value (e.g., Blank Node)
+                raise TypeError(
+                    f"Every value of an enumeration must either be a Literal (string, int, etc.) or "
+                    f"a URI reference to a ComplexType. Values of type {type(value_node).__name__} are not allowed"
+                )
+
+        return value
 
     def __is_collection_value(self, property_subject: str) -> bool:
         characteristic = self._aspect_graph.value(  # type: ignore

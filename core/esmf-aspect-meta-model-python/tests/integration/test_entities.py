@@ -12,20 +12,16 @@
 from os import getcwd
 from pathlib import Path
 
-from esmf_aspect_meta_model_python import AbstractEntity, ComplexType, Enumeration, Quantifiable
-from esmf_aspect_meta_model_python.loader.aspect_loader import AspectLoader
-from esmf_aspect_meta_model_python.resolver.handler import InputHandler
+from esmf_aspect_meta_model_python import AbstractEntity, ComplexType, Enumeration, Quantifiable, SAMMGraph
 
 RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.entity/2.1.0")
 
 
 def test_loading_aspect_with_entity_enum():
     file_path = RESOURCE_PATH / "AspectWithEntityEnum.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     properties = aspect.properties
     assert len(properties) == 1
@@ -61,11 +57,9 @@ def test_loading_aspect_with_entity_enum():
 
 def test_loading_aspect_with_entity():
     file_path = RESOURCE_PATH / "AspectWithEntity.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     property = aspect.properties[0]
     single_entity_characteristic = property.characteristic
@@ -86,11 +80,9 @@ def test_loading_aspect_with_entity():
 
 def test_aspect_with_abstract_entity():
     file_path = RESOURCE_PATH / "AspectWithAbstractEntity.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     aspect_properties = aspect.properties
     assert len(aspect_properties) == 1
@@ -118,11 +110,9 @@ def test_aspect_with_abstract_entity():
 
 def test_aspect_with_multiple_entities_same_extend():
     file_path = RESOURCE_PATH / "AspectWithMultipleEntitiesSameExtend.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     properties = aspect.properties
     assert len(properties) == 2
@@ -151,11 +141,9 @@ def test_aspect_with_unused_extending_entity() -> None:
     but extends an abstract entity that is connected to an aspect.
     """
     file_path = RESOURCE_PATH / "AspectWithUnusedExtendingEntity.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     properties = aspect.properties
     assert len(properties) == 1
@@ -185,11 +173,9 @@ def test_aspect_with_unused_extending_entity() -> None:
 
 def test_aspect_with_abstract_coordinate_properties_list() -> None:
     file_path = RESOURCE_PATH / "AspectWithPoint3d.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     properties = aspect.properties
     assert len(properties) == 1
@@ -224,11 +210,9 @@ def test_attribute_inheritance_entity() -> None:
     for extending entities.
     """
     file_path = RESOURCE_PATH / "AspectWithAbstractEntityMultipleAttributes.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     properties = aspect.properties
     assert len(properties) == 1
@@ -264,11 +248,9 @@ def test_multiple_attribute_inheritance_entity() -> None:
     for multiple extending entities.
     """
     file_path = RESOURCE_PATH / "AspectWithMultipleAbstractEntitiesMultipleAttributes.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     properties = aspect.properties
     assert len(properties) == 1
@@ -305,11 +287,9 @@ def test_multiple_attribute_inheritance_entity() -> None:
 
 def test_attribute_inheritance_property() -> None:
     file_path = RESOURCE_PATH / "AspectWithAbstractPropertyMultipleAttributes.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     properties = aspect.properties
     assert len(properties) == 1
@@ -322,7 +302,10 @@ def test_attribute_inheritance_property() -> None:
 
     extends = entity.extends
     assert extends is not None
-    assert entity.properties[0].extends is extends.properties[0]
+    assert entity.properties[0].extends
+    assert extends.properties[0]
+    assert entity.properties[0].extends.get_preferred_name("en") == extends.properties[0].get_preferred_name("en")
+    assert entity.properties[0].extends.get_description("en") == extends.properties[0].get_description("en")
     extending_property = entity.properties[0]
 
     assert len(extending_property.see) == 2
@@ -336,11 +319,9 @@ def test_attribute_inheritance_property() -> None:
 
 def test_multiple_properties_same_extend() -> None:
     file_path = RESOURCE_PATH / "AspectWithMultiplePropertiesSameExtend.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     assert len(aspect.properties) == 2
     characteristic = aspect.properties[0].characteristic
@@ -356,7 +337,10 @@ def test_multiple_properties_same_extend() -> None:
     extending_property2 = entity2.properties[0]
 
     assert extending_property1.extends is not None
-    assert extending_property1.extends is extending_property2.extends
+    assert extending_property1.extends
+    assert extending_property2.extends
+    assert extending_property1.extends.get_preferred_name("en") == extending_property2.extends.get_preferred_name("en")
+    assert extending_property1.extends.get_description("en") == extending_property2.extends.get_description("en")
 
     assert extending_property1.get_preferred_name("en") == "velocity"
     characteristic1 = extending_property1.characteristic
@@ -373,11 +357,9 @@ def test_multiple_properties_same_extend() -> None:
 
 def test_abstract_property_blank_node() -> None:
     file_path = RESOURCE_PATH / "AspectWithAbstractPropertyBlankNode.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     assert len(aspect.properties) == 1
     characteristic = aspect.properties[0].characteristic
@@ -409,11 +391,9 @@ def test_abstract_property_blank_node() -> None:
 
 def test_abstract_property_multiple_abstract_entities() -> None:
     file_path = RESOURCE_PATH / "AspectWithAbstractPropertyMultipleAbstractEntities.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     assert len(aspect.properties) == 1
     characteristic = aspect.properties[0].characteristic
@@ -452,11 +432,9 @@ def test_abstract_property_multiple_abstract_entities() -> None:
 
 def test_aspect_with_time_series():
     file_path = RESOURCE_PATH / "AspectWithTimeSeries.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     property1 = aspect.properties[0]
     time_series_characteristic = property1.characteristic
@@ -485,7 +463,8 @@ def test_aspect_with_time_series():
             timestamp = property
 
     assert None not in [extending_value, abstract_value, timestamp]
-    assert extending_value.extends is abstract_value
+    assert extending_value.extends.get_preferred_name("en") is abstract_value.get_preferred_name("en")
+    assert extending_value.extends.get_description("en") is abstract_value.get_description("en")
     assert extending_value.is_abstract is False
     assert abstract_value.is_abstract is True
     assert timestamp.is_abstract is False
@@ -501,11 +480,9 @@ def test_aspect_with_time_series():
 
 def test_aspect_with_time_series_with_complex_type() -> None:
     file_path = RESOURCE_PATH / "AspectWithTimeSeriesWithComplexType.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     property1 = aspect.properties[0]
     time_series_characteristic = property1.characteristic
@@ -541,11 +518,9 @@ def test_aspect_with_time_series_with_complex_type() -> None:
 
 def test_aspect_with_file_resource_entity() -> None:
     file_path = RESOURCE_PATH / "AspectWithFileResourceEntity.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     characteristic = aspect.properties[0].characteristic
     assert characteristic is not None
@@ -577,11 +552,9 @@ def test_aspect_with_file_resource_entity() -> None:
 
 def test_aspect_with_entity_extending_file_resource() -> None:
     file_path = RESOURCE_PATH / "AspectWithEntityExtendingFileResource.ttl"
-    handler = InputHandler(str(file_path), input_type=InputHandler.FILE_PATH_TYPE)
-    rdf_graph, aspect_urn = handler.get_rdf_graph()
-    loader = AspectLoader()
-    model_elements = loader.load_aspect_model(rdf_graph, aspect_urn)
-    aspect = model_elements[0]
+    samm_graph = SAMMGraph()
+    samm_graph.parse(file_path)
+    aspect = samm_graph.load_aspect_model()
 
     characteristic = aspect.properties[0].characteristic
     assert characteristic is not None

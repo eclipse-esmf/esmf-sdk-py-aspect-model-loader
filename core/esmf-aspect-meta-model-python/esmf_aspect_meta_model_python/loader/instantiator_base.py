@@ -13,15 +13,15 @@ import abc
 
 from typing import TYPE_CHECKING, Any, Dict, Generic, Optional, TypeVar
 
-import rdflib  # type: ignore
+import rdflib
 
 from rdflib.term import Node
 
 from esmf_aspect_meta_model_python.base.data_types.data_type import DataType
 from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import MetaModelBaseAttributes
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
-from esmf_aspect_meta_model_python.vocabulary.SAMM import SAMM
-from esmf_aspect_meta_model_python.vocabulary.SAMMC import SAMMC
+from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
+from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 if TYPE_CHECKING:
     # Only import the module during type checking and not during runtime.
@@ -69,14 +69,14 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
         Returns:
             An instance of the model element
         """
-
         element_urn = RdfHelper.to_python(element_node)
-        if self._existing_instances.keys().__contains__(element_urn):
-            return self._existing_instances[element_urn]
+        instance = self._existing_instances.get(element_urn)
 
-        new_instance = self._create_instance(element_node)
-        self._existing_instances[element_urn] = new_instance
-        return new_instance
+        if not instance:
+            instance = self._create_instance(element_node)
+            self._existing_instances[element_urn] = instance
+
+        return instance
 
     @abc.abstractmethod
     def _create_instance(self, element_node: Node) -> T:
@@ -170,6 +170,7 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
             subject=element_node,
             predicate=self._sammc.get_urn(SAMMC.element_characteristic),
         )
+
         if element_characteristic_node:
             # some characteristics (Collection, List, TimeSeries, etc.) may have
             # an attribute "element_characteristic". If it is given, then take
@@ -178,6 +179,7 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
                 subject=element_characteristic_node,
                 predicate=self._samm.get_urn(SAMM.data_type),
             )
+
             if not data_type_node:
                 data_type_node = self._aspect_graph.value(
                     subject=element_characteristic_node,
@@ -189,8 +191,10 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
                 predicate=self._samm.get_urn(SAMM.data_type),
             )
 
-        data_type_element = None
+        data_type_element: Optional[DataType] = None
         if data_type_node:
-            return self._model_element_factory.create_element(data_type_node)
+            instance = self._model_element_factory.create_element(data_type_node)
+            if isinstance(instance, DataType):
+                data_type_element = instance
 
         return data_type_element
