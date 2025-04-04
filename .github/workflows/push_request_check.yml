@@ -37,7 +37,7 @@ jobs:
           poetry run download-samm-release
           poetry build
 
-      - name: run test*s
+      - name: run tests
         run: |
           cd core/esmf-aspect-meta-model-python
           poetry run tox -e py310

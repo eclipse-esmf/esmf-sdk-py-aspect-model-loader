@@ -49,8 +49,8 @@ class EnumerationInstantiator(InstantiatorBase[Enumeration]):
         - If value_node is a URIRef it will represent a value of a ComplexType
         :return: the one generated value of the enumeration
         """
-        str_value: str = ""
-        dict_value: Dict = {}
+        str_value: Optional[str] = None
+        dict_value: Optional[Dict] = None
 
         if isinstance(value_node, rdflib.Literal) or (
             isinstance(value_node, rdflib.URIRef) and value_node.find("#") == -1
@@ -88,7 +88,7 @@ class EnumerationInstantiator(InstantiatorBase[Enumeration]):
                 f"a URI reference to a ComplexType. Values of type {type(value_node).__name__} are not allowed"
             )
 
-        return str_value or dict_value
+        return str_value if str_value is not None else dict_value if dict_value is not None else ""
 
     def __is_collection_value(self, property_subject: str) -> bool:
         characteristic = self._aspect_graph.value(  # type: ignore

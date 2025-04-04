@@ -45,3 +45,4 @@ from .default_operation import DefaultOperation
 from .default_property import DefaultBlankProperty, DefaultProperty, DefaultPropertyWithExtends
 from .default_quantity_kind import DefaultQuantityKind
 from .default_unit import DefaultUnit
+from .default_value import DefaultValue
