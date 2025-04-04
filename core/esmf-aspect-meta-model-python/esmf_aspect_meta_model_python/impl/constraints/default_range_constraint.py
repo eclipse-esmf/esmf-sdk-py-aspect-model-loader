@@ -12,7 +12,7 @@
 from typing import Any, Optional
 
 from esmf_aspect_meta_model_python.base.bound_definition import BoundDefinition
-from esmf_aspect_meta_model_python.base.contraints.range_constraint import RangeConstraint
+from esmf_aspect_meta_model_python.base.constraints.range_constraint import RangeConstraint
 from esmf_aspect_meta_model_python.impl.constraints.default_constraint import DefaultConstraint
 from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import MetaModelBaseAttributes
 

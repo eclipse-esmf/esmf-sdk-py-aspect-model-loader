@@ -38,11 +38,13 @@ HasUrn
         │   ├── LocaleConstraint
         │   ├── RangeConstraint
         │   └── RegularExpressionConstraint
+        ├── Namespace
         ├── Event
         ├── Operation
         ├── Property
         ├── QuantityKind
-        └── Unit
+        ├── Unit
+        └── Value
 
 BoundDefiniton
 ```

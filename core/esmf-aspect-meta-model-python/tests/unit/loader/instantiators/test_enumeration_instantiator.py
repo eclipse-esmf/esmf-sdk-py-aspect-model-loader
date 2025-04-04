@@ -63,8 +63,20 @@ class TestEnumerationInstantiator:
         value_node_mock.toPython.assert_called_once()
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.enumeration_instantiator.isinstance")
+    def test_to_enum_node_value_node_is_ref(self, isinstance_mock):
+        isinstance_mock.side_effect = (False, True)
+        base_class_mock = mock.MagicMock(name="EnumerationInstantiator_class")
+        value_node_mock = mock.MagicMock(name="value_node")
+        value_node_mock.find.return_value = -1
+        value_node_mock.toPython.return_value = "node_value"
+        result = EnumerationInstantiator._EnumerationInstantiator__to_enum_node_value(base_class_mock, value_node_mock)
+
+        assert result == "node_value"
+        value_node_mock.toPython.assert_called_once()
+
+    @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.enumeration_instantiator.isinstance")
     def test_to_enum_node_value_node_is_URIRef_collection_value(self, isinstance_mock):
-        isinstance_mock.side_effect = (False, True, True)
+        isinstance_mock.side_effect = (False, True, True, True)
         base_class_mock = mock.MagicMock(name="EnumerationInstantiator_class")
         base_class_mock._EnumerationInstantiator__is_collection_value.return_value = True
         base_class_mock._EnumerationInstantiator__instantiate_enum_collection.return_value = "actual_value"
@@ -99,8 +111,51 @@ class TestEnumerationInstantiator:
         value_mock.toPython.assert_called_once()
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.enumeration_instantiator.isinstance")
-    def test_to_enum_node_value_node_is_URIRef_not_collection_value(self, isinstance_mock):
-        isinstance_mock.side_effect = (False, True, True)
+    def test_to_enum_node_value_with_see_property(self, isinstance_mock):
+        isinstance_mock.side_effect = (False, True, True, True, True)
+        base_class_mock = mock.MagicMock(name="EnumerationInstantiator_class")
+        base_class_mock._EnumerationInstantiator__is_collection_value.side_effect = (False, False)
+        base_class_mock._EnumerationInstantiator__to_enum_node_value.side_effect = ("actual_value_1", "actual_value_2")
+        aspect_graph_mock = mock.MagicMock(name="aspect_graph")
+        aspect_graph_mock.predicate_objects.return_value = [
+            ("property_urn#see", "property_value_1"),
+            ("property_urn#see", "property_value_2"),
+        ]
+        base_class_mock._aspect_graph = aspect_graph_mock
+        samm_mock = mock.MagicMock(name="SAMM")
+        value_mock = mock.MagicMock(name="value")
+        value_mock.toPython.return_value = "value_key"
+        samm_mock.get_urn.return_value = value_mock
+        base_class_mock._samm = samm_mock
+        result = EnumerationInstantiator._EnumerationInstantiator__to_enum_node_value(
+            base_class_mock,
+            "value_node#value_node_name",
+        )
+
+        assert len(result) == 2
+        assert "see" in result
+        assert sorted(result["see"]) == ["actual_value_1", "actual_value_2"]
+        assert "value_key" in result
+        assert result["value_key"] == "value_node_name"
+        aspect_graph_mock.predicate_objects.assert_called_once_with("value_node#value_node_name")
+        base_class_mock._EnumerationInstantiator__is_collection_value.assert_has_calls(
+            [
+                mock.call("property_urn#see"),
+                mock.call("property_urn#see"),
+            ]
+        )
+        base_class_mock._EnumerationInstantiator__to_enum_node_value.assert_has_calls(
+            [
+                mock.call("property_value_1"),
+                mock.call("property_value_2"),
+            ]
+        )
+        samm_mock.get_urn.assert_called_once_with(SAMM.name)
+        value_mock.toPython.assert_called_once()
+
+    @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.enumeration_instantiator.isinstance")
+    def test_to_enum_node_value_node_is_BNode(self, isinstance_mock):
+        isinstance_mock.side_effect = (False, False, True, True, True)
         base_class_mock = mock.MagicMock(name="EnumerationInstantiator_class")
         base_class_mock._EnumerationInstantiator__is_collection_value.return_value = False
         base_class_mock._EnumerationInstantiator__to_enum_node_value.return_value = "actual_value"
@@ -136,14 +191,17 @@ class TestEnumerationInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.enumeration_instantiator.isinstance")
     def test_to_enum_node_value_node_is_URIRef_raise_exception(self, isinstance_mock):
-        isinstance_mock.side_effect = (False, False, False)
+        isinstance_mock.side_effect = (False, False, False, False)
         base_class_mock = mock.MagicMock(name="EnumerationInstantiator_class")
         with pytest.raises(TypeError) as error:
-            EnumerationInstantiator._EnumerationInstantiator__to_enum_node_value(base_class_mock, "value_node")
+            EnumerationInstantiator._EnumerationInstantiator__to_enum_node_value(
+                base_class_mock,
+                rdflib.namespace.RDF.nil,
+            )
 
         assert str(error.value) == (
             "Every value of an enumeration must either be a Literal (string, int, etc.) or "
-            "a URI reference to a ComplexType. Values of type str are not allowed"
+            "a URI reference to a ComplexType. Values of type URIRef are not allowed"
         )
 
     def test_is_collection_value(self):

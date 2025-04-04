@@ -11,7 +11,7 @@
 
 from rdflib.term import Node
 
-from esmf_aspect_meta_model_python.base.contraints.fixed_point_constraint import FixedPointConstraint
+from esmf_aspect_meta_model_python.base.constraints.fixed_point_constraint import FixedPointConstraint
 from esmf_aspect_meta_model_python.impl.constraints.default_fixed_point_constraint import DefaultFixedPointConstraint
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper

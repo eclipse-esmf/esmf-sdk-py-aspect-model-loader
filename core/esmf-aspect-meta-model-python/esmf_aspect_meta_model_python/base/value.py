@@ -9,11 +9,16 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-import abc
+from abc import ABC, abstractmethod
+from typing import Any
 
-from esmf_aspect_meta_model_python.base.constraints.constraint import Constraint
-from esmf_aspect_meta_model_python.impl.base_impl import BaseImpl
+from esmf_aspect_meta_model_python.base import Base
 
 
-class DefaultConstraint(BaseImpl, Constraint, metaclass=abc.ABCMeta):
-    """Default Constraint class."""
+class Value(Base, ABC):
+    """Value interface class."""
+
+    @property
+    @abstractmethod
+    def value(self) -> Any:
+        """Value."""

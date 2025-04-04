@@ -10,23 +10,25 @@
 #   SPDX-License-Identifier: MPL-2.0
 
 from abc import ABC, abstractmethod
+from typing import Optional
 
-from esmf_aspect_meta_model_python.base.contraints.constraint import Constraint
+from esmf_aspect_meta_model_python.base.constraints.constraint import Constraint
 
 
-class FixedPointConstraint(Constraint, ABC):
-    """Fixed Point Constraint interface class.
+class LengthConstraint(Constraint, ABC):
+    """Length Constraint interface class.
 
-    Defines the scaling factor as well as the amount of integral numbers for a fixed point number.
-    The constraint may only be used in conjunction with Characteristics which use the xsd:decimal data type.
+    The LengthConstraint can be used to restrict two types of Characteristics:
+    - It can restrict a string-like value in length of the value.
+    - It can restrict a collection in the number of elements.
     """
 
     @property
     @abstractmethod
-    def scale(self) -> int:
-        """Scale."""
+    def min_value(self) -> Optional[int]:
+        """Min value."""
 
     @property
     @abstractmethod
-    def integer(self) -> int:
-        """Integer."""
+    def max_value(self) -> Optional[int]:
+        """Max value."""

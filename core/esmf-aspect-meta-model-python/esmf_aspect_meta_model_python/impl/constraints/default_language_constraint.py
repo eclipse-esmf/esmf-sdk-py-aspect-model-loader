@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from esmf_aspect_meta_model_python.base.contraints.language_constraint import LanguageConstraint
+from esmf_aspect_meta_model_python.base.constraints.language_constraint import LanguageConstraint
 from esmf_aspect_meta_model_python.impl.constraints.default_constraint import DefaultConstraint
 from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import MetaModelBaseAttributes
 

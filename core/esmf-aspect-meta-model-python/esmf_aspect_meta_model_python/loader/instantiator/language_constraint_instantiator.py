@@ -11,7 +11,7 @@
 
 from rdflib.term import Node
 
-from esmf_aspect_meta_model_python.base.contraints.language_constraint import LanguageConstraint
+from esmf_aspect_meta_model_python.base.constraints.language_constraint import LanguageConstraint
 from esmf_aspect_meta_model_python.impl.constraints.default_language_constraint import DefaultLanguageConstraint
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper

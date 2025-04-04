@@ -20,7 +20,7 @@ import rdflib
 class SammUnitsGraph:
     """Model units graph."""
 
-    SAMM_VERSION = "2.1.0"
+    SAMM_VERSION = "2.2.0"
     UNIT_FILE_PATH = f"samm_aspect_meta_model/samm/unit/{SAMM_VERSION}/units.ttl"
     QUERY_TEMPLATE = Template("SELECT ?key ?value WHERE {$unit ?key ?value .}")
 

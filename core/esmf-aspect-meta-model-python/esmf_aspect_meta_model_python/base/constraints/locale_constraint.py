@@ -11,15 +11,16 @@
 
 from abc import ABC, abstractmethod
 
-from esmf_aspect_meta_model_python.base.contraints.constraint import Constraint
+from esmf_aspect_meta_model_python.base.constraints.constraint import Constraint
 
 
-class RegularExpressionConstraint(Constraint, ABC):
-    """Regular Expression Constraint interface class.
+class LocaleConstraint(Constraint, ABC):
+    """Locale Constraint interface class.
 
-    Restricts a string value to a regular expression as defined by XQuery 1.0 and XPath 2.0 Functions and Operators."""
+    Restricts a value to a specific locale, i.e., a language with additional region information, e.g. "de-DE".
+    """
 
     @property
     @abstractmethod
-    def value(self) -> str:
-        """Value."""
+    def locale_code(self) -> str:
+        """Locale code."""

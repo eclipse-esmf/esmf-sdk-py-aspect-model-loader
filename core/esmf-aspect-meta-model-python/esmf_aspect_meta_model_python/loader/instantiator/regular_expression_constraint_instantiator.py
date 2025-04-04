@@ -11,7 +11,7 @@
 
 from rdflib.term import Node
 
-from esmf_aspect_meta_model_python.base.contraints.regular_expression_constraint import RegularExpressionConstraint
+from esmf_aspect_meta_model_python.base.constraints.regular_expression_constraint import RegularExpressionConstraint
 from esmf_aspect_meta_model_python.impl.constraints.default_regular_expression_constraint import (
     DefaultRegularExpressionConstraint,
 )

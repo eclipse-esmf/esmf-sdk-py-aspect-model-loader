@@ -25,6 +25,7 @@ class MetaModelElements:
     Measurement = "Measurement"
     MimeType = "MimeType"
     MultiLanguageText = "MultiLanguageText"
+    Namespace = "Namespace"
     Operation = "Operation"
     Point3d = "Point3d"
     Property = "Property"
@@ -45,6 +46,7 @@ class MetaModelElements:
     Trait = "Trait"
     Unit = "Unit"
     UnitReference = "UnitReference"
+    Value = "Value"
 
     meta_model_elements = (
         AbstractEntity,
@@ -53,12 +55,14 @@ class MetaModelElements:
         Constraint,
         Entity,
         Event,
+        Namespace,
         Operation,
         Property,
         Quantifiable,
         QuantityKind,
         Trait,
         Unit,
+        Value,
     )
 
 

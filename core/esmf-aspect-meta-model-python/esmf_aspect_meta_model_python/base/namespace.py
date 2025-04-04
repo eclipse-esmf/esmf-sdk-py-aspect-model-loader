@@ -9,18 +9,10 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from abc import ABC, abstractmethod
+from abc import ABC
 
-from esmf_aspect_meta_model_python.base.contraints.constraint import Constraint
+from esmf_aspect_meta_model_python.base import Base
 
 
-class EncodingConstraint(Constraint, ABC):
-    """Encoding Constraint interface class.
-
-    Restricts the encoding of a Property. e.g. samm:UTF-8, samm:US:ASCII.
-    """
-
-    @property
-    @abstractmethod
-    def value(self) -> str:
-        """Value."""
+class Namespace(Base, ABC):
+    """Namespace interface class."""
