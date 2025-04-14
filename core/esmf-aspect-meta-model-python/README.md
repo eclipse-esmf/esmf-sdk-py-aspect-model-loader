@@ -116,7 +116,7 @@ SAMMUnitsGraph is a class contains functions for accessing units of measurement.
 from esmf_aspect_meta_model_python.samm_meta_model import units
 
 unit_name = "unit:volt"
-units.print_description(units.get_info(unit_name))
+units.print_info(units.get_info(unit_name))
 # preferredName: volt
 # commonCode: VLT
 # ...
@@ -126,7 +126,7 @@ units.print_description(units.get_info(unit_name))
 volt_info = units.get_info("unit:volt")
 # {'preferredName': rdflib.term.Literal('volt', lang='en'), 'commonCode': rdflib.term.Literal('VLT'), ... }
 
-units.print_description(volt_info)
+units.print_info(volt_info)
 # preferredName: volt
 # commonCode: VLT
 # ...

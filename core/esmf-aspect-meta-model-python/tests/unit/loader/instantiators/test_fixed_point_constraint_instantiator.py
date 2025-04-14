@@ -12,7 +12,7 @@ class TestFixedPointConstraintInstantiator:
     """FixedPointConstraintInstantiator unit tests class."""
 
     @mock.patch(
-        "esmf_aspect_meta_model_python.loader.instantiator.fixed_point_constraint_instantiator." "RdfHelper.to_python"
+        "esmf_aspect_meta_model_python.loader.instantiator.fixed_point_constraint_instantiator.RdfHelper.to_python"
     )
     @mock.patch(
         "esmf_aspect_meta_model_python.loader.instantiator.fixed_point_constraint_instantiator."

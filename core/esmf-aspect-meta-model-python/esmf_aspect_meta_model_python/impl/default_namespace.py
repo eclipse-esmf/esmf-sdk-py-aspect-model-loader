@@ -9,18 +9,9 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from abc import ABC, abstractmethod
+from esmf_aspect_meta_model_python.base.namespace import Namespace
+from esmf_aspect_meta_model_python.impl.base_impl import BaseImpl
 
-from esmf_aspect_meta_model_python.base.contraints.constraint import Constraint
 
-
-class LanguageConstraint(Constraint, ABC):
-    """LanguageConstraint interface class.
-
-    Restricts a value to a specific language. The language is specified by a language code e.g. "de".
-    """
-
-    @property
-    @abstractmethod
-    def language_code(self) -> str:
-        """Language code."""
+class DefaultNamespace(BaseImpl, Namespace):
+    """Default namespace class."""

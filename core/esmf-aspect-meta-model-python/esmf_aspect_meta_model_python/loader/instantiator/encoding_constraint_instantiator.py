@@ -11,7 +11,7 @@
 
 from rdflib.term import Node
 
-from esmf_aspect_meta_model_python.base.contraints.encoding_constraint import EncodingConstraint
+from esmf_aspect_meta_model_python.base.constraints.encoding_constraint import EncodingConstraint
 from esmf_aspect_meta_model_python.impl.constraints.default_encoding_constraint import DefaultEncodingConstraint
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper

@@ -14,7 +14,7 @@ from typing import List
 
 from esmf_aspect_meta_model_python.base.characteristics.characteristic import Characteristic
 
-from ..contraints import constraint
+from ..constraints import constraint
 
 
 class Trait(Characteristic, ABC):

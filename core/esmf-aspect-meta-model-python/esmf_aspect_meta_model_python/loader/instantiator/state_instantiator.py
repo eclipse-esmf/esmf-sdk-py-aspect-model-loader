@@ -67,8 +67,10 @@ class StateInstantiator(EnumerationInstantiator):
                 if property_urn != rdflib.RDF.type and isinstance(property_urn, str):
                     property_name = property_urn.split("#")[1]
                     actual_value: Optional[Any]
-                    if self.__is_collection_value(property_urn):
-                        actual_value = self.__instantiate_enum_collection(property_value)
+                    if self._EnumerationInstantiator__is_collection_value(property_urn):  # type: ignore
+                        actual_value = self._EnumerationInstantiator__instantiate_enum_collection(  # type: ignore
+                            property_value
+                        )
                     else:
                         actual_value = self.__to_state_node_value(property_value)
                     value[property_name] = actual_value

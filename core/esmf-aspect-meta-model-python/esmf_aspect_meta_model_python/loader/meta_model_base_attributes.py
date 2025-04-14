@@ -94,10 +94,7 @@ class MetaModelBaseAttributes:
 
             return MetaModelBaseAttributes(meta_model_version, urn, name, preferred_names, descriptions, see)
 
-        raise TypeError(
-            "Unexpected type. Get MetaModelBaseAttributes.from_meta_model_element \
-            can't handle this type."
-        )
+        raise TypeError("Unexpected type. Get MetaModelBaseAttributes.from_meta_model_element can't handle this type.")
 
     @staticmethod
     def __create_default_name(meta_model_element: rdflib.BNode, aspect_graph, samm) -> str:
@@ -129,12 +126,14 @@ class MetaModelBaseAttributes:
             urn:samm:org.eclipse.esmf.examples:TestAspect:1.0.0 -> TestAspect
         """
         split_urn = urn.split("#")
+
         if len(split_urn) == 2:
-            # urn:samm:org.eclipse.esmf.examples#testProperty
-            return split_urn[1]
-        # urn:samm:org.eclipse.esmf.examples:TestAspect:1.0.0
-        split_urn = urn.split(":")
-        return split_urn[-2]
+            name = split_urn[1]
+        else:
+            split_urn = urn.split(":")
+            name = split_urn[-2]
+
+        return name
 
     @staticmethod
     def __get_language_strings(

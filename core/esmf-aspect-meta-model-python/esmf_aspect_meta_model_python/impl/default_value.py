@@ -9,21 +9,27 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from esmf_aspect_meta_model_python.base.constraints.regular_expression_constraint import RegularExpressionConstraint
-from esmf_aspect_meta_model_python.impl.constraints.default_constraint import DefaultConstraint
+from typing import Any
+
+from esmf_aspect_meta_model_python.base.value import Value
+from esmf_aspect_meta_model_python.impl.base_impl import BaseImpl
 from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import MetaModelBaseAttributes
 
 
-class DefaultRegularExpressionConstraint(DefaultConstraint, RegularExpressionConstraint):
-    """Default Regular Expression Constraint."""
+class DefaultValue(BaseImpl, Value):
+    """Default value class."""
 
-    SCALAR_ATTR_NAMES = DefaultConstraint.SCALAR_ATTR_NAMES + ["value"]
+    SCALAR_ATTR_NAMES = BaseImpl.SCALAR_ATTR_NAMES + ["value"]
 
-    def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, value: str):
+    def __init__(
+        self,
+        meta_model_base_attributes: MetaModelBaseAttributes,
+        value: Any,
+    ):
         super().__init__(meta_model_base_attributes)
         self._value = value
 
     @property
-    def value(self) -> str:
+    def value(self) -> Any:
         """Value."""
         return self._value

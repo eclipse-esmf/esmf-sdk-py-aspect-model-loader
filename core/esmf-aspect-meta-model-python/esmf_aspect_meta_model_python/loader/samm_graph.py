@@ -219,6 +219,13 @@ class SAMMGraph:
 
         return self.aspect
 
+    def _get_aspect_from_elements(self):
+        """Geta and save the Aspect element from the model elements."""
+        if self.model_elements:
+            for element in self.model_elements:
+                if isinstance(element, Aspect):
+                    self.aspect = element
+
     def load_model_elements(self) -> list[BaseImpl]:
         """Creates a python object(s) to represent the Aspect model graph."""
         if self.model_elements is None:
@@ -228,6 +235,7 @@ class SAMMGraph:
 
             model_element_factory = ModelElementFactory(self.samm_version, graph, self._cache)
             self.model_elements = model_element_factory.create_all_graph_elements(model_elements)
+            self._get_aspect_from_elements()
 
         return self.model_elements
 
