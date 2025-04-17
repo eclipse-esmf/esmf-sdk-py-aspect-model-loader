@@ -31,11 +31,17 @@ python --version
 ----
 
 * In order to include the packages a Python dependency manager is required; we recommend
-https://python-poetry.org/[Python Poetry].
+either https://pypi.org/project/pip/[pip] or https://python-poetry.org/[Python Poetry].
 The remainder of the guide assumes usage of Poetry.
-Please refer to the https://python-poetry.org/docs/#installation[Poetry installation guide].
-You can check your installed Poetry version with
+Please refer to the https://pip.pypa.io/en/stable/installation/[pip installation] or
+https://python-poetry.org/docs/#installation[Poetry installation guide].
+You can check your installed pip/Poetry version with
 +
+[source,bash]
+----
+pip --version
+----
+or
 [source,bash]
 ----
 poetry --version
@@ -59,52 +65,38 @@ If you want to work with Aspect Models in your Python solution you should instal
 === PyPI
 
 To install the esmf-aspect-model-loader from PyPI, you can use the following command:
+[source,bash]
+----
+pip install esmf-aspect-model-loader
+----
 
+You can specify the version of the package by adding the version number after the package name.
+For example, to install a specific version of the package, you can use the following command:
+[source,bash,subs=attributes+]
+----
+pip install esmf-aspect-model-loader=={esmf-sdk-py-aspect-model-loader-version}
+----
+
+For more detailed information how to install a library with pip please read
+https://pip.pypa.io/en/stable/user_guide/#installing-packages[pip Installing Packages guide].
+
+=== Poetry
+
+To install the esmf-aspect-model-loader from PyPI with poetry dependency manager, you can use the following command:
 [source,bash]
 ----
 poetry add esmf-aspect-model-loader
 ----
 
 You can specify the version of the package by adding the version number after the package name.
-For example, to install version 2.2.0 of the package, you can use the following command:
-[source,bash]
+For example, to install a specific version of the package, you can use the following command:
+[source,bash,subs=attributes+]
 ----
-poetry add esmf-aspect-model-loader==2.2.0
+poetry add esmf-aspect-model-loader=={esmf-sdk-py-aspect-model-loader-version}
 ----
 
 For more detailed information how to add a library via poetry please read https://python-poetry.org/docs/cli/#add[Poetry add guide].
 
-=== GitHub Releases
-
-To use GitHub release as dependency using Poetry, you need to add it like this:
-
-[source,toml]
-----
-[tool.poetry.dependencies]
-esmf-aspect-model-loader = { git = "https://github.com/eclipse-esmf/esmf-sdk-py-aspect-model-loader.git", tag = "v2.2.0", subdirectory = "core/esmf-aspect-meta-model-python" }`
-----
-
-for more information on depend on a library located in a git:
-https://python-poetry.org/docs/dependency-specification/#git-dependencies[git dependencies]
-
-
-== Installation with local package
-
-The Python package is an archive with the file ending `.tar.gz`.
-If you are working with Poetry, you can easily import that package by adding the local reference to your `pyproject.toml`
-
-[source,toml]
-----
-[tool.poetry.dependencies]
-esmf-aspect-model-loader = { path = "path/to/esmf-aspect-meta-model-python-x.y.z.tar.gz" }
-----
-
-To make Poetry recognize your changes, run
-[source,bash]
-
-----
-poetry update
-----
 
 === Loading an Aspect Model
 
