@@ -71,10 +71,10 @@ pip install esmf-aspect-model-loader
 ----
 
 You can specify the version of the package by adding the version number after the package name.
-For example, to install version 2.2.0 of the package, you can use the following command:
-[source,bash]
+For example, to install a specific version of the package, you can use the following command:
+[source,bash,subs=attributes+]
 ----
-pip install esmf-aspect-model-loader==2.2.0
+pip install esmf-aspect-model-loader=={esmf-sdk-py-aspect-model-loader-version}
 ----
 
 For more detailed information how to install a library with pip please read
@@ -89,10 +89,10 @@ poetry add esmf-aspect-model-loader
 ----
 
 You can specify the version of the package by adding the version number after the package name.
-For example, to install version 2.2.0 of the package, you can use the following command:
-[source,bash]
+For example, to install a specific version of the package, you can use the following command:
+[source,bash,subs=attributes+]
 ----
-poetry add esmf-aspect-model-loader==2.2.0
+poetry add esmf-aspect-model-loader=={esmf-sdk-py-aspect-model-loader-version}
 ----
 
 For more detailed information how to add a library via poetry please read https://python-poetry.org/docs/cli/#add[Poetry add guide].
