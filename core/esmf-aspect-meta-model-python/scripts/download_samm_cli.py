@@ -1,8 +1,8 @@
 """Download SAMM CLI.
 
-Windows: https://github.com/eclipse-esmf/esmf-sdk/releases/download/v2.6.1/samm-cli-2.6.1-windows-x86_64.zip
-  Linux: https://github.com/eclipse-esmf/esmf-sdk/releases/download/v2.6.1/samm-cli-2.6.1-linux-x86_64.tar.gz
-    JAR: https://github.com/eclipse-esmf/esmf-sdk/releases/download/v2.6.1/samm-cli-2.6.1.jar
+Windows: https://github.com/eclipse-esmf/esmf-sdk/releases/download/v2.10.2/samm-cli-2.10.2-windows-x86_64.zip
+  Linux: https://github.com/eclipse-esmf/esmf-sdk/releases/download/v2.10.2/samm-cli-2.10.2-linux-x86_64.tar.gz
+    JAR: https://github.com/eclipse-esmf/esmf-sdk/releases/download/v2.10.2/samm-cli-2.10.2.jar
 """
 
 import os
