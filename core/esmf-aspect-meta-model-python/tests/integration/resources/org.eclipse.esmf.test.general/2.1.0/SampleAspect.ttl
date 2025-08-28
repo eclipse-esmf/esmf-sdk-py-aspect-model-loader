@@ -1,0 +1,50 @@
+#
+# Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH, Germany. All rights reserved.
+#
+
+@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .
+@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .
+@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .
+@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <urn:samm:org.eclipse.esmf.test.general:2.1.0#> .
+
+:SampleAspect a samm:Aspect ;
+   samm:preferredName "Test Aspect"@en ;
+   samm:description "A test aspect for integration testing"@en ;
+   samm:properties ( :testProperty :testComplexProperty ) ;
+   samm:operations ( ) .
+
+:testProperty a samm:Property ;
+   samm:preferredName "Test Property"@en ;
+   samm:description "A simple test property"@en ;
+   samm:characteristic samm-c:Text .
+
+:testComplexProperty a samm:Property ;
+   samm:preferredName "Test Complex Property"@en ;
+   samm:description "A complex test property"@en ;
+   samm:characteristic :TestCharacteristic .
+
+:TestCharacteristic a samm-c:SingleEntity ;
+   samm:preferredName "Test Characteristic"@en ;
+   samm:description "A test characteristic"@en ;
+   samm:dataType :TestEntity .
+
+:TestEntity a samm:Entity ;
+   samm:preferredName "Test Entity"@en ;
+   samm:description "A test entity"@en ;
+   samm:properties ( :entityProperty1 :entityProperty2 ) .
+
+:entityProperty1 a samm:Property ;
+   samm:preferredName "Entity Property 1"@en ;
+   samm:characteristic samm-c:Text .
+
+:entityProperty2 a samm:Property ;
+   samm:preferredName "Entity Property 2"@en ;
+   samm:characteristic :NumberCharacteristic .
+
+:NumberCharacteristic a samm:Characteristic ;
+   samm:preferredName "Number Characteristic"@en ;
+   samm:dataType xsd:integer .

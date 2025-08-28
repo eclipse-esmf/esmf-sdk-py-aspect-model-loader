@@ -144,7 +144,7 @@ Python Aspect Model Loader provide a wrapper class to be able to call SAMM CLI f
 For instance, validation of a model can be done with the following code snippet:
 
 ```python
-from esmf_aspect_meta_model_python.samm_cli_functions import SammCli
+from esmf_aspect_meta_model_python.samm_cli import SammCli
 
 samm_cli = SammCli()
 model_path = "Paht_to_the_model/Model.ttl"
@@ -154,12 +154,25 @@ samm_cli.validate(model_path)
 
 List of SAMMCLI functions:
 - validate
+- prettyprint
+- usage
 - to_openapi
 - to_schema
 - to_json
 - to_html
 - to_png
 - to_svg
+- to_java
+- to_asyncapi
+- to_jsonld
+- to_sql
+- to_aas
+- edit_move
+- edit_newversion
+- aas_to_aspect
+- aas_list
+- package_import
+- package_export
 
 # Scripts
 

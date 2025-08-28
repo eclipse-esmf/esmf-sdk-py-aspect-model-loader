@@ -14,7 +14,9 @@ from pathlib import Path
 
 from esmf_aspect_meta_model_python import SAMMGraph
 
-RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.general_with_references/2.1.0")
+RESOURCE_PATH = getcwd() / Path(
+    "tests/integration/aspect_model_loader/resources/org.eclipse.esmf.test.general_with_references/2.1.0"
+)
 
 
 def test_resolve_elements_references():

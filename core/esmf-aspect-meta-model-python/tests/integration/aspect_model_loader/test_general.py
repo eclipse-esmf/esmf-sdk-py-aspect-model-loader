@@ -14,7 +14,7 @@ from pathlib import Path
 
 from esmf_aspect_meta_model_python import BaseImpl, ComplexType, Either, SAMMGraph
 
-RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.general/2.1.0")
+RESOURCE_PATH = getcwd() / Path("tests/integration/aspect_model_loader/resources/org.eclipse.esmf.test.general/2.1.0")
 
 
 def test_aspect_with_multiple_attributes():
