@@ -34,4 +34,4 @@ class TestModelConstants:
         "esmf-test-aspect-models-$version_number.jar"
     )
     SAMM_VERSION = SAMM_VERSION
-    TEST_MODELS_PATH = join("tests", "integration", "java_models", "resources")
+    TEST_MODELS_PATH = join("tests", "integration", "aspect_model_loader", "java_models", "resources")

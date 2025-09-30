@@ -14,7 +14,7 @@ from pathlib import Path
 
 from esmf_aspect_meta_model_python import AbstractEntity, ComplexType, Enumeration, Quantifiable, SAMMGraph
 
-RESOURCE_PATH = getcwd() / Path("tests/integration/resources/org.eclipse.esmf.test.entity/2.1.0")
+RESOURCE_PATH = getcwd() / Path("tests/integration/aspect_model_loader/resources/org.eclipse.esmf.test.entity/2.1.0")
 
 
 def test_loading_aspect_with_entity_enum():

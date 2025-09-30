@@ -18,7 +18,7 @@ from scripts.download_test_models import download_test_models
 
 def get_resources_folder_path() -> str:
     """Get a path for storing test models."""
-    base_path = Path(__file__).parents[3].absolute()
+    base_path = Path(__file__).parents[4].absolute()
     models_path = join(base_path, TestModelConstants.TEST_MODELS_PATH)
 
     return models_path
