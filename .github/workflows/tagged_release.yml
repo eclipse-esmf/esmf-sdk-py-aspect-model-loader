@@ -7,10 +7,18 @@ on:
         description: 'Version number of the release'
         required: true
 
+env:
+  RELEASE_VERSION: ${{ github.event.inputs.release_version }}
+
+permissions: { }
+
 jobs:
   check-preconditions:
     name: Check if passes all requirements
     runs-on: ${{ matrix.os }}
+
+    permissions:
+      contents: read
 
     strategy:
       fail-fast: false
@@ -19,14 +27,18 @@ jobs:
         os: [ ubuntu-latest ]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
+
       - name: Set up Python 3.10
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@3542bca2639a428e1796aaa6a2ffef0c0f575566 # v3
         with:
           python-version: "3.10"
 
       - name: Run image
-        uses: abatilo/actions-poetry@v2
+        uses: abatilo/actions-poetry@a5643c67b5fcc9ac5eddb395c7f61b1b66d86034 # v2
         with:
           poetry-version: ${{ matrix.poetry-version }}
 
@@ -49,7 +61,7 @@ jobs:
 
   create_and_publish_release:
     name: Create tagged release
-    needs: [check-preconditions]
+    needs: [ check-preconditions ]
     runs-on: ${{ matrix.os }}
 
     permissions:
@@ -64,9 +76,13 @@ jobs:
         os: [ ubuntu-latest ]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
+
       - name: Set up Python 3.10
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@3542bca2639a428e1796aaa6a2ffef0c0f575566 # v3
         with:
           python-version: "3.10"
 
@@ -88,85 +104,86 @@ jobs:
           echo "current_version=${version}" >> $GITHUB_ENV
 
       - name: Check version incrementing
-        if: ${{ !contains( github.event.inputs.release_version, '-M' ) }}
-        run: python -c "assert '${{ github.event.inputs.release_version }}' > '${{ env.current_version }}'"
+        if: ${{ !contains( env.RELEASE_VERSION, '-M' ) }}
+        run: python -c "assert '${RELEASE_VERSION}' > '${current_version}'"
         shell: sh
 
       - name: Check version format
-        if: ${{ !contains( github.event.inputs.release_version, '-M' ) }}
-        run: | 
-          if [[ ${{ github.event.inputs.release_version }} =~ ^[0-9]+.[0-9]+.[0-9]+$ ]]; then
+        if: ${{ !contains( env.RELEASE_VERSION, '-M' ) }}
+        run: |
+          if [[ ${RELEASE_VERSION} =~ ^[0-9]+.[0-9]+.[0-9]+$ ]]; then
             echo release version is valid
           else
-            echo release version ${{ github.event.inputs.release_version }} is invalid
+            echo release version ${RELEASE_VERSION} is invalid
             exit 1
           fi
 
       - name: Set versions
         continue-on-error: true
         run: |
-          release_version=${{ github.event.inputs.release_version }}
-          release_branch_name=${release_version%.*}.x
+          release_branch_name=${RELEASE_VERSION%.*}.x
           echo "release_branch_name=$release_branch_name" >> $GITHUB_ENV
 
       - name: Prepare release branch
         continue-on-error: true
         run: |
           git fetch
-          git checkout -b  ${{ env.release_branch_name }}
-          git push --set-upstream origin ${{ env.release_branch_name }}
+          git checkout -b "${release_branch_name}"
+          git push --set-upstream origin "${release_branch_name}"
 
-      - uses: actions/checkout@v4
+      - name: Checkout release branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           ref: ${{ env.release_branch_name }}
+          persist-credentials: false
 
       - name: Set antora version
-        run: yq eval -i '.version = "${{ github.event.inputs.release_version }}"' documentation/python-sdk-guide/antora.yml
+        run: yq eval -i '.version = "${RELEASE_VERSION}"' documentation/python-sdk-guide/antora.yml
 
       - name: Set esmf-aspect project version
         id: ESMF_version
         run: |
           cd core/esmf-aspect-meta-model-python
-          poetry version ${{ github.event.inputs.release_version }}
-          echo "EsmfVersion=${{ github.event.inputs.release_version }}" >> $GITHUB_ENV
-          echo "::set-output name=EsmfVersion::${{ github.event.inputs.release_version }}"
+          poetry version "${RELEASE_VERSION}"
+          echo "EsmfVersion=${RELEASE_VERSION}" >> $GITHUB_ENV
+          echo "EsmfVersion=${RELEASE_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Push changes to the release branch
         run: |
           git pull
           git add documentation/python-sdk-guide/antora.yml
           git add core/esmf-aspect-meta-model-python/pyproject.toml
-          git commit -m "Release version ${{steps.ESMF_version.outputs.EsmfVersion}}."
+          git commit -m "Release version ${EsmfVersion}."
           git push
 
       - name: Create tag
         run: |
-          tag_version=v${{ github.event.inputs.release_version }}
+          tag_version=v${RELEASE_VERSION}
           git tag $tag_version
           git push origin $tag_version
 
       - name: Create changelog
         id: changelog
-        uses: requarks/changelog-action@v1
+        uses: requarks/changelog-action@6d71e098526ee17bae963f058d34cd763378337f # v1
         with:
           token: ${{ github.token }}
-          tag: v${{ github.event.inputs.release_version }}
+          tag: v${{ env.RELEASE_VERSION }}
           includeInvalidCommits: true
 
       - name: Create and tag GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
         with:
           body: ${{ steps.changelog.outputs.changes }}
-          name: "Release version ${{ github.event.inputs.release_version }}"
-          tag_name: v${{ github.event.inputs.release_version }}
+          name: "Release version ${{ env.RELEASE_VERSION }}"
+          tag_name: v${{ env.RELEASE_VERSION }}
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and publish esmf-aspect-model-loader project
         run: |
-          git checkout ${{ env.release_branch_name }}
+          git checkout "${release_branch_name}"
           git status
           cd core/esmf-aspect-meta-model-python
           poetry install

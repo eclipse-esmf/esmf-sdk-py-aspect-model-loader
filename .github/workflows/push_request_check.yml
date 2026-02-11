@@ -8,6 +8,9 @@ on:
     paths-ignore:
       - 'documentation/decisions/**'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Check if passes all requirements
@@ -19,14 +22,16 @@ jobs:
         os: [ ubuntu-latest ]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
       - name: Set up Python 3.10
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@3542bca2639a428e1796aaa6a2ffef0c0f575566 # v3
         with:
           python-version: "3.10"
 
       - name: Run image
-        uses: abatilo/actions-poetry@v2
+        uses: abatilo/actions-poetry@a5643c67b5fcc9ac5eddb395c7f61b1b66d86034 # v2
         with:
           poetry-version: ${{ matrix.poetry-version }}
 
