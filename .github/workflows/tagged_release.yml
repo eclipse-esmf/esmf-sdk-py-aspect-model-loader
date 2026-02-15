@@ -1,193 +1,475 @@
+# Manually-triggered release workflow for the esmf-aspect-model-loader Python package.
+#
+# Release order (designed for safe rollback):
+#   1. check-preconditions  – validate input, build, test, lint
+#   2. create_and_publish_release:
+#      a. Create/checkout release branch (e.g. 1.2.x)
+#      b. Bump version in pyproject.toml & antora.yml, commit locally
+#      c. Build the package
+#      d. Publish to PyPI          (if this fails → nothing to clean up)
+#      e. Push version commit       (if this fails → PyPI has the package but no tag/release)
+#      f. Create & push git tag
+#      g. Create GitHub release with changelog
+#
+# Security:
+#   - All third-party actions are pinned to commit SHAs
+#   - Validated commit SHA is passed between jobs to prevent TOCTOU races
+#   - Version input is validated with strict regex before any git operations
+
 name: Build release
 
 on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: 'Version number of the release'
+        description: "Version number of the release"
         required: true
+
+concurrency: # Prevent concurrent releases from interfering with each other
+  group: release-${{ github.workflow }}
+  cancel-in-progress: false
 
 env:
   RELEASE_VERSION: ${{ github.event.inputs.release_version }}
+  POETRY_VERSION: "1.5.0"
+  PYTHON_VERSION: "3.10"
+  WORKING_DIR: core/esmf-aspect-meta-model-python
+  PYPI_PACKAGE_NAME: "esmf-aspect-model-loader"
 
+# Drop all default permissions; each job declares only what it needs (least-privilege)
 permissions: { }
 
 jobs:
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Job 1: Validate inputs, build, test, and lint before touching any release artifacts
+  # ──────────────────────────────────────────────────────────────────────────────
   check-preconditions:
     name: Check if passes all requirements
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
 
-    strategy:
-      fail-fast: false
-      matrix:
-        poetry-version: [ 1.5.0 ]
-        os: [ ubuntu-latest ]
+    outputs:
+      validated_sha: ${{ steps.get_sha.outputs.sha }}
+
+    defaults:
+      run:
+        shell: bash -euo pipefail {0}
 
     steps:
+      # Validate version format BEFORE any other operations to prevent command injection
+      - name: Validate version format
+        run: |
+          version="${RELEASE_VERSION}"
+
+          # Strict semver regex: MAJOR.MINOR.PATCH with optional pre-release (-alpha, -beta, -M1, -rc.1, etc.)
+          if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9]+(\.[A-Za-z0-9]+)*)?$ ]]; then
+            echo "::error::Invalid version format '${version}'. Expected semantic versioning (e.g., 1.2.3, 1.2.3-M1, 1.2.3-beta.1)"
+            exit 1
+          fi
+
+          echo "✅ Version format validated: ${version}"
+
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
+          fetch-depth: 0 # Needed for tag check
 
-      - name: Set up Python 3.10
+      # Pin the exact commit SHA so later jobs check out the same code that was validated,
+      # preventing TOCTOU (time-of-check-time-of-use) races if new commits are pushed mid-run
+      - name: Capture validated commit SHA
+        id: get_sha
+        run: |
+          echo "sha=${GITHUB_SHA}" >> "${GITHUB_OUTPUT}"
+          echo "✅ Validated commit SHA: ${GITHUB_SHA}"
+
+      - name: Check tag doesn't already exist
+        run: |
+          if git rev-parse "v${RELEASE_VERSION}" >/dev/null 2>&1; then
+            echo "::error::Tag v${RELEASE_VERSION} already exists"
+            exit 1
+          fi
+          echo "✅ Tag v${RELEASE_VERSION} is available"
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
-          python-version: "3.10"
+          python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Run image
+      - name: Validate version with PEP 440
+        run: |
+          python -m pip install --quiet --upgrade --no-input --disable-pip-version-check packaging
+          python - << 'EOF'
+          from packaging.version import Version, InvalidVersion
+          import os
+
+          version = os.environ["RELEASE_VERSION"]
+          try:
+              Version(version)
+              print(f"✅ Version {version} is PEP 440 compliant")
+          except InvalidVersion:
+              raise SystemExit(f"::error::Invalid PEP 440 version: {version}")
+          EOF
+
+      - name: Set up Poetry
         uses: abatilo/actions-poetry@3765cf608f2d4a72178a9fc5b918668e542b89b1 # v4.0.0
         with:
-          poetry-version: ${{ matrix.poetry-version }}
+          poetry-version: ${{ env.POETRY_VERSION }}
 
-      - name: build esmf-aspect
+      - name: Build esmf-aspect
+        working-directory: ${{ env.WORKING_DIR }}
         run: |
-          cd core/esmf-aspect-meta-model-python
-          poetry install
+          poetry install --no-interaction --no-ansi
           poetry run download-samm-release
           poetry build
 
-      - name: run tests
-        run: |
-          cd core/esmf-aspect-meta-model-python
-          poetry run tox -e py310
+      - name: Run tests
+        working-directory: ${{ env.WORKING_DIR }}
+        run: poetry run tox -e "py${PYTHON_VERSION//./}"
 
-      - name: run code style checks
-        run: |
-          cd core/esmf-aspect-meta-model-python
-          poetry run tox -e pep8
+      - name: Run code style checks
+        working-directory: ${{ env.WORKING_DIR }}
+        run: poetry run tox -e pep8
 
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Job 2: Bump versions, build, publish to PyPI, tag, and create GitHub release
+  # Runs only after all preconditions pass. Steps are ordered so that failures
+  # at any point leave the repository in a recoverable state.
+  # ──────────────────────────────────────────────────────────────────────────────
   create_and_publish_release:
     name: Create tagged release
     needs: [ check-preconditions ]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     permissions:
       # Give the default GITHUB_TOKEN write permission to commit and push the
       # added or changed files to the repository.
       contents: write
 
-    strategy:
-      fail-fast: false
-      matrix:
-        poetry-version: [ 1.5.0 ]
-        os: [ ubuntu-latest ]
+    defaults:
+      run:
+        shell: bash -euo pipefail {0}
 
     steps:
-      - name: Checkout
+      - name: Checkout validated commit
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          persist-credentials: false
+          ref: ${{ needs.check-preconditions.outputs.validated_sha }}
+          persist-credentials: true # Required for git push operations
+          fetch-depth: 0 # Fetch full git history and tags (needed for releases)
 
-      - name: Set up Python 3.10
+      - name: Verify checkout matches validated SHA
+        env:
+          EXPECTED_SHA: ${{ needs.check-preconditions.outputs.validated_sha }}
+        run: |
+          current_sha=$(git rev-parse HEAD)
+          if [[ "${current_sha}" != "${EXPECTED_SHA}" ]]; then
+            echo "::error::SHA mismatch: expected ${EXPECTED_SHA}, got ${current_sha}"
+            exit 1
+          fi
+          echo "✅ Checkout verified: ${current_sha}"
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
-          python-version: "3.10"
+          python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install poetry ${{ matrix.poetry-version }}
-        run: |
-          python -m ensurepip
-          python -m pip install --upgrade pip
-          python -m pip install poetry==${{ matrix.poetry-version }}
+      - name: Set up Poetry
+        uses: abatilo/actions-poetry@3765cf608f2d4a72178a9fc5b918668e542b89b1 # v4.0.0
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
 
+      # Use the standard bot identity for automated commits so they are clearly
+      # distinguishable from human commits in git log
       - name: Setup Git
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Get current version
+      # Derive the release branch name by replacing the PATCH segment with 'x'
+      # e.g. 1.2.3 → 1.2.x, 2.0.0-M1 → 2.0.x
+      - name: Determine release branch
+        run: echo "RELEASE_BRANCH_NAME=${RELEASE_VERSION%.*}.x" >> "${GITHUB_ENV}"
+
+      - name: Create or checkout release branch
+        env:
+          VALIDATED_SHA: ${{ needs.check-preconditions.outputs.validated_sha }}
         run: |
-          cd core/esmf-aspect-meta-model-python
-          version=$(poetry version -s)
-          echo "current_version=${version}" >> $GITHUB_ENV
-
-      - name: Check version incrementing
-        if: ${{ !contains( env.RELEASE_VERSION, '-M' ) }}
-        run: python -c "assert '${RELEASE_VERSION}' > '${current_version}'"
-        shell: sh
-
-      - name: Check version format
-        if: ${{ !contains( env.RELEASE_VERSION, '-M' ) }}
-        run: |
-          if [[ ${RELEASE_VERSION} =~ ^[0-9]+.[0-9]+.[0-9]+$ ]]; then
-            echo release version is valid
+          # Note: fetch-depth: 0 already fetched all refs during checkout
+          
+          if git show-ref --quiet "refs/remotes/origin/${RELEASE_BRANCH_NAME}"; then
+            echo "Release branch ${RELEASE_BRANCH_NAME} exists remotely"
+            
+            remote_sha=$(git rev-parse "origin/${RELEASE_BRANCH_NAME}")
+            
+            # Case 1: Remote matches validated SHA - ideal case
+            if [[ "${remote_sha}" == "${VALIDATED_SHA}" ]]; then
+              echo "✅ Remote branch HEAD matches validated commit"
+              git checkout -B "${RELEASE_BRANCH_NAME}" --track "origin/${RELEASE_BRANCH_NAME}"
+            
+            # Case 2: Remote is ancestor of validated SHA - branch can be fast-forwarded
+            elif git merge-base --is-ancestor "${remote_sha}" "${VALIDATED_SHA}"; then
+              echo "Remote branch (${remote_sha:0:7}) is behind validated commit (${VALIDATED_SHA:0:7})"
+              echo "Creating local branch at validated commit..."
+              git checkout -b "${RELEASE_BRANCH_NAME}" "${VALIDATED_SHA}"
+              git branch --set-upstream-to="origin/${RELEASE_BRANCH_NAME}"
+              echo "✅ Branch will be fast-forwarded on push"
+            
+            # Case 3: Validated SHA is ancestor of remote - branch moved forward after validation
+            elif git merge-base --is-ancestor "${VALIDATED_SHA}" "${remote_sha}"; then
+              echo "::error::Release branch has new commits since validation started"
+              echo "::error::  Validated commit: ${VALIDATED_SHA}"
+              echo "::error::  Remote HEAD:      ${remote_sha}"
+              echo "::error::"
+              echo "::error::Another commit was pushed to the release branch between validation and release."
+              echo "::error::Re-run the workflow to validate the latest branch state."
+              exit 1
+            
+            # Case 4: Diverged histories - manual intervention required
+            else
+              echo "::error::Release branch has diverged from validated commit"
+              echo "::error::  Validated commit: ${VALIDATED_SHA}"
+              echo "::error::  Remote HEAD:      ${remote_sha}"
+              echo "::error::  Merge base:       $(git merge-base "${VALIDATED_SHA}" "${remote_sha}" || echo 'none')"
+              echo "::error::"
+              echo "::error::The release branch and validated commit have diverged."
+              echo "::error::Manual intervention required to resolve."
+              exit 1
+            fi
           else
-            echo release version ${RELEASE_VERSION} is invalid
+            echo "Creating new release branch ${RELEASE_BRANCH_NAME}"
+            git checkout -b "${RELEASE_BRANCH_NAME}" "${VALIDATED_SHA}"
+            git push -u origin "${RELEASE_BRANCH_NAME}"
+            echo "✅ New branch created and pushed"
+          fi
+          
+          # Final verification - ensure HEAD is at validated SHA
+          current_sha=$(git rev-parse HEAD)
+          if [[ "${current_sha}" != "${VALIDATED_SHA}" ]]; then
+            echo "::error::Unexpected state - HEAD (${current_sha}) differs from validated SHA (${VALIDATED_SHA})"
+            exit 1
+          fi
+          
+          echo ""
+          echo "✅ On release branch: ${RELEASE_BRANCH_NAME}"
+          echo "   Commit: ${VALIDATED_SHA:0:7} ($(git log -1 --format='%s' HEAD))"
+
+      # Version check moved AFTER branch checkout to compare against the correct branch's version
+      - name: Get current version from release branch
+        working-directory: ${{ env.WORKING_DIR }}
+        run: echo "CURRENT_VERSION=$(poetry version -s)" >> "${GITHUB_ENV}"
+
+      # Skip version increment check for pre-releases (e.g. 1.2.3-M1) since they may
+      # re-use the same major.minor.patch as a previous pre-release or the final release
+      - name: Check version incrementing
+        if: ${{ !contains(env.RELEASE_VERSION, '-') }}
+        run: |
+          python -m pip install --quiet --upgrade --no-input --disable-pip-version-check packaging
+          python - << 'EOF'
+          from packaging.version import Version
+          import os
+
+          release = Version(os.environ["RELEASE_VERSION"])
+          current = Version(os.environ["CURRENT_VERSION"])
+
+          if release <= current:
+              raise SystemExit(f"::error::Release version {release} must be greater than current version {current}")
+
+          print(f"✅ Version increment OK: {current} -> {release}")
+          EOF
+
+      - name: Set antora version
+        uses: mikefarah/yq@5a7e72a743649b1b3a47d1a1d8214f3453173c51 # v4.52.4
+        with:
+          cmd: yq eval -i '.version = strenv(RELEASE_VERSION)' documentation/python-sdk-guide/antora.yml
+
+      - name: Verify antora version update
+        run: |
+          actual=$(yq '.version' documentation/python-sdk-guide/antora.yml)
+          if [[ "${actual}" != "${RELEASE_VERSION}" ]]; then
+            echo "::error::Antora version mismatch"
+            exit 1
+          fi
+          echo "✅ Antora version set to: ${actual}"
+
+      - name: Set esmf-aspect project version
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          poetry version "${RELEASE_VERSION}"
+          actual="$(poetry version -s)"
+          if [[ "${actual}" != "${RELEASE_VERSION}" ]]; then
+            echo "::error::Version mismatch: expected ${RELEASE_VERSION}, got ${actual}"
+            exit 1
+          fi
+          echo "✅ Poetry version set to: ${actual}"
+
+      # Stage changes locally but don't push yet - allows rollback if publish fails
+      - name: Stage version changes
+        env:
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          git add documentation/python-sdk-guide/antora.yml
+          git add "${{ env.WORKING_DIR }}/pyproject.toml"
+
+          # Check if there are changes to commit
+          if git diff --cached --quiet; then
+            echo "::error::No changes to commit - version may already be set"
             exit 1
           fi
 
-      - name: Set versions
-        continue-on-error: true
+          git commit \
+            -m "Release version ${RELEASE_VERSION}" \
+            -m "Automated release by GitHub Actions" \
+            -m "Workflow run: ${WORKFLOW_URL}"
+
+          echo "✅ Version changes committed locally (not pushed yet)"
+
+      # Build package with the new version (from local commit, not yet pushed)
+      - name: Build package
+        working-directory: ${{ env.WORKING_DIR }}
         run: |
-          release_branch_name=${RELEASE_VERSION%.*}.x
-          echo "release_branch_name=$release_branch_name" >> $GITHUB_ENV
+          poetry install --no-interaction --no-ansi
+          poetry run download-samm-release
+          poetry build
+          echo "✅ Package built successfully"
 
-      - name: Prepare release branch
-        continue-on-error: true
+      # Ensure the built artifact actually contains the expected version to catch
+      # mismatches between pyproject.toml and the generated wheel
+      - name: Verify built package version
+        working-directory: ${{ env.WORKING_DIR }}
         run: |
-          git fetch
-          git checkout -b "${release_branch_name}"
-          git push --set-upstream origin "${release_branch_name}"
+          # Check wheel filename contains correct version
+          wheel_file=$(ls dist/*.whl 2>/dev/null | head -1)
+          if [[ -z "${wheel_file}" ]]; then
+            echo "::error::No wheel file found in dist/"
+            exit 1
+          fi
 
-      - name: Checkout release branch
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          ref: ${{ env.release_branch_name }}
-          persist-credentials: false
+          # Extract version from wheel filename (format: name-version-py3-none-any.whl)
+          wheel_version=$(basename "${wheel_file}" | sed -E 's/^[^-]+-([^-]+)-.*/\1/')
 
-      - name: Set antora version
-        run: yq eval -i '.version = "${RELEASE_VERSION}"' documentation/python-sdk-guide/antora.yml
+          # Normalize versions for comparison (PEP 440 normalization)
+          # NOTE: heredoc is unquoted (EOF not 'EOF') so ${wheel_version} is
+          # expanded by bash; RELEASE_VERSION is read from the environment instead
+          python - << EOF
+          from packaging.version import Version
+          import os
 
-      - name: Set esmf-aspect project version
-        id: ESMF_version
+          wheel_ver = Version("${wheel_version}")
+          expected_ver = Version(os.environ["RELEASE_VERSION"])
+
+          if wheel_ver != expected_ver:
+              raise SystemExit(f"::error::Built wheel version {wheel_ver} doesn't match expected {expected_ver}")
+
+          print(f"✅ Built package version verified: {wheel_ver}")
+          EOF
+
+      # Publish to PyPI BEFORE creating tag/release - if this fails, no cleanup needed
+      - name: Publish to PyPI
+        working-directory: ${{ env.WORKING_DIR }}
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
         run: |
-          cd core/esmf-aspect-meta-model-python
-          poetry version "${RELEASE_VERSION}"
-          echo "EsmfVersion=${RELEASE_VERSION}" >> $GITHUB_ENV
-          echo "EsmfVersion=${RELEASE_VERSION}" >> $GITHUB_OUTPUT
+          poetry publish
+          echo "✅ Package published to PyPI"
 
-      - name: Push changes to the release branch
+      # Only push version commit after successful PyPI publish
+      - name: Push version commit
         run: |
-          git pull
-          git add documentation/python-sdk-guide/antora.yml
-          git add core/esmf-aspect-meta-model-python/pyproject.toml
-          git commit -m "Release version ${EsmfVersion}."
           git push
+          echo "✅ Version commit pushed to ${RELEASE_BRANCH_NAME}"
 
-      - name: Create tag
+      # Create tag only after successful PyPI publish and commit push
+      - name: Create and push tag
         run: |
-          tag_version=v${RELEASE_VERSION}
-          git tag $tag_version
-          git push origin $tag_version
+          tag_version="v${RELEASE_VERSION}"
+
+          git tag -a "${tag_version}" \
+            -m "Release ${RELEASE_VERSION}" \
+            -m "Automated release by GitHub Actions"
+
+          git push origin "${tag_version}"
+          echo "✅ Tag ${tag_version} created and pushed"
 
       - name: Create changelog
         id: changelog
         uses: requarks/changelog-action@b78a3354a01f4a1affb484b9264b506a815c46b1 # v1.10.3
         with:
-          token: ${{ github.token }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag: v${{ env.RELEASE_VERSION }}
-          includeInvalidCommits: true
+          includeInvalidCommits: true  # Include all commits
+        continue-on-error: true  # Don't fail the workflow
 
-      - name: Create and tag GitHub release
+      # Build the release body from the changelog; fall back to a link to the
+      # commit history when no conventional-commit entries are found
+      - name: Prepare release body
+        id: release_body
+        env:
+          CHANGELOG: ${{ steps.changelog.outputs.changes }}
+          CHANGELOG_STATUS: ${{ steps.changelog.outcome }}
+        run: |
+          {
+            echo "body<<RELEASE_BODY_EOF"
+            
+            if [[ "${CHANGELOG_STATUS}" == "success" && -n "${CHANGELOG}" && "${CHANGELOG}" != "null" ]]; then
+              echo "${CHANGELOG}"
+            else
+              echo "## What's Changed"
+              echo ""
+              echo "Release version ${RELEASE_VERSION}"
+              echo ""
+              echo "**Full Changelog**: https://github.com/${{ github.repository }}/commits/v${RELEASE_VERSION}"
+            fi
+            
+            echo "RELEASE_BODY_EOF"
+          } >> "${GITHUB_OUTPUT}"
+
+      # Create GitHub release only after everything else succeeded
+      - name: Create GitHub release
         uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
         with:
-          body: ${{ steps.changelog.outputs.changes }}
           name: "Release version ${{ env.RELEASE_VERSION }}"
           tag_name: v${{ env.RELEASE_VERSION }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          body: ${{ steps.release_body.outputs.body }}
+          prerelease: ${{ contains(env.RELEASE_VERSION, '-') }}
+          files: |
+            ${{ env.WORKING_DIR }}/dist/*
 
-      - name: Build and publish esmf-aspect-model-loader project
+      - name: Summary
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_SERVER: ${{ github.server_url }}
+          IS_PRERELEASE: ${{ contains(env.RELEASE_VERSION, '-') }}
+          VALIDATED_SHA: ${{ needs.check-preconditions.outputs.validated_sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_NUMBER: ${{ github.run_number }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          ACTOR: ${{ github.actor }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
         run: |
-          git checkout "${release_branch_name}"
-          git status
-          cd core/esmf-aspect-meta-model-python
-          poetry install
-          poetry run download-samm-release
-          poetry build
-          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-          poetry publish
+          echo "## 🚀 Release Summary" >> "${GITHUB_STEP_SUMMARY}"
+          echo "" >> "${GITHUB_STEP_SUMMARY}"
+          echo "| Property | Value |" >> "${GITHUB_STEP_SUMMARY}"
+          echo "|----------|-------|" >> "${GITHUB_STEP_SUMMARY}"
+          echo "| Version | \`${RELEASE_VERSION}\` |" >> "${GITHUB_STEP_SUMMARY}"
+          echo "| Tag | \`v${RELEASE_VERSION}\` |" >> "${GITHUB_STEP_SUMMARY}"
+          echo "| Branch | \`${RELEASE_BRANCH_NAME}\` |" >> "${GITHUB_STEP_SUMMARY}"
+          echo "| Commit | [\`${VALIDATED_SHA:0:7}\`](${GH_SERVER}/${GH_REPO}/commit/${VALIDATED_SHA}) |" >> "${GITHUB_STEP_SUMMARY}"
+          echo "| Pre-release | ${IS_PRERELEASE} |" >> "${GITHUB_STEP_SUMMARY}"
+          echo "" >> "${GITHUB_STEP_SUMMARY}"
+          echo "### Build Info" >> "${GITHUB_STEP_SUMMARY}"
+          echo "" >> "${GITHUB_STEP_SUMMARY}"
+          echo "| Property | Value |" >> "${GITHUB_STEP_SUMMARY}"
+          echo "|----------|-------|" >> "${GITHUB_STEP_SUMMARY}"
+          echo "| Workflow Run | [#${RUN_NUMBER}.${RUN_ATTEMPT}](${GH_SERVER}/${GH_REPO}/actions/runs/${RUN_ID}) |" >> "${GITHUB_STEP_SUMMARY}"
+          echo "| Triggered by | @${TRIGGERING_ACTOR} |" >> "${GITHUB_STEP_SUMMARY}"
+          echo "| Actor | @${ACTOR} |" >> "${GITHUB_STEP_SUMMARY}"
+          echo "| Timestamp | $(date -u '+%Y-%m-%d %H:%M:%S UTC') |" >> "${GITHUB_STEP_SUMMARY}"
+          echo "" >> "${GITHUB_STEP_SUMMARY}"
+          echo "### Links" >> "${GITHUB_STEP_SUMMARY}"
+          echo "" >> "${GITHUB_STEP_SUMMARY}"
+          echo "- 📦 [PyPI Package](https://pypi.org/project/${PYPI_PACKAGE_NAME}/${RELEASE_VERSION}/)" >> "${GITHUB_STEP_SUMMARY}"
+          echo "- 🏷️ [GitHub Release](${GH_SERVER}/${GH_REPO}/releases/tag/v${RELEASE_VERSION})" >> "${GITHUB_STEP_SUMMARY}"
+          echo "- 🌿 [Release Branch](${GH_SERVER}/${GH_REPO}/tree/${RELEASE_BRANCH_NAME})" >> "${GITHUB_STEP_SUMMARY}"

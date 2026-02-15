@@ -2,53 +2,57 @@ name: Check New Pull Request
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
     branches: [ '**' ]
     paths-ignore:
       - 'documentation/decisions/**'
 
+env:
+  POETRY_VERSION: "1.5.0"
+  PYTHON_VERSION: "3.10"
+
 permissions:
   contents: read
+
+concurrency: # Only run one workflow per branch at a time, and cancel any in-progress runs when a new commit is pushed
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
     name: Check if passes all requirements
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        poetry-version: [ 1.5.0 ]
-        os: [ ubuntu-latest ]
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: core/esmf-aspect-meta-model-python
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - name: Set up Python 3.10
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
-          python-version: "3.10"
+          python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Run image
+      - name: Install Poetry
         uses: abatilo/actions-poetry@3765cf608f2d4a72178a9fc5b918668e542b89b1 # v4.0.0
         with:
-          poetry-version: ${{ matrix.poetry-version }}
+          poetry-version: ${{ env.POETRY_VERSION }}
 
-      - name: build esmf-aspect
+      - name: Build esmf-aspect
         run: |
-          cd core/esmf-aspect-meta-model-python
           poetry install
           poetry run download-samm-release
           poetry run download-samm-cli
           poetry build
 
-      - name: run tests
-        run: |
-          cd core/esmf-aspect-meta-model-python
-          poetry run tox -e py310
+      - name: Run tests
+        run: poetry run tox -e "py${PYTHON_VERSION//./}"
 
-      - name: run code style checks
-        run: |
-          cd core/esmf-aspect-meta-model-python
-          poetry run tox -e pep8
+      - name: Run code style checks
+        run: poetry run tox -e pep8
