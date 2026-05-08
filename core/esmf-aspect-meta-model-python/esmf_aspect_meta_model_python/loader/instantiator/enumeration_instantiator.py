@@ -17,7 +17,6 @@ from rdflib.term import Node
 
 from esmf_aspect_meta_model_python.base.characteristics.enumeration import Enumeration
 from esmf_aspect_meta_model_python.impl.characteristics.default_enumeration import DefaultEnumeration
-from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
 from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
@@ -27,9 +26,6 @@ from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 class EnumerationInstantiator(InstantiatorBase[Enumeration]):
     def _create_instance(self, element_node: Node) -> Enumeration:
         data_type = self._get_data_type(element_node)
-        if data_type is None:
-            raise TypeError(DATA_TYPE_ERROR_MSG)
-
         meta_model_base_attributes = self._get_base_attributes(element_node)
         value_collection_node = self._aspect_graph.value(
             subject=element_node,
@@ -77,7 +73,17 @@ class EnumerationInstantiator(InstantiatorBase[Enumeration]):
                     else:
                         dict_value[property_name] = actual_value
 
-            value_node_name = value_node.split("#")[1]
+            value_node_name = value_node.split("#")
+            if len(value_node_name) > 1:
+                value_node_name = value_node_name[1]
+            else:
+                if "preferredName" in dict_value:
+                    value_node_name = "".join(dict_value["preferredName"].split(" "))
+                elif "value" in dict_value:
+                    value_node_name = dict_value["value"]
+                else:
+                    value_node_name = value_node_name[0]
+            
             value_key = self._samm.get_urn(SAMM.name).toPython()
             dict_value[value_key] = value_node_name  # type: ignore
 

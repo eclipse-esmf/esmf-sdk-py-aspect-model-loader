@@ -84,7 +84,6 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
         Creates an instance of the given element and returns it
         Args:
             element_node: Node in the aspect graph representing the element
-            skip_attr: Optional attribute to skip during instance creation
 
         Returns:
             An instance of the model element

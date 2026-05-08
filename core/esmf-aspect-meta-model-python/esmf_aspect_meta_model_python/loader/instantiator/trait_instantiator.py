@@ -31,7 +31,7 @@ class TraitInstantiator(InstantiatorBase[Trait]):
 
         constraints: List[Constraint] = []
         for constraint_subject in constraint_subjects:
-            element = self._model_element_factory.create_element(constraint_subject)
+            element = self._model_element_factory.create_element(constraint_subject, element_node, attr_name=self._sammc.get_urn(SAMMC.constraint))
             if isinstance(element, Constraint):
                 constraints.append(element)
             else:

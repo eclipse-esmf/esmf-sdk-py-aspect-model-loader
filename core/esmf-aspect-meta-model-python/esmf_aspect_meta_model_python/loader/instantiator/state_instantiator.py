@@ -17,7 +17,6 @@ from rdflib.term import Node
 
 from esmf_aspect_meta_model_python.base.characteristics.state import State
 from esmf_aspect_meta_model_python.impl.characteristics.default_state import DefaultState
-from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator.enumeration_instantiator import EnumerationInstantiator
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
 from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
@@ -27,9 +26,6 @@ from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 class StateInstantiator(EnumerationInstantiator):
     def _create_instance(self, element_node: Node) -> State:
         data_type = self._get_data_type(element_node)
-        if data_type is None:
-            raise TypeError(DATA_TYPE_ERROR_MSG)
-
         meta_model_base_attributes = self._get_base_attributes(element_node)
         value_collection_node = self._aspect_graph.value(
             subject=element_node,

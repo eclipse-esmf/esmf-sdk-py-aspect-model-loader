@@ -45,7 +45,7 @@ class ComplexTypeInstantiator(InstantiatorBase[T], metaclass=abc.ABCMeta):
         if extended_element_node is None:
             return None
         if extended_element_node not in self._instantiating_now:
-            self._model_element_factory.create_element(extended_element_node)
+            self._model_element_factory.create_element(extended_element_node, entity_subject, attr_name=self._samm.get_urn(SAMM.extends))
         return RdfHelper.to_python(extended_element_node)
 
     def get_extending_elements(self, entity_subject: rdflib.URIRef) -> List[str]:
@@ -69,6 +69,6 @@ class ComplexTypeInstantiator(InstantiatorBase[T], metaclass=abc.ABCMeta):
         )
         for element_subject in all_element_subjects:
             if element_subject not in self._instantiating_now:
-                self._model_element_factory.create_element(element_subject)
+                self._model_element_factory.create_element(element_subject, entity_subject, attr_name=self._samm.get_urn(SAMM.extends))
             elements.append(RdfHelper.to_python(element_subject))
         return elements
