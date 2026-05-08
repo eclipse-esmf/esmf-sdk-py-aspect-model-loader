@@ -21,7 +21,7 @@ from rdflib.term import Node
 from esmf_aspect_meta_model_python.base.base import Base
 from esmf_aspect_meta_model_python.base.data_types.data_type import DataType
 from esmf_aspect_meta_model_python.loader import instantiator
-from esmf_aspect_meta_model_python.loader.default_element_cache import DefaultElementCache
+from esmf_aspect_meta_model_python.loader.default_element_cache import DefaultElementCache, DeferredReference
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase, T
 from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
@@ -50,11 +50,19 @@ class ModelElementFactory:
         self._cache = cache
 
         self._instantiators: Dict[str, InstantiatorBase] = {}
-
+    
+    def create_aspect(self, aspect_node: Node) -> Base:
+        """Creates an aspect model element for the given aspect node."""
+        aspect_instance = self._cache.get(aspect_node)
+        if aspect_instance is None:
+            aspect_instance = self.create_element(aspect_node)
+            self._cache.restore_cycle_references()
+        
+        return aspect_instance
+    
     def create_all_graph_elements(self, create_nodes: list[Node]):
-        """Create elements from the list of nodes.
-
-        Create python classes for the given list of nodes.
+        """
+        Create elements from the list of nodes, then restore any deferred cyclic references.
 
         :param create_nodes: List of nodes to create elements from.
         :return: List of python created elements.
@@ -65,10 +73,13 @@ class ModelElementFactory:
             try:
                 instance = self.create_element(node)
             except Exception as error:
-                print(f"Could nod translate the node {node} to a Python object. Error: {error}")
+                print(f"Could not translate the node {node} to a Python object. Error: {error}")
                 raise error
             else:
                 all_nodes.append(instance)
+
+        # Restore any deferred cyclic references after all elements are created
+        self._cache.restore_cycle_references()
 
         return all_nodes
 
@@ -77,25 +88,40 @@ class ModelElementFactory:
         if isinstance(instance, Base):
             self._cache.resolve_instance(instance)
 
-    def create_element(self, element_node: Node) -> Union[Type[Base], DataType, Type[DataType]]:
+    def create_element(self, element_node: Node, parent_obj=None, attr_name=None) -> Union[Type[Base], DataType, Type[DataType], None]:
         """
-        searches for the right instantiator to create a new instance or
-         find an existing one.
-         If the instantiator does not exists, a new one is created.
-         Then a copy of the instance will saved in the cache.
+        Create or retrieve a model element for the given node, handling cycles and deferring cyclic references.
 
         Args:
-            element_node: node in the aspect graph that represents the
-            needed element
+            element_node: node in the aspect graph that represents the needed element
+            parent_obj: parent object (for deferred reference, if cycle detected)
+            attr_name: attribute name on parent (for deferred reference, if cycle detected)
 
         Returns:
-            an instance of the element with all the child attributes
+            an instance of the element with all the child attributes, or None if deferred
         """
-        element_type = self._get_element_type(element_node)
-        instantiator_class = self._instantiators.get(element_type, self._create_instantiator(element_type))
-        instance = instantiator_class.get_instance(element_node)
-        self._add_to_cache(instance)
-
+        # Cycle detection: if node is in active path, defer reference restoration
+        if self._cache.is_in_active_path(element_node):
+            if parent_obj is not None and attr_name is not None:
+                attr_name = self._samm.get_name(attr_name)
+                self._cache.add_deferred_reference(DeferredReference(parent_obj, attr_name, element_node))
+            else:
+                raise ValueError(f"Cannot defer reference for node {element_node} without parent object and attribute name.")
+            
+            instance = None
+        else:
+            # If already instantiated, return from cache
+            cached_instance = self._cache.get(element_node)
+            if cached_instance is not None:
+                instance = cached_instance
+            else:
+                self._cache.add_to_active_path(element_node)
+                element_type = self._get_element_type(element_node)
+                instantiator_class = self._instantiators.get(element_type, self._create_instantiator(element_type))
+                instance = instantiator_class.get_instance(element_node)
+                self._add_to_cache(instance)
+                self._cache.remove_from_active_path(element_node)
+                
         return instance
 
     def _get_element_type(self, element_node: Optional[Node]) -> str:

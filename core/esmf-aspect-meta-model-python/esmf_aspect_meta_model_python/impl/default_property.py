@@ -34,12 +34,11 @@ class DefaultProperty(BaseImpl, Property):
         "not_in_payload",
         "payload_name",
     ]
+    REQUIRED_ATTRS = BaseImpl.REQUIRED_ATTRS + ["characteristic"]
 
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,
-        elements_factory: Optional[ModelElementFactory] = None,
-        graph_node: Optional[IdentifiedNode] = None,
         characteristic: Optional[Characteristic] = None,
         example_value: Optional[Any] = None,
         extends: Optional[Property] = None,
@@ -50,8 +49,6 @@ class DefaultProperty(BaseImpl, Property):
     ):
         super().__init__(meta_model_base_attributes)
 
-        self._elements_factory = elements_factory
-        self._graph_node = graph_node
         self._set_characteristic(characteristic)
         self._example_value = example_value
         self._is_abstract = abstract
@@ -59,22 +56,6 @@ class DefaultProperty(BaseImpl, Property):
         self._optional = optional
         self._not_in_payload = not_in_payload
         self._payload_name = payload_name
-
-    def _get_instantiator_class(self) -> Optional["PropertyInstantiator"]:
-        """Get instantiator factory class."""
-        instantiator_class = None
-        if self._elements_factory:
-            from esmf_aspect_meta_model_python.loader.instantiator.property_instantiator import PropertyInstantiator
-
-            element_type = self._elements_factory._get_element_type(self._graph_node)
-            instantiator = self._elements_factory._instantiators.get(
-                str(self._graph_node),
-                self._elements_factory._create_instantiator(element_type),
-            )
-            if isinstance(instantiator, PropertyInstantiator):
-                instantiator_class = instantiator
-
-        return instantiator_class
 
     def _set_characteristic(self, characteristic: Optional[Characteristic]):
         """Set self as parent element for all child nodes."""
@@ -84,30 +65,21 @@ class DefaultProperty(BaseImpl, Property):
 
     @property
     def characteristic(self) -> Optional[Characteristic]:
-        """Characteristic."""
-        if not self._characteristic and self._graph_node:
-            instantiator_class = self._get_instantiator_class()
-            if instantiator_class:
-                characteristic = instantiator_class._get_child(
-                    self._graph_node,
-                    instantiator_class._samm.get_urn(SAMM.characteristic),
-                    required=True,
-                )
-                self._set_characteristic(characteristic)
-
+        """Characteristic (eagerly set in __init__)."""
         return self._characteristic
+
+    @characteristic.setter
+    def characteristic(self, characteristic: Characteristic) -> None:
+        """Characteristic setter."""
+        if not characteristic:
+            raise ValueError("Property must have a characteristic.")
+        
+        self._characteristic = characteristic
+        self._set_characteristic(characteristic)
 
     @property
     def example_value(self) -> Optional[Any]:
-        """Example of value."""
-        if not self._example_value:
-            instantiator_class = self._get_instantiator_class()
-            if instantiator_class:
-                self._example_value = instantiator_class._aspect_graph.value(
-                    subject=self._graph_node,
-                    predicate=instantiator_class._samm.get_urn(SAMM.example_value),
-                )
-
+        """Example of value (eagerly set in __init__)."""
         return self._example_value
 
     @property
@@ -173,79 +145,3 @@ class DefaultProperty(BaseImpl, Property):
             self._see += self.extends.see
 
         return see
-
-
-class DefaultBlankProperty(DefaultProperty):
-    def __init__(self, base_element_node: BNode, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._base_element_node = base_element_node
-
-    @property
-    def is_optional(self) -> bool:
-        """Is optional flag."""
-        if not self._optional:
-            instantiator_class = self._get_instantiator_class()
-            if instantiator_class:
-                optional_node = instantiator_class._aspect_graph.value(
-                    subject=self._base_element_node,
-                    predicate=instantiator_class._samm.get_urn(SAMM.optional),
-                )
-                self._optional = optional_node is not None
-
-        return self._optional
-
-    @property
-    def is_not_in_payload(self) -> bool:
-        """Is not in payload flag."""
-        if not self._not_in_payload:
-            instantiator_class = self._get_instantiator_class()
-            if instantiator_class:
-                not_in_payload_node = instantiator_class._aspect_graph.value(
-                    subject=self._base_element_node,
-                    predicate=instantiator_class._samm.get_urn(SAMM.not_in_payload),
-                )
-                self._not_in_payload = not_in_payload_node is not None
-
-        return self._not_in_payload
-
-    @property
-    def payload_name(self) -> str:
-        """Payload name."""
-        if not self._payload_name:
-            instantiator_class = self._get_instantiator_class()
-            if instantiator_class:
-                self._payload_name = instantiator_class._get_child(
-                    self._base_element_node,
-                    instantiator_class._samm.get_urn(SAMM.payload_name),
-                )
-
-        return self._payload_name if self._payload_name else self.name
-
-
-class DefaultPropertyWithExtends(DefaultProperty):
-    @property
-    def payload_name(self) -> str:
-        """Payload name."""
-        if not self._payload_name:
-            instantiator_class = self._get_instantiator_class()
-            if instantiator_class and self._graph_node:
-                self._payload_name = instantiator_class._get_child(
-                    self._graph_node,
-                    instantiator_class._samm.get_urn(SAMM.payload_name),
-                )
-
-        return self._payload_name if self._payload_name else self.name
-
-    @property
-    def extends(self) -> Optional[Property]:
-        """Extends."""
-        if not self._extends:
-            instantiator_class = self._get_instantiator_class()
-            if instantiator_class and self._graph_node:
-                self._extends = instantiator_class._get_child(
-                    self._graph_node,
-                    instantiator_class._samm.get_urn(SAMM.extends),
-                    required=True,
-                )
-
-        return self._extends

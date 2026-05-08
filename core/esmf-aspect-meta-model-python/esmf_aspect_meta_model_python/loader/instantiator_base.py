@@ -84,6 +84,7 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
         Creates an instance of the given element and returns it
         Args:
             element_node: Node in the aspect graph representing the element
+            skip_attr: Optional attribute to skip during instance creation
 
         Returns:
             An instance of the model element
@@ -133,7 +134,7 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
         elif isinstance(child_subject, rdflib.Literal):
             return RdfHelper.to_python(child_subject)
         else:
-            return self._model_element_factory.create_element(child_subject)
+            return self._model_element_factory.create_element(child_subject, parent_subject, attr_name=child_predicate)
 
     def _get_list_children(self, element_subject: Node, list_predicate: rdflib.URIRef) -> list:
         """Extracts all children of an rdf list from the given element and
@@ -150,8 +151,9 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
         children_nodes = RdfHelper.get_rdf_list_values(list_node, self._aspect_graph)
 
         for child_node in children_nodes:
-            child: Any = self._model_element_factory.create_element(child_node)
-            children.append(child)
+            child: Any = self._model_element_factory.create_element(child_node, element_subject, attr_name=list_predicate)
+            if child:
+                children.append(child)
 
         return children
 
@@ -193,7 +195,8 @@ class InstantiatorBase(Generic[T], metaclass=abc.ABCMeta):
 
         data_type_element: Optional[DataType] = None
         if data_type_node:
-            instance = self._model_element_factory.create_element(data_type_node)
+            instance = self._model_element_factory.create_element(data_type_node, element_node, attr_name=self._samm.get_urn(SAMM.data_type))
+            
             if isinstance(instance, DataType):
                 data_type_element = instance
 
