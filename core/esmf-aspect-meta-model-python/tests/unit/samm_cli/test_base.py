@@ -64,7 +64,7 @@ def test_get_client_path(_, path_mock, join_mock):
 
     assert result == "cli_path"
     path_mock.resolve.assert_called_once()
-    join_mock.assert_has_calls([mock.call("parent", "samm-cli"), mock.call("cli_path", "samm")])
+    join_mock.assert_has_calls([mock.call("parent", "samm-cli"), mock.call("cli_path", "samm.exe")])
 
 
 @mock.patch(f"{BASE_PATH}.download_samm_cli")

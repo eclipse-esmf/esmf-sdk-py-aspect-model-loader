@@ -5,7 +5,6 @@ from unittest import mock
 import pytest
 import rdflib
 
-from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator.enumeration_instantiator import EnumerationInstantiator
 from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
@@ -42,14 +41,6 @@ class TestEnumerationInstantiator:
         aspect_graph_mock.value.assert_called_once_with(subject="element_node", predicate="predicate")
         get_rdf_list_values_mock.assert_called_once_with("value_collection_node", aspect_graph_mock)
         default_enumeration_mock.assert_called_once_with("meta_model_base_attributes", "data_type", ["value"])
-
-    def test_create_instance_with_exception(self):
-        base_class_mock = mock.MagicMock(name="EnumerationInstantiator_class")
-        base_class_mock._get_data_type.return_value = None
-        with pytest.raises(TypeError) as error:
-            EnumerationInstantiator._create_instance(base_class_mock, "element_node")
-
-        assert str(error.value) == DATA_TYPE_ERROR_MSG
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.enumeration_instantiator.isinstance")
     def test_to_enum_node_value_node_is_literal(self, isinstance_mock):

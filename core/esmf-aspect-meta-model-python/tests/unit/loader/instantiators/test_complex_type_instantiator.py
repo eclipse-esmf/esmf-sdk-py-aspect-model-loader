@@ -25,8 +25,11 @@ class TestComplexTypeInstantiator:
 
         assert result == "extended_element"
         aspect_graph_mock.value.assert_called_once_with(subject="entity_subject", predicate="predicate")
-        samm_mock.get_urn.assert_called_once_with(SAMM.extends)
-        base_class_mock._model_element_factory.create_element.assert_called_once_with("extended_element_node")
+        samm_mock.get_urn.assert_has_calls([
+            mock.call(SAMM.extends),
+            mock.call(SAMM.extends),
+        ])
+        base_class_mock._model_element_factory.create_element.assert_called_once_with("extended_element_node", 'entity_subject', attr_name='predicate')
         to_python_mock.assert_called_once_with("extended_element_node")
 
     def test_get_extended_element_extended_element_node_is_none(self):
@@ -59,7 +62,10 @@ class TestComplexTypeInstantiator:
 
         assert result == ["new_element"]
         aspect_graph_mock.subjects.assert_called_once_with(predicate="predicate", object="entity_subject")
-        samm_mock.get_urn.assert_called_once_with(SAMM.extends)
+        samm_mock.get_urn.assert_has_calls([
+            mock.call(SAMM.extends),
+            mock.call(SAMM.extends),
+        ])
         aspect_graph_mock.subjects(predicate="predicate", object="entity_subject")
-        base_class_mock._model_element_factory.create_element.assert_called_once_with("element_subject")
+        base_class_mock._model_element_factory.create_element.assert_called_once_with("element_subject", 'entity_subject', attr_name='predicate')
         to_python_mock.assert_called_once_with("element_subject")

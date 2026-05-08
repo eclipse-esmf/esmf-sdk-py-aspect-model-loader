@@ -4,7 +4,6 @@ from unittest import mock
 
 import pytest
 
-from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator.state_instantiator import StateInstantiator
 from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
@@ -76,14 +75,6 @@ class TestStateInstantiator:
             ["value"],
             "default",
         )
-
-    def test_create_instance_raise_exception(self):
-        base_class_mock = mock.MagicMock(name="StateInstantiator_class")
-        base_class_mock._get_data_type.return_value = None
-        with pytest.raises(TypeError) as error:
-            StateInstantiator._create_instance(base_class_mock, "element_node")
-
-        assert str(error.value) == DATA_TYPE_ERROR_MSG
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.state_instantiator.isinstance")
     def test_to_state_node_value_rdflib_literal(self, isinstance_mock):

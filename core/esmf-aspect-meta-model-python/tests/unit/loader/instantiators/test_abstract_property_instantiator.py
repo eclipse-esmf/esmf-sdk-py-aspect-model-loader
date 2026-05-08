@@ -42,8 +42,8 @@ class TestAbstractPropertyInstantiator:
 
         assert str(error.value) == "Invalid syntax for Abstract Property"
 
-    @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.abstract_property_instantiator.DefaultProperty")
-    def test_create_property_direct_reference(self, default_property_mock):
+    @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.abstract_property_instantiator.DefaultAbstractProperty")
+    def test_create_property_direct_reference(self, default_abstract_property_mock):
         base_class_mock = mock.MagicMock(name="AbstractPropertyInstantiator_class")
         base_class_mock._get_base_attributes = mock.MagicMock(return_value="meta_model_base_attributes")
         aspect_graph_mock = mock.MagicMock(name="AspectGraph")
@@ -52,7 +52,7 @@ class TestAbstractPropertyInstantiator:
         samm_mock = mock.MagicMock(name="SAMM")
         samm_mock.get_urn.return_value = "predicate"
         base_class_mock._samm = samm_mock
-        default_property_mock.return_value = "default_property"
+        default_abstract_property_mock.return_value = "default_property"
         result = AbstractPropertyInstantiator._create_property_direct_reference(
             base_class_mock,
             "element_node",
@@ -62,15 +62,14 @@ class TestAbstractPropertyInstantiator:
         base_class_mock._get_base_attributes.assert_called_once_with("element_node")
         samm_mock.get_urn.assert_called_once_with(SAMM.example_value)
         aspect_graph_mock.value.assert_called_once_with(subject="element_node", predicate="predicate")
-        default_property_mock.assert_called_once_with(
+        default_abstract_property_mock.assert_called_once_with(
             "meta_model_base_attributes",
-            characteristic=None,
             example_value="example_value",
             abstract=True,
         )
 
-    @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.abstract_property_instantiator.DefaultProperty")
-    def test_create_property_blank_node(self, default_property_mock):
+    @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.abstract_property_instantiator.DefaultAbstractProperty")
+    def test_create_property_blank_node(self, default_abstract_property_mock):
         base_class_mock = mock.MagicMock(name="AbstractPropertyInstantiator_class")
         base_class_mock._get_child.return_value = "payload_name"
         base_class_mock._get_base_attributes.return_value = "meta_model_base_attributes"
@@ -80,7 +79,7 @@ class TestAbstractPropertyInstantiator:
         samm_mock = mock.MagicMock(name="SAMM")
         samm_mock.get_urn.return_value = "predicate"
         base_class_mock._samm = samm_mock
-        default_property_mock.return_value = "default_property"
+        default_abstract_property_mock.return_value = "default_property"
         result = AbstractPropertyInstantiator._create_property_blank_node(
             base_class_mock,
             "element_node",
@@ -104,9 +103,8 @@ class TestAbstractPropertyInstantiator:
         )
         base_class_mock._get_child.assert_called_once_with("element_node", "predicate")
         base_class_mock._get_base_attributes.assert_called_once_with("property_node")
-        default_property_mock.assert_called_once_with(
+        default_abstract_property_mock.assert_called_once_with(
             "meta_model_base_attributes",
-            characteristic=None,
             example_value="example_value",
             abstract=True,
             optional=True,

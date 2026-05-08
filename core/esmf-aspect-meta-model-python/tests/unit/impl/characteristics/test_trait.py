@@ -26,18 +26,6 @@ class TestDefaultTrait:
         assert result._base_characteristic == self.characteristic_mock
         assert result._constraints == [self.constraint_mock]
 
-    def test_init_raise_no_base_characteristic(self):
-        with pytest.raises(AttributeError) as error:
-            DefaultTrait(self.meta_model_mock, None, [self.constraint_mock])
-
-        assert str(error.value) == "No base characteristic given for the trait urn"
-
-    def test_init_raise_no_constraints(self):
-        with pytest.raises(AttributeError) as error:
-            DefaultTrait(self.meta_model_mock, self.characteristic_mock, [])
-
-        assert str(error.value) == "No constraints given for the trait urn"
-
     @mock.patch(
         "esmf_aspect_meta_model_python.impl.characteristics.default_structured_value.DefaultCharacteristic.__init__"
     )

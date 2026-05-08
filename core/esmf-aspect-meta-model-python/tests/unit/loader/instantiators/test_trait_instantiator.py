@@ -20,7 +20,7 @@ class TestTraitInstantiator:
         base_class_mock._model_element_factory.create_element.return_value = "element"
         base_class_mock._get_child.return_value = "base_characteristic"
         sammc_mock = mock.MagicMock(name="SAMMC")
-        sammc_mock.get_urn.side_effect = ("predicate", "urn")
+        sammc_mock.get_urn.side_effect = ("constraint_urn", "constraint_urn", "base_characteristic")
         base_class_mock._sammc = sammc_mock
         aspect_graph_mock = mock.MagicMock(name="aspect_graph")
         aspect_graph_mock.objects.return_value = ["constraint_subject"]
@@ -31,9 +31,9 @@ class TestTraitInstantiator:
 
         assert result == "instance"
         base_class_mock._get_base_attributes.assert_called_once_with("element_node")
-        base_class_mock._get_child.assert_called_once_with("element_node", "urn", required=True)
-        base_class_mock._model_element_factory.create_element.assert_called_once_with("constraint_subject")
-        aspect_graph_mock.objects.assert_called_once_with(subject="element_node", predicate="predicate")
+        base_class_mock._get_child.assert_called_once_with("element_node", "base_characteristic", required=True)
+        base_class_mock._model_element_factory.create_element.assert_called_once_with("constraint_subject", 'element_node', attr_name='constraint_urn')
+        aspect_graph_mock.objects.assert_called_once_with(subject="element_node", predicate="constraint_urn")
         sammc_mock.get_urn.assert_has_calls(
             [
                 mock.call(SAMMC.constraint),
@@ -50,7 +50,7 @@ class TestTraitInstantiator:
         base_class_mock._get_base_attributes.return_value = "meta_model_base_attributes"
         base_class_mock._model_element_factory.create_element.return_value = "element"
         sammc_mock = mock.MagicMock(name="SAMMC")
-        sammc_mock.get_urn.side_effect = ("predicate", "urn")
+        sammc_mock.get_urn.side_effect = ("constraint_urn", "constraint_urn")
         base_class_mock._sammc = sammc_mock
         aspect_graph_mock = mock.MagicMock(name="aspect_graph")
         aspect_graph_mock.objects.return_value = ["constraint_subject"]
@@ -61,9 +61,12 @@ class TestTraitInstantiator:
 
         assert str(error.value) == "Trait element_node has element element that is not a Constraint."
         base_class_mock._get_base_attributes.assert_called_once_with("element_node")
-        base_class_mock._model_element_factory.create_element.assert_called_once_with("constraint_subject")
-        aspect_graph_mock.objects.assert_called_once_with(subject="element_node", predicate="predicate")
-        sammc_mock.get_urn.assert_called_once_with(SAMMC.constraint)
+        base_class_mock._model_element_factory.create_element.assert_called_once_with("constraint_subject", "element_node", attr_name="constraint_urn")
+        aspect_graph_mock.objects.assert_called_once_with(subject="element_node", predicate="constraint_urn")
+        sammc_mock.get_urn.assert_has_calls([
+            mock.call(SAMMC.constraint),
+            mock.call(SAMMC.constraint),
+        ])
         isinstance_mock.assert_called_once_with("element", constraint_mock)
 
     def test_create_instance_raise_exception(self):

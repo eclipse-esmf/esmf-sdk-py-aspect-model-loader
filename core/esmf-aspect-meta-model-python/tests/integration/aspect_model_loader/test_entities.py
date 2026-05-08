@@ -474,7 +474,6 @@ def test_aspect_with_time_series():
     assert timestamp.get_preferred_name("en") == "Timestamp"
 
     assert extending_value.characteristic.name == "Text"
-    assert abstract_value.characteristic is None
     assert timestamp.characteristic.name == "Timestamp"
 
 

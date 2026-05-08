@@ -4,7 +4,6 @@ from unittest import mock
 
 import pytest
 
-from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator.measurement_instantiator import MeasurementInstantiator
 from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
@@ -30,12 +29,3 @@ class TestMeasurementInstantiator:
         base_class_mock._get_child.assert_called_once_with("element_node", "urn", required=True)
         sammc_mock.get_urn.assert_called_once_with(SAMMC.unit)
         default_measurement_mock.assert_called_once_with("meta_model_base_attributes", "data_type", "unit")
-
-    @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.measurement_instantiator.DefaultMeasurement")
-    def test_create_instance_raise_exception(self, default_measurement_mock):
-        base_class_mock = mock.MagicMock(name="MeasurementInstantiator_class")
-        base_class_mock._get_data_type.return_value = None
-        with pytest.raises(TypeError) as error:
-            MeasurementInstantiator._create_instance(base_class_mock, "element_node")
-
-        assert str(error.value) == DATA_TYPE_ERROR_MSG

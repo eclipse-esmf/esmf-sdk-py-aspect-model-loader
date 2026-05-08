@@ -198,17 +198,18 @@ class TestSAMMGraph:
         samm_graph._cache = cache_mock
         samm_graph.aspect = None
         get_aspect_urn_mock.return_value = "aspect_urn"
+        aspect_mock = mock.MagicMock(name="aspect")
         model_element_factory_mock.return_value = model_element_factory_mock
-        model_element_factory_mock.create_element.return_value = "aspect"
-
+        model_element_factory_mock.create_aspect.return_value = aspect_mock
         result = samm_graph.load_aspect_model()
 
-        assert result == "aspect"
+        assert result is aspect_mock
         get_aspect_urn_mock.assert_called_once()
         reader_mock.prepare_aspect_model.assert_called_once_with("rdf_graph_samm_graph")
         model_element_factory_mock.assert_called_once_with("1.2.3", "rdf_graph_samm_graph", cache_mock)
-        model_element_factory_mock.create_element.assert_called_once_with("aspect_urn")
+        model_element_factory_mock.create_aspect.assert_called_once_with("aspect_urn")
         validate_samm_namespace_version_mock.assert_called_once_with("rdf_graph_samm_graph")
+        aspect_mock.validate.assert_called_once()
 
     def test_load_model_elements(self):
         samm_graph = SAMMGraph()
@@ -230,15 +231,19 @@ class TestSAMMGraph:
         samm_graph._cache = cache_mock
         samm_graph.model_elements = None
         get_all_model_elements_mock.return_value = "model_elements"
+        element_1_mock = mock.MagicMock(name="element_1")
+        element_2_mock = mock.MagicMock(name="element_2")
         model_element_factory_mock.return_value = model_element_factory_mock
-        model_element_factory_mock.create_all_graph_elements.return_value = "model_elements"
+        model_element_factory_mock.create_all_graph_elements.return_value = [element_1_mock, element_2_mock]
         result = samm_graph.load_model_elements()
 
-        assert result == "model_elements"
+        assert result == [element_1_mock, element_2_mock]
         get_all_model_elements_mock.assert_called_once()
         reader_mock.prepare_aspect_model.assert_called_once_with("rdf_graph_samm_graph")
         model_element_factory_mock.assert_called_once_with("1.2.3", "rdf_graph_samm_graph", cache_mock)
         model_element_factory_mock.create_all_graph_elements.assert_called_once_with("model_elements")
+        element_1_mock.validate.assert_called_once()
+        element_2_mock.validate.assert_called_once()
 
     def test_find_by_name(self):
         cache_mock = mock.MagicMock(name="cache")
