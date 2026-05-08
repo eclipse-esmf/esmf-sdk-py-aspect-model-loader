@@ -18,7 +18,7 @@ from esmf_aspect_meta_model_python.base.characteristics.trait import Trait
 from esmf_aspect_meta_model_python.base.data_types.data_type import DataType
 
 
-class Property(Base, ABC):
+class AbstractProperty(Base, ABC):
     """Property interface class.
 
     Instances of this class represent either a property or an abstract property.
@@ -28,11 +28,6 @@ class Property(Base, ABC):
     An abstract property can only occur inside an abstract entity.
     It does not have a characteristic and can be extended by a property inside an entity.
     """
-
-    @property
-    @abstractmethod
-    def characteristic(self) -> Optional[Characteristic]:
-        """Characteristic."""
 
     @property
     @abstractmethod
@@ -63,6 +58,29 @@ class Property(Base, ABC):
     @abstractmethod
     def payload_name(self) -> str:
         """Payload name."""
+
+    @property
+    def data_type(self) -> Optional[DataType]:
+        """Data type."""
+        return None
+
+
+
+class Property(AbstractProperty, ABC):
+    """Property interface class.
+
+    Instances of this class represent either a property or an abstract property.
+    A property describes a model element, e.g. an Aspect or an Entity.
+    It has exactly one characteristic and may have an example value.
+
+    An abstract property can only occur inside an abstract entity.
+    It does not have a characteristic and can be extended by a property inside an entity.
+    """
+
+    @property
+    @abstractmethod
+    def characteristic(self) -> Optional[Characteristic]:
+        """Characteristic."""
 
     @property
     def data_type(self) -> Optional[DataType]:

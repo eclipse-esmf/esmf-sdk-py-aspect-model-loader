@@ -178,7 +178,8 @@ class SAMMGraph:
             self._validate_samm_namespace_version(graph)
 
             model_element_factory = ModelElementFactory(self.samm_version, graph, self._cache)
-            self.aspect = model_element_factory.create_element(aspect_urn)
+            self.aspect = model_element_factory.create_aspect(aspect_urn)
+            self.aspect.validate()
 
         return self.aspect
 
@@ -215,6 +216,9 @@ class SAMMGraph:
 
             model_element_factory = ModelElementFactory(self.samm_version, graph, self._cache)
             self.model_elements = model_element_factory.create_all_graph_elements(model_elements)
+            for element in self.model_elements:
+                element.validate()
+            
             self._get_aspect_from_elements()
 
         return self.model_elements

@@ -53,7 +53,7 @@ class ModelElementFactory:
     
     def create_aspect(self, aspect_node: Node) -> Base:
         """Creates an aspect model element for the given aspect node."""
-        aspect_instance = self._cache.get(aspect_node)
+        aspect_instance = self._cache.get(str(aspect_node))
         if aspect_instance is None:
             aspect_instance = self.create_element(aspect_node)
             self._cache.restore_cycle_references()
@@ -111,7 +111,7 @@ class ModelElementFactory:
             instance = None
         else:
             # If already instantiated, return from cache
-            cached_instance = self._cache.get(element_node)
+            cached_instance = self._cache.get(str(element_node))
             if cached_instance is not None:
                 instance = cached_instance
             else:

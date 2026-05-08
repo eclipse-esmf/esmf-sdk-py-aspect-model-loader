@@ -14,7 +14,7 @@ import rdflib  # type: ignore
 from rdflib.term import Node
 
 from esmf_aspect_meta_model_python.base.property import Property
-from esmf_aspect_meta_model_python.impl.default_property import DefaultProperty
+from esmf_aspect_meta_model_python.impl.default_property import DefaultAbstractProperty
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
@@ -56,9 +56,8 @@ class AbstractPropertyInstantiator(InstantiatorBase[Property]):
 
         example_value = self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.example_value))
 
-        return DefaultProperty(
+        return DefaultAbstractProperty(
             meta_model_base_attributes,
-            characteristic=None,
             example_value=example_value,
             abstract=True,
         )
@@ -84,9 +83,8 @@ class AbstractPropertyInstantiator(InstantiatorBase[Property]):
             predicate=self._samm.get_urn(SAMM.example_value),
         )
 
-        return DefaultProperty(
+        return DefaultAbstractProperty(
             meta_model_base_attributes,
-            characteristic=None,
             example_value=example_value,
             abstract=True,
             optional=optional,

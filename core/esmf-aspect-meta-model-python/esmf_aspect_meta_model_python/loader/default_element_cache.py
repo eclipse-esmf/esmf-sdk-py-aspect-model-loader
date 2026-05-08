@@ -11,6 +11,8 @@
 
 from typing import Optional
 
+from rdflib.term import Node
+
 from esmf_aspect_meta_model_python.base.base import Base
 from esmf_aspect_meta_model_python.base.cache_strategy import CacheStrategy
 
@@ -35,6 +37,18 @@ class DeferredReference:
                 setattr(parent_obj, self.attr_name, target_obj)
         else:
             raise ValueError(f"Cannot restore reference: No object found in cache with URN {self.target_urn}")
+    
+    def __hash__(self):
+        return hash((self.parent_obj, self.attr_name, self.target_urn))
+
+    def __eq__(self, other):
+        checks = [
+            isinstance(other, DeferredReference),
+            self.parent_obj == other.parent_obj,
+            self.attr_name == other.attr_name,
+            self.target_urn == other.target_urn,
+        ]
+        return all(checks)
 
 
 class DefaultElementCache(CacheStrategy):
@@ -49,7 +63,7 @@ class DefaultElementCache(CacheStrategy):
         """Initialize the instance cache, active path, and cycle reference store."""
         self._instance_cache: dict[str, Base] = {}
         self._active_path: set = set()
-        self._cycle_reference_store: list[DeferredReference] = []
+        self._cycle_reference_store: set[DeferredReference] = set()
 
     def add_to_active_path(self, node):
         """Add a node to the active path (for cycle detection during recursion)."""
@@ -64,8 +78,8 @@ class DefaultElementCache(CacheStrategy):
         return node in self._active_path
 
     def add_deferred_reference(self, deferred_ref: DeferredReference):
-        """Add a DeferredReference to the cycle reference store for later restoration."""
-        self._cycle_reference_store.append(deferred_ref)
+        """Add a DeferredReference to the cycle reference store for later restoration, only if not already present."""
+        self._cycle_reference_store.add(deferred_ref)
 
     def restore_cycle_references(self):
         """Restore all deferred cyclic references after object creation.
