@@ -23,6 +23,7 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
 
     SCALAR_ATTR_NAMES = ["meta_model_version", "urn", "preferred_names", "descriptions"]
     LIST_ATTR_NAMES = ["see"]
+    REQUIRED_ATTRS = []
 
     def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes):
         self._meta_model_version = meta_model_base_attributes.meta_model_version
@@ -32,6 +33,7 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
         self._descriptions = meta_model_base_attributes.descriptions
         self._see = meta_model_base_attributes.see
         self._parent_elements: Optional[list[Base]] = None
+        self._validating_attrs = set()
 
     @property
     def parent_elements(self) -> Optional[list[Base]]:
@@ -143,3 +145,36 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
         message += self._get_list_attr_info()
 
         return message
+
+    def _validate_attribute(self, attr_name, attr_value):
+        """Validate a single attribute."""
+        if isinstance(attr_value, BaseImpl):
+            key = attr_value.urn
+        else:
+            key = f"{attr_value.__class__.__name__}_{attr_name}"
+        
+        if key not in self._validating_attrs:
+            self._validating_attrs.add(key)
+
+            if attr_name in self.REQUIRED_ATTRS:
+                if not attr_value:
+                    raise ValueError(
+                        f"{self.__class__.__name__} is missing required attribute: {attr_name}."
+                        f" key: {key}: {attr_value}"
+                    )
+            
+            if attr_value and isinstance(attr_value, BaseImpl):
+                attr_value.validate()
+            
+            self._validating_attrs.remove(key)
+
+    def validate(self) -> None:
+        """Validate the element."""
+        for attr_name in self.SCALAR_ATTR_NAMES:
+            attr_value = getattr(self, attr_name, None)
+            self._validate_attribute(attr_name, attr_value)
+        
+        for attr_name in self.LIST_ATTR_NAMES:
+            attr_list = getattr(self, attr_name, [])
+            for attr_value in attr_list:
+                self._validate_attribute(attr_name, attr_value)

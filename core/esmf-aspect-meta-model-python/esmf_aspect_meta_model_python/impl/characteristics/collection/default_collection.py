@@ -42,3 +42,12 @@ class DefaultCollection(DefaultCharacteristic, Collection):
     def element_characteristic(self) -> Optional[Characteristic]:
         """Element characteristic."""
         return self._element_characteristic
+
+    @element_characteristic.setter
+    def element_characteristic(self, element_characteristic: Characteristic) -> None:
+        """Element characteristic."""
+        if not element_characteristic:
+            raise ValueError("Element characteristic cannot be None.")
+        
+        self._element_characteristic = element_characteristic
+        self._set_parent_element_on_child_element()

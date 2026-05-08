@@ -18,12 +18,22 @@ class DefaultLanguageConstraint(DefaultConstraint, LanguageConstraint):
     """Default Language Constraint class."""
 
     SCALAR_ATTR_NAMES = DefaultConstraint.SCALAR_ATTR_NAMES + ["language_code"]
+    REQUIRED_ATTRS = DefaultConstraint.REQUIRED_ATTRS + ["language_code"]
 
     def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, language_code: str):
         super().__init__(meta_model_base_attributes)
+
         self._language_code = language_code
 
     @property
     def language_code(self) -> str:
         """Language code."""
         return self._language_code
+    
+    @language_code.setter
+    def language_code(self, language_code: str) -> None:
+        """Language code setter."""
+        if not language_code:
+            raise ValueError("Language code cannot be None.")
+        
+        self._language_code = language_code

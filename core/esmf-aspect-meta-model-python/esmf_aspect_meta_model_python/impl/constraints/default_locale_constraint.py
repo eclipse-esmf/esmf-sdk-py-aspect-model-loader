@@ -9,6 +9,8 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
+from typing import Optional
+
 from esmf_aspect_meta_model_python.base.constraints.locale_constraint import LocaleConstraint
 from esmf_aspect_meta_model_python.impl.constraints.default_constraint import DefaultConstraint
 from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import MetaModelBaseAttributes
@@ -18,12 +20,22 @@ class DefaultLocaleConstraint(DefaultConstraint, LocaleConstraint):
     """Default Locale Constraint class."""
 
     SCALAR_ATTR_NAMES = DefaultConstraint.SCALAR_ATTR_NAMES + ["locale_code"]
+    REQUIRED_ATTRS = DefaultConstraint.REQUIRED_ATTRS + ["locale_code"]
 
-    def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, locale_code: str):
+    def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, locale_code: Optional[str]):
         super().__init__(meta_model_base_attributes)
+        
         self._locale_code = locale_code
 
     @property
-    def locale_code(self) -> str:
-        """locale code."""
+    def locale_code(self) -> Optional[str]:
+        """Locale code."""
         return self._locale_code
+
+    @locale_code.setter
+    def locale_code(self, locale_code: str) -> None:
+        """Locale code setter."""
+        if not locale_code:
+            raise ValueError("Locale code cannot be None.")
+        
+        self._locale_code = locale_code

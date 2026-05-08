@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import List
+from typing import List, Optional
 
 from esmf_aspect_meta_model_python.base.characteristics.characteristic import Characteristic
 from esmf_aspect_meta_model_python.base.characteristics.trait import Trait
@@ -23,30 +23,42 @@ class DefaultTrait(DefaultCharacteristic, Trait):
 
     SCALAR_ATTR_NAMES = DefaultCharacteristic.SCALAR_ATTR_NAMES + ["base_characteristic"]
     LIST_ATTR_NAMES = DefaultCharacteristic.LIST_ATTR_NAMES + ["constraints"]
+    REQUIRED_ATTRS = DefaultCharacteristic.REQUIRED_ATTRS + ["base_characteristic", "constraints"]
 
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,
-        base_characteristic: Characteristic,
-        constraints: List[Constraint],
+        base_characteristic: Optional[Characteristic],
+        constraints: Optional[List[Constraint]],
     ):
-        if base_characteristic is None:
-            raise AttributeError(f"No base characteristic given for the trait {meta_model_base_attributes.urn}")
-
-        if not constraints:
-            raise AttributeError(f"No constraints given for the trait {meta_model_base_attributes.urn}")
-
         super().__init__(meta_model_base_attributes, base_characteristic.data_type)
 
+        self._trait_urn = meta_model_base_attributes.urn
         self._base_characteristic: Characteristic = base_characteristic
-        self._constraints: List[Constraint] = constraints
+        self._constraints: List[Constraint] = constraints        
 
     @property
     def base_characteristic(self) -> Characteristic:
         """Base characteristic."""
         return self._base_characteristic
 
+    @base_characteristic.setter
+    def base_characteristic(self, base_characteristic: Characteristic) -> None:
+        """Base characteristic."""
+        if not base_characteristic:
+            raise AttributeError(f"No base characteristic given for the trait {self._trait_urn}")
+
+        self._base_characteristic = base_characteristic
+
     @property
     def constraints(self) -> List[Constraint]:
         """Constraints."""
         return self._constraints
+
+    @constraints.setter
+    def constraints(self, constraints: List[Constraint]) -> None:
+        """Constraints."""
+        if not constraints:
+            raise AttributeError(f"No constraints given for the trait {self._trait_urn}")
+        
+        self._constraints = constraints

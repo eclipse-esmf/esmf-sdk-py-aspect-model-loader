@@ -9,6 +9,8 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
+from typing import Optional
+
 from esmf_aspect_meta_model_python.base.constraints.encoding_constraint import EncodingConstraint
 from esmf_aspect_meta_model_python.impl.constraints.default_constraint import DefaultConstraint
 from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import MetaModelBaseAttributes
@@ -18,12 +20,22 @@ class DefaultEncodingConstraint(DefaultConstraint, EncodingConstraint):
     """Default Encoding Constraint class."""
 
     SCALAR_ATTR_NAMES = DefaultConstraint.SCALAR_ATTR_NAMES + ["value"]
+    REQUIRED_ATTRS = DefaultConstraint.REQUIRED_ATTRS + ["value"]
 
-    def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, value: str):
+    def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, value: Optional[str]):
         super().__init__(meta_model_base_attributes)
+        
         self._value = value
 
     @property
-    def value(self) -> str:
+    def value(self) -> Optional[str]:
         """Value."""
         return self._value
+
+    @value.setter
+    def value(self, value: str) -> None:
+        """Value."""
+        if not value:
+            raise ValueError("Value cannot be None.")
+        
+        self._value = value

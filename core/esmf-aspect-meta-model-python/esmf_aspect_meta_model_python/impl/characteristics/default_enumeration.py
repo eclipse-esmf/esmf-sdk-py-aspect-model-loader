@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import List
+from typing import List, Optional
 
 from esmf_aspect_meta_model_python.base.characteristics.enumeration import Enumeration
 from esmf_aspect_meta_model_python.base.data_types.data_type import DataType
@@ -21,17 +21,26 @@ class DefaultEnumeration(DefaultCharacteristic, Enumeration):
     """Default Enumeration class."""
 
     LIST_ATTR_NAMES = DefaultCharacteristic.LIST_ATTR_NAMES + ["values"]
+    REQUIRED_ATTRS = DefaultCharacteristic.REQUIRED_ATTRS + ["values"]
 
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,
-        data_type: DataType,
-        values: List,
+        data_type: Optional[DataType],
+        values: Optional[List],
     ):
         super().__init__(meta_model_base_attributes, data_type)
         self._values = values
 
     @property
-    def values(self) -> List:
+    def values(self) -> Optional[List]:
         """Values."""
         return self._values
+    
+    @values.setter
+    def values(self, values: List) -> None:
+        """Values setter."""
+        if not values:
+            raise ValueError("Values cannot be None.")
+        
+        self._values = values

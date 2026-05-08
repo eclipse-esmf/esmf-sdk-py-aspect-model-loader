@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import List
+from typing import List, Optional
 
 from esmf_aspect_meta_model_python import Property
 from esmf_aspect_meta_model_python.base.event import Event
@@ -21,6 +21,7 @@ class DefaultEvent(BaseImpl, Event):
     """Default Event class."""
 
     LIST_ATTR_NAMES = BaseImpl.LIST_ATTR_NAMES + ["parameters"]
+    REQUIRED_ATTRS = BaseImpl.REQUIRED_ATTRS + ["parameters"]
 
     def __init__(
         self,
@@ -28,9 +29,18 @@ class DefaultEvent(BaseImpl, Event):
         parameters: List[Property],
     ):
         super().__init__(meta_model_base_attributes)
+
         self._parameters = parameters
 
     @property
     def parameters(self) -> List[Property]:
         """Parameters."""
         return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters: List[Property]) -> List[Property]:
+        """Parameters."""
+        if not parameters:
+            raise ValueError("Event must have at least one parameter.")
+        
+        self._parameters = parameters

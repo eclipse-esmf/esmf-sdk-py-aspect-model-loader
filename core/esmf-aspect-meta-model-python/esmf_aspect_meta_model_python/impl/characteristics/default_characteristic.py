@@ -21,19 +21,27 @@ class DefaultCharacteristic(BaseImpl, Characteristic):
     """Default Characteristic class."""
 
     SCALAR_ATTR_NAMES = BaseImpl.SCALAR_ATTR_NAMES + ["data_type"]
+    REQUIRED_ATTRS = BaseImpl.REQUIRED_ATTRS + ["data_type"]
 
     def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, data_type: Optional[DataType]):
-        if data_type is None:
-            raise ValueError("Attribute 'data_type' is required for Characteristic class.")
-
         super().__init__(meta_model_base_attributes)
 
         self._data_type = data_type
-
-        if isinstance(self._data_type, ComplexType):
+        if self._data_type and isinstance(self._data_type, ComplexType):
             self._data_type.append_parent_element(self)
 
     @property
-    def data_type(self) -> DataType:
+    def data_type(self) -> Optional[DataType]:
         """Data type."""
         return self._data_type
+
+    @data_type.setter
+    def data_type(self, data_type: DataType) -> None:
+        """Data type setter."""
+        if not data_type:
+            raise ValueError("Data type cannot be None.")
+        
+        self._data_type = data_type
+        
+        if isinstance(self._data_type, ComplexType):
+            self._data_type.append_parent_element(self)

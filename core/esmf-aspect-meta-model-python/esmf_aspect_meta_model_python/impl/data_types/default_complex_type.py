@@ -36,7 +36,8 @@ class DefaultComplexType(BaseImpl, ComplexType):
     ):
         super().__init__(meta_model_base_attributes)
         for pro in properties:
-            pro.append_parent_element(self)
+            if pro:
+                pro.append_parent_element(self)
         self.__properties: List[Property] = properties
         self.__extends_urn: Optional[str] = extends
 
@@ -96,8 +97,15 @@ class DefaultComplexType(BaseImpl, ComplexType):
             return self._instances[self.__extends_urn]
         except KeyError:
             return None
-
+    
     @property
     def properties(self) -> List[Property]:
         """Properties."""
         return self.__properties
+
+    @properties.setter
+    def properties(self, properties: List[Property]) -> None:
+        """Properties."""
+        for pro in properties:
+            pro.append_parent_element(self)
+        self.__properties = properties

@@ -36,20 +36,37 @@ class DefaultRangeConstraint(DefaultConstraint, RangeConstraint):
         upper_bound_definition: Optional[BoundDefinition],
     ):
         super().__init__(meta_model_base_attributes)
+
         self._min_value = min_value
         self._max_value = max_value
         self._lower_bound_definition = lower_bound_definition
         self._upper_bound_definition = upper_bound_definition
 
     @property
-    def min_value(self) -> Optional[Any]:
+    def min_value(self) -> Any:
         """Min value."""
         return self._min_value
+    
+    @min_value.setter
+    def min_value(self, min_value: Any) -> None:
+        """Min value setter."""
+        if min_value is None:
+            raise ValueError("Min value cannot be None.")
+        
+        self._min_value = min_value
 
     @property
     def max_value(self) -> Optional[Any]:
         """Max value."""
         return self._max_value
+    
+    @max_value.setter
+    def max_value(self, max_value: Any) -> None:
+        """Max value setter."""
+        if max_value is None:
+            raise ValueError("Max value cannot be None.")
+        
+        self._max_value = max_value
 
     @property
     def lower_bound_definition(self) -> Optional[BoundDefinition]:

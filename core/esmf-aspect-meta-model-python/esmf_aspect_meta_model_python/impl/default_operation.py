@@ -22,6 +22,7 @@ class DefaultOperation(BaseImpl, Operation):
 
     SCALAR_ATTR_NAMES = BaseImpl.SCALAR_ATTR_NAMES + ["output_property"]
     LIST_ATTR_NAMES = BaseImpl.LIST_ATTR_NAMES + ["input_properties"]
+    REQUIRED_ATTRS = BaseImpl.REQUIRED_ATTRS + ["input_properties"]
 
     def __init__(
         self,
@@ -30,6 +31,7 @@ class DefaultOperation(BaseImpl, Operation):
         output_property: Optional[Property],
     ):
         super().__init__(meta_model_base_attributes)
+
         self._input_properties = input_properties
         self._output_property = output_property
         self._set_parent_element_on_child_elements()
@@ -37,9 +39,10 @@ class DefaultOperation(BaseImpl, Operation):
     def _set_parent_element_on_child_elements(self) -> None:
         """Set a parent element on child elements."""
         for input_property in self.input_properties:
-            input_property.append_parent_element(self)
+            if input_property:
+                input_property.append_parent_element(self)
 
-        if self.output_property is not None:
+        if self.output_property:
             self.output_property.append_parent_element(self)
 
     @property
@@ -48,6 +51,28 @@ class DefaultOperation(BaseImpl, Operation):
         return self._input_properties
 
     @property
+    def input_properties(self) -> List[Property]:
+        """Input properties."""
+        return self._input_properties
+
+    @input_properties.setter
+    def input_properties(self, input_properties: List[Property]) -> None:
+        """Set input properties."""
+        if not input_properties:
+            raise ValueError("Operation must have at least one input property.")
+        
+        self._input_properties = input_properties
+        for input_property in self._input_properties:
+            input_property.append_parent_element(self)
+
+    @property
     def output_property(self) -> Optional[Property]:
         """Output property."""
         return self._output_property
+
+    @output_property.setter
+    def output_property(self, output_property: Optional[Property]) -> None:
+        """Set output property."""
+        self._output_property = output_property
+        if self._output_property:
+            self._output_property.append_parent_element(self)

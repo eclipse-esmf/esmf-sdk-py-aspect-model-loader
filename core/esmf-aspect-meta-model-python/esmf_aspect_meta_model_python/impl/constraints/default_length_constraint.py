@@ -28,6 +28,7 @@ class DefaultLengthConstraint(DefaultConstraint, LengthConstraint):
         max_value: Optional[int],
     ):
         super().__init__(meta_model_base_attributes)
+        
         self._min_value = min_value
         self._max_value = max_value
 
@@ -35,8 +36,24 @@ class DefaultLengthConstraint(DefaultConstraint, LengthConstraint):
     def min_value(self) -> Optional[int]:
         """Min value."""
         return self._min_value
+    
+    @min_value.setter
+    def min_value(self, min_value: int) -> None:
+        """Min value setter."""
+        if not min_value:
+            raise ValueError("Min value cannot be None.")
+        
+        self._min_value = min_value
 
     @property
     def max_value(self) -> Optional[int]:
         """Max value."""
         return self._max_value
+    
+    @max_value.setter
+    def max_value(self, max_value: int) -> None:    
+        """Max value setter."""
+        if not max_value:
+            raise ValueError("Max value cannot be None.")
+        
+        self._max_value = max_value
