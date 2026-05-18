@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-import pytest
-
 from esmf_aspect_meta_model_python.loader.instantiator.list_instantiator import ListInstantiator
 from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
@@ -13,6 +11,7 @@ class TestListInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.list_instantiator.DefaultList")
     def test_create_instance(self, default_list_mock):
+        """Test _create_instance creates a DefaultList with correct arguments."""
         base_class_mock = mock.MagicMock(name="ListInstantiator_class")
         base_class_mock._get_data_type.return_value = "data_type"
         base_class_mock._get_base_attributes.return_value = "meta_model_base_attributes"

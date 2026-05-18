@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-import pytest
-
 from esmf_aspect_meta_model_python.loader.instantiator.structured_value_instantiator import StructuredValueInstantiator
 from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
@@ -19,6 +17,7 @@ class TestStructuredValueInstantiator:
         "esmf_aspect_meta_model_python.loader.instantiator.structured_value_instantiator.DefaultStructuredValue"
     )
     def test_create_instance(self, default_structured_value_mock, to_python_mock, get_rdf_list_values_mock):
+        """Test _create_instance creates a DefaultStructuredValue with correct arguments."""
         base_class_mock = mock.MagicMock(name="StructuredValueInstantiator_class")
         base_class_mock._get_data_type.return_value = "data_type"
         base_class_mock._get_base_attributes.return_value = "meta_model_base_attributes"
@@ -62,6 +61,7 @@ class TestStructuredValueInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.structured_value_instantiator.isinstance")
     def test_to_element_node_value_literal(self, isinstance_mock):
+        """Test __to_element_node_value returns value for literal element node."""
         isinstance_mock.return_value = True
         element_node_mock = mock.MagicMock(name="element_node")
         element_node_mock.toPython.return_value = "element_node_value"
@@ -75,6 +75,7 @@ class TestStructuredValueInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.structured_value_instantiator.isinstance")
     def test_to_element_node_value(self, isinstance_mock):
+        """Test __to_element_node_value returns value for non-literal element node."""
         isinstance_mock.return_value = False
         base_class_mock = mock.MagicMock(name="StructuredValueInstantiator_class")
         base_class_mock._model_element_factory.create_element.return_value = "element_node_value"

@@ -11,6 +11,7 @@ class TestComplexTypeInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.complex_type_instantiator.RdfHelper.to_python")
     def test_get_extended_element_extended_element_node_not_none(self, to_python_mock):
+        """Test get_extended_element returns extended element when node is not None."""
         base_class_mock = mock.MagicMock(name="ComplexTypeInstantiator_class")
         base_class_mock._model_element_factory = mock.MagicMock(return_value="_model_element_factory")
         aspect_graph_mock = mock.MagicMock(name="aspect_graph")
@@ -25,14 +26,40 @@ class TestComplexTypeInstantiator:
 
         assert result == "extended_element"
         aspect_graph_mock.value.assert_called_once_with(subject="entity_subject", predicate="predicate")
-        samm_mock.get_urn.assert_has_calls([
-            mock.call(SAMM.extends),
-            mock.call(SAMM.extends),
-        ])
-        base_class_mock._model_element_factory.create_element.assert_called_once_with("extended_element_node", 'entity_subject', attr_name='predicate')
+        samm_mock.get_urn.assert_has_calls(
+            [
+                mock.call(SAMM.extends),
+                mock.call(SAMM.extends),
+            ]
+        )
+        base_class_mock._model_element_factory.create_element.assert_called_once_with(
+            "extended_element_node", "entity_subject", attr_name="predicate"
+        )
+        to_python_mock.assert_called_once_with("extended_element_node")
+
+    @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.complex_type_instantiator.RdfHelper.to_python")
+    def test_get_extended_element_extended_element_node_in_instantiating_now(self, to_python_mock):
+        """Test get_extended_element returns extended element when node is not None and extended_element_node is in
+        _instantiating_now.
+        """
+        base_class_mock = mock.MagicMock(name="ComplexTypeInstantiator_class")
+        aspect_graph_mock = mock.MagicMock(name="aspect_graph")
+        aspect_graph_mock.value.return_value = "extended_element_node"
+        samm_mock = mock.MagicMock(name="SAMM")
+        samm_mock.get_urn.return_value = "predicate"
+        base_class_mock._aspect_graph = aspect_graph_mock
+        base_class_mock._samm = samm_mock
+        base_class_mock._instantiating_now = ["extended_element_node"]
+        to_python_mock.return_value = "extended_element"
+        result = ComplexTypeInstantiator.get_extended_element(base_class_mock, "entity_subject")
+
+        assert result == "extended_element"
+        aspect_graph_mock.value.assert_called_once_with(subject="entity_subject", predicate="predicate")
+        samm_mock.get_urn.assert_called_once_with(SAMM.extends)
         to_python_mock.assert_called_once_with("extended_element_node")
 
     def test_get_extended_element_extended_element_node_is_none(self):
+        """Test get_extended_element returns None when extended element node is None."""
         base_class_mock = mock.MagicMock(name="ComplexTypeInstantiator_class")
         aspect_graph_mock = mock.MagicMock(name="aspect_graph")
         aspect_graph_mock.value.return_value = None
@@ -48,6 +75,7 @@ class TestComplexTypeInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.complex_type_instantiator.RdfHelper.to_python")
     def test_get_extending_elements(self, to_python_mock):
+        """Test get_extending_elements returns list of extending elements."""
         base_class_mock = mock.MagicMock(name="ComplexTypeInstantiator_class")
         base_class_mock._model_element_factory = mock.MagicMock(name="model_element_factory")
         base_class_mock._instantiating_now = []
@@ -62,10 +90,36 @@ class TestComplexTypeInstantiator:
 
         assert result == ["new_element"]
         aspect_graph_mock.subjects.assert_called_once_with(predicate="predicate", object="entity_subject")
-        samm_mock.get_urn.assert_has_calls([
-            mock.call(SAMM.extends),
-            mock.call(SAMM.extends),
-        ])
+        samm_mock.get_urn.assert_has_calls(
+            [
+                mock.call(SAMM.extends),
+                mock.call(SAMM.extends),
+            ]
+        )
         aspect_graph_mock.subjects(predicate="predicate", object="entity_subject")
-        base_class_mock._model_element_factory.create_element.assert_called_once_with("element_subject", 'entity_subject', attr_name='predicate')
+        base_class_mock._model_element_factory.create_element.assert_called_once_with(
+            "element_subject", "entity_subject", attr_name="predicate"
+        )
+        to_python_mock.assert_called_once_with("element_subject")
+
+    @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.complex_type_instantiator.RdfHelper.to_python")
+    def test_get_extending_elements_element_subject_in_instantiating_now(self, to_python_mock):
+        """Test get_extending_elements returns list of extending elements when element_subject is in
+        _instantiating_now.
+        """
+        base_class_mock = mock.MagicMock(name="ComplexTypeInstantiator_class")
+        base_class_mock._instantiating_now = ["element_subject"]
+        aspect_graph_mock = mock.MagicMock(name="aspect_graph")
+        aspect_graph_mock.subjects.return_value = ["element_subject"]
+        base_class_mock._aspect_graph = aspect_graph_mock
+        samm_mock = mock.MagicMock(name="SAMM")
+        samm_mock.get_urn.return_value = "predicate"
+        base_class_mock._samm = samm_mock
+        to_python_mock.return_value = "new_element"
+        result = ComplexTypeInstantiator.get_extending_elements(base_class_mock, "entity_subject")
+
+        assert result == ["new_element"]
+        aspect_graph_mock.subjects.assert_called_once_with(predicate="predicate", object="entity_subject")
+        samm_mock.get_urn.assert_called_once_with(SAMM.extends)
+        aspect_graph_mock.subjects(predicate="predicate", object="entity_subject")
         to_python_mock.assert_called_once_with("element_subject")

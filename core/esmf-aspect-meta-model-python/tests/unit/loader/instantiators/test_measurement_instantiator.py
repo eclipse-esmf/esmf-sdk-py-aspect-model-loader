@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-import pytest
-
 from esmf_aspect_meta_model_python.loader.instantiator.measurement_instantiator import MeasurementInstantiator
 from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
@@ -13,6 +11,7 @@ class TestMeasurementInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.measurement_instantiator.DefaultMeasurement")
     def test_create_instance(self, default_measurement_mock):
+        """Test _create_instance creates a DefaultMeasurement with correct arguments."""
         base_class_mock = mock.MagicMock(name="MeasurementInstantiator_class")
         base_class_mock._get_data_type.return_value = "data_type"
         base_class_mock._get_base_attributes.return_value = "meta_model_base_attributes"

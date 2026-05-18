@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-import pytest
-
 from esmf_aspect_meta_model_python.loader.instantiator.single_entity_instantiator import SingleEntityInstantiator
 
 
@@ -12,6 +10,7 @@ class TestSingleEntityInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.single_entity_instantiator.DefaultSingleEntity")
     def test_create_instance(self, default_single_entity_mock):
+        """Test _create_instance creates a DefaultSingleEntity with correct arguments."""
         base_class_mock = mock.MagicMock(name="SingleEntityInstantiator_class")
         base_class_mock._get_data_type.return_value = "data_type"
         base_class_mock._get_base_attributes.return_value = "meta_model_base_attributes"

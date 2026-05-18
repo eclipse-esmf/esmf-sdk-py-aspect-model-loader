@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-import pytest
-
 from esmf_aspect_meta_model_python.loader.instantiator.set_instantiator import SetInstantiator
 from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
@@ -13,6 +11,7 @@ class TestSetInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.set_instantiator.DefaultSet")
     def test_create_instance(self, default_set_mock):
+        """Test _create_instance creates a DefaultSet with correct arguments."""
         base_class_mock = mock.MagicMock(name="SetInstantiator_class")
         base_class_mock._get_data_type.return_value = "data_type"
         base_class_mock._get_base_attributes.return_value = "meta_model_base_attributes"

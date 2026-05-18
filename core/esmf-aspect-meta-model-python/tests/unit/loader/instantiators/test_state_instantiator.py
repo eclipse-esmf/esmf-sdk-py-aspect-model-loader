@@ -30,6 +30,7 @@ class TestStateInstantiator:
         to_state_node_value_mock,
         default_state_mock,
     ):
+        """Test _create_instance method."""
         get_data_type_mock.return_value = "data_type"
         get_base_attributes_mock.return_value = "meta_model_base_attributes"
         to_state_node_value_mock.side_effect = ("value", "default")
@@ -78,6 +79,7 @@ class TestStateInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.state_instantiator.isinstance")
     def test_to_state_node_value_rdflib_literal(self, isinstance_mock):
+        """Test __to_state_node_value with rdflib Literal."""
         isinstance_mock.return_value = True
         element_node_mock = mock.MagicMock(name="element_node")
         element_node_mock.toPython.return_value = "element_node_value"
@@ -95,11 +97,15 @@ class TestStateInstantiator:
     )
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.state_instantiator.isinstance")
     def test_to_state_node_value_rdflib_uriref_state_value(self, isinstance_mock, is_collection_value_mock):
-        isinstance_mock.side_effect = (False, True, True, True)
+        """Test __to_state_node_value with rdflib URIRef state value."""
+        isinstance_mock.side_effect = (False, True, False, True, True)
         aspect_graph_mock = mock.MagicMock(name="aspect_graph")
         property_value_mock = mock.MagicMock(name="property_value")
         property_value_mock.toPython.return_value = "actual_value"
-        aspect_graph_mock.predicate_objects.return_value = [("property_urn#property_name", property_value_mock)]
+        aspect_graph_mock.predicate_objects.return_value = [
+            ("property_urn#property_name", "property_value"),
+            ("property_urn#property_name", property_value_mock),
+        ]
         is_collection_value_mock.return_value = False
         name_urn_mock = mock.MagicMock(name="name_urn")
         name_urn_mock.toPython.return_value = "value_key"
@@ -135,6 +141,7 @@ class TestStateInstantiator:
         is_collection_value_mock,
         instantiate_enum_collection_mock,
     ):
+        """Test __to_state_node_value with rdflib URIRef collection value."""
         isinstance_mock.side_effect = (False, True, True)
         aspect_graph_mock = mock.MagicMock(name="aspect_graph")
         aspect_graph_mock.predicate_objects.return_value = [("property_urn#property_name", "property_value")]
@@ -162,6 +169,7 @@ class TestStateInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.state_instantiator.isinstance")
     def test_to_state_node_value_raise_exception(self, isinstance_mock):
+        """Test __to_state_node_value raises TypeError for invalid value."""
         isinstance_mock.side_effect = (False, False)
         model_elements_mock = mock.MagicMock(name="model_elements")
         instantiator = StateInstantiator(model_elements_mock)
@@ -169,6 +177,6 @@ class TestStateInstantiator:
             instantiator._StateInstantiator__to_state_node_value("value_node#value_node_name")
 
         assert str(error.value) == (
-            "Every value of an state must either be a Literal (string, int, etc.) or a URI reference to a ComplexType. "
+            "Every value of a state must either be a Literal (string, int, etc.) or a URI reference to a ComplexType. "
             "Values of type str are not allowed"
         )

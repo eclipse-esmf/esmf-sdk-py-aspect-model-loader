@@ -6,6 +6,7 @@ import pytest
 
 import esmf_aspect_meta_model_python.constants as const
 
+from esmf_aspect_meta_model_python.base.aspect import Aspect
 from esmf_aspect_meta_model_python.loader.samm_graph import SAMMGraph
 
 
@@ -181,6 +182,47 @@ class TestSAMMGraph:
         result = samm_graph.load_aspect_model()
 
         assert result == "aspect"
+
+    def test_get_aspect_from_elements_no_model_elements(self):
+        """Test that _get_aspect_from_elements returns None if model_elements is None."""
+        samm_graph = SAMMGraph()
+        samm_graph.model_elements = []
+        result = samm_graph._get_aspect_from_elements()
+
+        assert result is None
+
+    @mock.patch("esmf_aspect_meta_model_python.loader.samm_graph.isinstance")
+    def test_get_aspect_from_elements_no_aspect(self, isinstance_mock):
+        """Test that model_elements has no Aspect."""
+        isinstance_mock.side_effect = [False, False]
+        samm_graph = SAMMGraph()
+        samm_graph.model_elements = ["node_1", "node_2"]
+        result = samm_graph._get_aspect_from_elements()
+
+        assert result is None
+        isinstance_mock.assert_has_calls(
+            [
+                mock.call("node_1", Aspect),
+                mock.call("node_2", Aspect),
+            ]
+        )
+
+    @mock.patch("esmf_aspect_meta_model_python.loader.samm_graph.isinstance")
+    def test_get_aspect_from_elements(self, isinstance_mock):
+        """Test that model_elements has no Aspect."""
+        isinstance_mock.side_effect = [False, False, True, False]
+        samm_graph = SAMMGraph()
+        samm_graph.model_elements = ["node_1", "node_2", "aspect_node", "node_3"]
+        result = samm_graph._get_aspect_from_elements()
+
+        assert result is None
+        isinstance_mock.assert_has_calls(
+            [
+                mock.call("node_1", Aspect),
+                mock.call("node_2", Aspect),
+                mock.call("aspect_node", Aspect),
+            ]
+        )
 
     @mock.patch("esmf_aspect_meta_model_python.loader.samm_graph.ModelElementFactory")
     @mock.patch("esmf_aspect_meta_model_python.loader.samm_graph.SAMMGraph.get_aspect_urn")

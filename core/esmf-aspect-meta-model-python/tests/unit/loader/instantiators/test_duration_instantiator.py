@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-import pytest
-
 from esmf_aspect_meta_model_python.loader.instantiator.duration_instantiator import DurationInstantiator
 from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
@@ -13,6 +11,7 @@ class TestDatatypeInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.duration_instantiator.DefaultDuration")
     def test_create_instance(self, default_duration_mock):
+        """Test _create_instance creates a DefaultDuration with correct arguments."""
         base_class_mock = mock.MagicMock(name="DurationInstantiator_class")
         base_class_mock._get_data_type.return_value = "data_type"
         base_class_mock._get_base_attributes.return_value = "meta_model_base_attributes"

@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-import pytest
-
 from esmf_aspect_meta_model_python.loader.instantiator.sorted_set_instantiator import SortedSetInstantiator
 from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
@@ -13,6 +11,7 @@ class TestSortedSetInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.sorted_set_instantiator.DefaultSortedSet")
     def test_create_instance(self, default_sorted_set_mock):
+        """Test _create_instance creates a DefaultSortedSet with correct arguments."""
         base_class_mock = mock.MagicMock(name="SortedSetInstantiator_class")
         base_class_mock._get_data_type.return_value = "data_type"
         base_class_mock._get_base_attributes.return_value = "meta_model_base_attributes"

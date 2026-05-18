@@ -1,31 +1,30 @@
-"""Meta Model Base Attributes test suite."""
+"""Element cache test suite."""
 
-from platform import node
 from unittest import mock
+from unittest.mock import MagicMock
 
 import pytest
 
-from unittest.mock import MagicMock
-from esmf_aspect_meta_model_python.loader.default_element_cache import DeferredReference, DefaultElementCache
+from esmf_aspect_meta_model_python.loader.default_element_cache import DefaultElementCache, DeferredReference
 
 
 class TestDeferredReference:
     """Unit tests suite for DeferredReference class."""
 
     def test_init(self):
-        """Test initialization of DeferredReference."""
+        """Test DeferredReference initializes with correct attributes."""
         parent_mock = MagicMock(name="parent")
         parent_mock.__str__.return_value = "parent_object"
         target_urn_mock = mock.MagicMock(name="target_urn")
         target_urn_mock.__str__.return_value = "urn:target"
-        result = DeferredReference(parent_mock, 'attr', target_urn_mock)
-        
+        result = DeferredReference(parent_mock, "attr", target_urn_mock)
+
         assert result.parent_obj == "parent_object"
-        assert result.attr_name == 'attr'
-        assert result.target_urn == 'urn:target'
-    
+        assert result.attr_name == "attr"
+        assert result.target_urn == "urn:target"
+
     def test_restore(self):
-        """Test restoring a deferred reference sets the attribute."""
+        """Test restore sets the attribute on the parent object from cache."""
         parent_mock = MagicMock(name="parent")
         parent_mock.__str__.return_value = "parent_object"
         parent_mock.attr = None
@@ -36,14 +35,14 @@ class TestDeferredReference:
             "urn:target": target_obj_mock,
             "parent_object": parent_mock,
         }
-        deferred_reference = DeferredReference(parent_mock, 'attr', 'urn:target')
+        deferred_reference = DeferredReference(parent_mock, "attr", "urn:target")
         result = deferred_reference.restore(cache)
-        
+
         assert result is None
         assert parent_mock.attr is target_obj_mock
 
     def test_restore_no_target_obj_raise_error(self):
-        """Test restore raises error if target object is missing."""
+        """Test restore raises ValueError if target object is missing in cache."""
         parent_mock = MagicMock(name="parent")
         parent_mock.__str__.return_value = "parent_object"
         parent_mock.attr = None
@@ -51,14 +50,14 @@ class TestDeferredReference:
             "urn:other_target": "some_obj",
             "parent_object": parent_mock,
         }
-        deferred_reference = DeferredReference(parent_mock, 'attr', 'urn:missing')
+        deferred_reference = DeferredReference(parent_mock, "attr", "urn:missing")
         with pytest.raises(ValueError) as exc:
             deferred_reference.restore(cache)
-        
+
         assert str(exc.value) == "Cannot restore reference: No object found in cache with URN urn:missing"
 
     def test_restore_attr_already_set(self):
-        """Test restore does nothing if attribute already set."""
+        """Test restore does nothing if attribute is already set on parent object."""
         # Arrange
         parent_mock = MagicMock(name="parent")
         parent_mock.__str__.return_value = "parent_object"
@@ -70,61 +69,91 @@ class TestDeferredReference:
             "urn:target": target_obj_mock,
             "parent_object": parent_mock,
         }
-        deferred_reference = DeferredReference(parent_mock, 'attr', target_urn_mock)
+        deferred_reference = DeferredReference(parent_mock, "attr", target_urn_mock)
         result = deferred_reference.restore(cache)
-        
+
         assert result is None
         assert parent_mock.attr == "another_target_obj"
+
+    @pytest.mark.parametrize(
+        "ref1_args, ref2_args, expected",
+        [
+            # Equal if all fields match
+            (("parent_object", "attr", "urn:target"), ("parent_object", "attr", "urn:target"), True),
+            # Different attr_name
+            (("parent_object", "attr", "urn:target"), ("parent_object", "attr2", "urn:target"), False),
+            # Different target_urn
+            (("parent_object", "attr", "urn:target"), ("parent_object", "attr", "urn:other"), False),
+            # Not a DeferredReference
+            (("parent_object", "attr", "urn:target"), object(), False),
+        ],
+    )
+    def test_eq(self, ref1_args, ref2_args, expected):
+        """Test __eq__ returns True for equal DeferredReference and False otherwise."""
+
+        def make_ref(args):
+            if isinstance(args, tuple):
+                parent_mock = MagicMock()
+                parent_mock.__str__.return_value = args[0]
+
+                return DeferredReference(parent_mock, args[1], args[2])
+
+            return args
+
+        ref1 = make_ref(ref1_args)
+        ref2 = make_ref(ref2_args)
+
+        assert (ref1 == ref2) is expected
 
 
 class TestDefaultElementCache:
     """Unit tests suite for DefaultElementCache class."""
 
     def test_init(self):
-        """Test initialization of DefaultElementCache."""
+        """Test DefaultElementCache initializes with empty caches and sets."""
         result = DefaultElementCache()
 
         assert result is not None
         assert result._instance_cache == {}
         assert result._active_path == set()
         assert result._cycle_reference_store == set()
-    
+
     def test_add_to_active_path(self):
-        """Test adding a node to the active path."""
+        """Test add_to_active_path adds a node to the active path set."""
         cache = DefaultElementCache()
         result = cache.add_to_active_path("node1")
 
         assert result is None
         assert cache._active_path == {"node1"}
-    
+
     def test_remove_from_active_path(self):
-        """Test removing a node from the active path."""
+        """Test remove_from_active_path removes a node from the active path set."""
         cache = DefaultElementCache()
         cache._active_path = {"node1", "node2"}
         result = cache.remove_from_active_path("node1")
 
         assert result is None
         assert cache._active_path == {"node2"}
-    
+
     def test_is_in_active_path(self):
-        """Test checking if a node is in the active path."""
+        """Test is_in_active_path returns True if node is in the active path set."""
         cache = DefaultElementCache()
         cache._active_path = {"node1", "node2"}
-        
+
         assert cache.is_in_active_path("node1") is True
         assert cache.is_in_active_path("node3") is False
-    
+
     def test_add_deferred_reference(self):
-        """Test adding a DeferredReference to the cycle reference store."""
+        """Test add_deferred_reference adds a DeferredReference to the cycle reference store."""
         cache = DefaultElementCache()
         deferred_ref = DeferredReference("parent", "attr", "urn:target")
         result = cache.add_deferred_reference(deferred_ref)
 
         assert result is None
         assert cache._cycle_reference_store == {deferred_ref}
-    
+
     def test_restore_cycle_references(self):
-        """Test restoring cycle references calls restore on all DeferredReferences."""
+        """Test restore_cycle_references calls restore on all DeferredReferences in the store."""
         cache = DefaultElementCache()
         deferred_ref1 = MagicMock(spec=DeferredReference)
         deferred_ref2 = MagicMock(spec=DeferredReference)
@@ -135,56 +164,63 @@ class TestDefaultElementCache:
         deferred_ref1.restore.assert_called_once_with(cache)
         deferred_ref2.restore.assert_called_once_with(cache)
         assert cache._cycle_reference_store == []
-    
+
     def test_reset(self):
+        """Test reset clears all caches and sets in DefaultElementCache."""
         cache = DefaultElementCache()
         cache._instance_cache = {"a": MagicMock()}
         cache._active_path = {"node"}
         cache._cycle_reference_store = [MagicMock()]
         result = cache.reset()
-        
+
         assert result is None
         assert cache._instance_cache == {}
         assert cache._active_path == set()
         assert cache._cycle_reference_store == []
 
     def test_get(self):
+        """Test get returns the cached object by URN or None if not found."""
         cache = DefaultElementCache()
         mock_obj = MagicMock()
         cache._instance_cache["urn:1"] = mock_obj
-        
+
         assert cache.get("urn:1") is mock_obj
         assert cache.get("urn:missing") is None
 
     def test_get_by_name(self):
+        """Test get_by_name returns all objects with matching payload_name."""
         cache = DefaultElementCache()
         instance_mock_1 = MagicMock(name="instance_1")
         instance_mock_1.payload_name = None
         instance_mock_2 = MagicMock(name="instance_2")
         instance_mock_2.payload_name = "foo"
-        cache._instance_cache = {"1": instance_mock_1, "2": instance_mock_2}
+        instance_mock_3 = MagicMock(name="instance_3")
+        instance_mock_3.payload_name = "bar"
+        instance_mock_4 = MagicMock(name="instance_4")
+        instance_mock_4.payload_name = None
+        instance_mock_4.name = "foo"
+        cache._instance_cache = {"1": instance_mock_1, "2": instance_mock_2, "3": instance_mock_3, "4": instance_mock_4}
         result = cache.get_by_name("foo")
-        
+
         assert instance_mock_1 not in result
         assert instance_mock_2 in result
-        
-        result2 = cache.get_by_name("bar")
-        assert instance_mock_2 not in result2
-        assert instance_mock_1 not in result2
+        assert instance_mock_4 in result
 
     def test_get_by_urn(self):
+        """Test get_by_urn returns the object with the given URN or None if not found."""
         cache = DefaultElementCache()
         instance_mock_1 = MagicMock(name="instance_1")
         instance_mock_1.urn = "urn:foo"
         instance_mock_2 = MagicMock(name="instance_2")
         instance_mock_2.urn = "urn:bar"
         cache._instance_cache = {"foo": instance_mock_1, "bar": instance_mock_2}
-        
+
         assert cache.get_by_urn("urn:foo") is instance_mock_1
         assert cache.get_by_urn("urn:bar") is instance_mock_2
         assert cache.get_by_urn("urn:missing") is None
 
     def test_resolve_instance_no_urn(self):
+        """Test resolve_instance returns the instance if it has no URN."""
         cache = DefaultElementCache()
         instance_mock = MagicMock(name="instance")
         instance_mock.urn = None
@@ -193,6 +229,7 @@ class TestDefaultElementCache:
         assert result is instance_mock
 
     def test_resolve_instance_returns_resolved_instance(self):
+        """Test resolve_instance returns the cached instance if already present."""
         cache = DefaultElementCache()
         instance_mock = MagicMock(name="instance")
         instance_mock.urn = "urn:instance"
@@ -204,6 +241,7 @@ class TestDefaultElementCache:
         assert cache._instance_cache["urn:instance"] is instance_mock
 
     def test_resolve_instance_no_resolved_instance(self):
+        """Test resolve_instance adds and returns the instance if not already cached."""
         cache = DefaultElementCache()
         instance_mock = MagicMock(name="instance")
         instance_mock.urn = "urn:instance"
@@ -214,14 +252,16 @@ class TestDefaultElementCache:
         assert cache._instance_cache["urn:instance"] is instance_mock
 
     def test_add_element(self, capsys):
+        """Test add_element adds a model element to the cache by URN."""
         cache = DefaultElementCache()
         model_element_mock = MagicMock(name="model_element")
         result = cache.add_element("urn:instance", model_element_mock)
 
         assert result is None
         assert cache._instance_cache["urn:instance"] is model_element_mock
-    
+
     def test_add_element_no_overwrite(self, capsys):
+        """Test add_element does not overwrite existing element if overwrite is False."""
         cache = DefaultElementCache()
         old_element_mock = MagicMock(name="old_element")
         new_element_mock = MagicMock(name="new_element")
@@ -230,8 +270,9 @@ class TestDefaultElementCache:
 
         assert result is None
         assert cache._instance_cache["urn:instance"] is old_element_mock
-    
+
     def test_add_element_overwrite(self, capsys):
+        """Test add_element overwrites existing element if overwrite is True."""
         cache = DefaultElementCache()
         old_element_mock = MagicMock(name="old_element")
         new_element_mock = MagicMock(name="new_element")
