@@ -19,32 +19,53 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 
 
 class DefaultTrait(DefaultCharacteristic, Trait):
-    """Default Trait class."""
+    """Default implementation of a trait characteristic.
 
-    SCALAR_ATTR_NAMES = DefaultCharacteristic.SCALAR_ATTR_NAMES + ["base_characteristic"]
-    LIST_ATTR_NAMES = DefaultCharacteristic.LIST_ATTR_NAMES + ["constraints"]
+    Represents a trait with a base characteristic and a list of constraints.
+    """
+
+    SCALAR_ATTR_NAMES: List[str] = DefaultCharacteristic.SCALAR_ATTR_NAMES + ["base_characteristic"]
+    LIST_ATTR_NAMES: List[str] = DefaultCharacteristic.LIST_ATTR_NAMES + ["constraints"]
     REQUIRED_ATTRS = DefaultCharacteristic.REQUIRED_ATTRS + ["base_characteristic", "constraints"]
 
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,
         base_characteristic: Optional[Characteristic],
-        constraints: Optional[List[Constraint]],
+        constraints: List[Constraint],
     ):
-        super().__init__(meta_model_base_attributes, base_characteristic.data_type)
+        """Initializes the DefaultTrait.
+
+        Args:
+            meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
+            base_characteristic (Optional[Characteristic]): The base characteristic for the trait.
+            constraints (List[Constraint]): The list of constraints for the trait.
+        """
+        super().__init__(meta_model_base_attributes, base_characteristic.data_type if base_characteristic else None)
 
         self._trait_urn = meta_model_base_attributes.urn
-        self._base_characteristic: Characteristic = base_characteristic
-        self._constraints: List[Constraint] = constraints        
+        self._base_characteristic: Optional[Characteristic] = base_characteristic
+        self._constraints: List[Constraint] = constraints
 
     @property
-    def base_characteristic(self) -> Characteristic:
-        """Base characteristic."""
+    def base_characteristic(self) -> Optional[Characteristic]:
+        """Returns the base characteristic for the trait.
+
+        Returns:
+            Optional[Characteristic]: The base characteristic, or None if not set.
+        """
         return self._base_characteristic
 
     @base_characteristic.setter
     def base_characteristic(self, base_characteristic: Characteristic) -> None:
-        """Base characteristic."""
+        """Sets the base characteristic for the trait.
+
+        Args:
+            base_characteristic (Characteristic): The base characteristic to set.
+
+        Raises:
+            AttributeError: If the provided base_characteristic is None.
+        """
         if not base_characteristic:
             raise AttributeError(f"No base characteristic given for the trait {self._trait_urn}")
 
@@ -52,13 +73,24 @@ class DefaultTrait(DefaultCharacteristic, Trait):
 
     @property
     def constraints(self) -> List[Constraint]:
-        """Constraints."""
+        """Returns the list of constraints for the trait.
+
+        Returns:
+            List[Constraint]: The list of constraints.
+        """
         return self._constraints
 
     @constraints.setter
     def constraints(self, constraints: List[Constraint]) -> None:
-        """Constraints."""
+        """Sets the list of constraints for the trait.
+
+        Args:
+            constraints (List[Constraint]): The list of constraints to set.
+
+        Raises:
+            AttributeError: If the provided constraints list is None or empty.
+        """
         if not constraints:
             raise AttributeError(f"No constraints given for the trait {self._trait_urn}")
-        
+
         self._constraints = constraints

@@ -15,6 +15,7 @@ class TestAbstractPropertyInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.abstract_property_instantiator.isinstance")
     def test_create_instance_URIRef(self, isinstance_mock):
+        """Test _create_instance with a URIRef node."""
         base_class_mock = mock.MagicMock(name="AbstractPropertyInstantiator_class")
         base_class_mock._create_property_direct_reference = mock.MagicMock(return_value="property")
         isinstance_mock.return_value = True
@@ -25,6 +26,7 @@ class TestAbstractPropertyInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.abstract_property_instantiator.isinstance")
     def test_create_instance_BNode(self, isinstance_mock):
+        """Test _create_instance with a BNode node."""
         base_class_mock = mock.MagicMock(name="AbstractPropertyInstantiator_class")
         base_class_mock._create_property_blank_node = mock.MagicMock(return_value="property")
         isinstance_mock.side_effect = (False, True)
@@ -35,6 +37,7 @@ class TestAbstractPropertyInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.abstract_entity_instantiator.isinstance")
     def test_create_instance_raise_exeption(self, isinstance_mock):
+        """Test _create_instance raises ValueError for invalid node type."""
         base_class_mock = mock.MagicMock(name="AbstractPropertyInstantiator_class")
         isinstance_mock.side_effect = (False, False)
         with pytest.raises(ValueError) as error:
@@ -42,8 +45,11 @@ class TestAbstractPropertyInstantiator:
 
         assert str(error.value) == "Invalid syntax for Abstract Property"
 
-    @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.abstract_property_instantiator.DefaultAbstractProperty")
+    @mock.patch(
+        "esmf_aspect_meta_model_python.loader.instantiator.abstract_property_instantiator.DefaultAbstractProperty"
+    )
     def test_create_property_direct_reference(self, default_abstract_property_mock):
+        """Test _create_property_direct_reference creates a direct reference property."""
         base_class_mock = mock.MagicMock(name="AbstractPropertyInstantiator_class")
         base_class_mock._get_base_attributes = mock.MagicMock(return_value="meta_model_base_attributes")
         aspect_graph_mock = mock.MagicMock(name="AspectGraph")
@@ -68,8 +74,11 @@ class TestAbstractPropertyInstantiator:
             abstract=True,
         )
 
-    @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.abstract_property_instantiator.DefaultAbstractProperty")
+    @mock.patch(
+        "esmf_aspect_meta_model_python.loader.instantiator.abstract_property_instantiator.DefaultAbstractProperty"
+    )
     def test_create_property_blank_node(self, default_abstract_property_mock):
+        """Test _create_property_blank_node creates a property from a blank node."""
         base_class_mock = mock.MagicMock(name="AbstractPropertyInstantiator_class")
         base_class_mock._get_child.return_value = "payload_name"
         base_class_mock._get_base_attributes.return_value = "meta_model_base_attributes"

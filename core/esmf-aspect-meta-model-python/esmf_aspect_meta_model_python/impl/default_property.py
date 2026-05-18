@@ -8,30 +8,24 @@
 #  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #
 #   SPDX-License-Identifier: MPL-2.0
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from rdflib.term import BNode, IdentifiedNode
+from typing import Any, Dict, List, Optional
 
 from esmf_aspect_meta_model_python.base.characteristics.characteristic import Characteristic
 from esmf_aspect_meta_model_python.base.property import AbstractProperty, Property
 from esmf_aspect_meta_model_python.impl.base_impl import BaseImpl
 from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import MetaModelBaseAttributes
-from esmf_aspect_meta_model_python.loader.model_element_factory import ModelElementFactory
-from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
-
-if TYPE_CHECKING:
-    from esmf_aspect_meta_model_python.loader.instantiator.property_instantiator import PropertyInstantiator
 
 
 class DefaultAbstractProperty(BaseImpl, AbstractProperty):
     """Default Abstract Property class.
-    
+
     An Abstract Property is similar to a Property, with two differences:
         - it has no characteristic attribute
         - it must only be used in Abstract Entities
     """
 
-    SCALAR_ATTR_NAMES = BaseImpl.SCALAR_ATTR_NAMES + [
+    SCALAR_ATTR_NAMES: List[str] = BaseImpl.SCALAR_ATTR_NAMES + [
         "example_value",
         "extends",
         "optional",
@@ -49,6 +43,17 @@ class DefaultAbstractProperty(BaseImpl, AbstractProperty):
         not_in_payload: bool = False,
         payload_name: Optional[str] = None,
     ):
+        """Initializes a DefaultAbstractProperty instance.
+
+        Args:
+            meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
+            example_value (Optional[Any]): An example value for this property.
+            extends (Optional[Property]): The property this one extends, if any.
+            abstract (bool): Whether this property is abstract.
+            optional (bool): Whether this property is optional.
+            not_in_payload (bool): Whether this property is not included in the payload.
+            payload_name (Optional[str]): The name to use in the payload, if different from the property name.
+        """
         super().__init__(meta_model_base_attributes)
 
         self._example_value = example_value
@@ -57,35 +62,59 @@ class DefaultAbstractProperty(BaseImpl, AbstractProperty):
         self._optional = optional
         self._not_in_payload = not_in_payload
         self._payload_name = payload_name
-    
+
     @property
     def example_value(self) -> Optional[Any]:
-        """Example of value (eagerly set in __init__)."""
+        """Returns the example value for this property, if set.
+
+        Returns:
+            Optional[Any]: The example value, or None if not set.
+        """
         return self._example_value
 
     @property
     def is_abstract(self) -> bool:
-        """Is abstract flag."""
+        """Indicates whether this property is abstract.
+
+        Returns:
+            bool: True if this property is abstract, False otherwise.
+        """
         return self._is_abstract
 
     @property
     def extends(self) -> Optional[Property]:
-        """Extends."""
+        """Returns the property that this one extends, if any.
+
+        Returns:
+            Optional[Property]: The extended property, or None if not set.
+        """
         return self._extends
 
     @property
     def is_optional(self) -> bool:
-        """Is optional flag."""
+        """Indicates whether this property is optional.
+
+        Returns:
+            bool: True if this property is optional, False otherwise.
+        """
         return self._optional
 
     @property
     def is_not_in_payload(self) -> bool:
-        """Is not in payload flag."""
+        """Indicates whether this property is not included in the payload.
+
+        Returns:
+            bool: True if this property is not in the payload, False otherwise.
+        """
         return self._not_in_payload
 
     @property
     def payload_name(self) -> str:
-        """Payload name."""
+        """Returns the payload name for this property.
+
+        Returns:
+            str: The payload name, or the property name if not set.
+        """
         return self._payload_name if self._payload_name else self.name
 
     @property
@@ -124,9 +153,12 @@ class DefaultAbstractProperty(BaseImpl, AbstractProperty):
 
 
 class DefaultProperty(BaseImpl, Property):
-    """Default Property class."""
+    """Default implementation of a property in the meta model.
 
-    SCALAR_ATTR_NAMES = BaseImpl.SCALAR_ATTR_NAMES + [
+    Represents a property with a characteristic, example value, and various flags.
+    """
+
+    SCALAR_ATTR_NAMES: List[str] = BaseImpl.SCALAR_ATTR_NAMES + [
         "characteristic",
         "example_value",
         "extends",
@@ -134,7 +166,7 @@ class DefaultProperty(BaseImpl, Property):
         "not_in_payload",
         "payload_name",
     ]
-    REQUIRED_ATTRS = BaseImpl.REQUIRED_ATTRS + ["characteristic"]
+    REQUIRED_ATTRS: List[str] = BaseImpl.REQUIRED_ATTRS + ["characteristic"]
 
     def __init__(
         self,
@@ -147,6 +179,18 @@ class DefaultProperty(BaseImpl, Property):
         not_in_payload: bool = False,
         payload_name: Optional[str] = None,
     ):
+        """Initializes a DefaultProperty instance.
+
+        Args:
+            meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
+            characteristic (Optional[Characteristic]): The characteristic for this property.
+            example_value (Optional[Any]): An example value for this property.
+            extends (Optional[Property]): The property this one extends, if any.
+            abstract (bool): Whether this property is abstract.
+            optional (bool): Whether this property is optional.
+            not_in_payload (bool): Whether this property is not included in the payload.
+            payload_name (Optional[str]): The name to use in the payload, if different from the property name.
+        """
         super().__init__(meta_model_base_attributes)
 
         self._set_characteristic(characteristic)
@@ -158,52 +202,92 @@ class DefaultProperty(BaseImpl, Property):
         self._payload_name = payload_name
 
     def _set_characteristic(self, characteristic: Optional[Characteristic]):
-        """Set self as parent element for all child nodes."""
+        """Sets this property as the parent element for all child nodes.
+
+        Args:
+            characteristic (Optional[Characteristic]): The characteristic to set and assign this property as parent.
+        """
         self._characteristic = characteristic
+
         if self._characteristic:
             self._characteristic.append_parent_element(self)
 
     @property
     def characteristic(self) -> Optional[Characteristic]:
-        """Characteristic (eagerly set in __init__)."""
+        """Returns the characteristic for this property, if set.
+
+        Returns:
+            Optional[Characteristic]: The characteristic, or None if not set.
+        """
         return self._characteristic
 
     @characteristic.setter
     def characteristic(self, characteristic: Characteristic) -> None:
-        """Characteristic setter."""
+        """Sets the characteristic for this property.
+
+        Args:
+            characteristic (Characteristic): The characteristic to set.
+
+        Raises:
+            ValueError: If the characteristic is not provided.
+        """
         if not characteristic:
             raise ValueError("Property must have a characteristic.")
-        
+
         self._set_characteristic(characteristic)
 
     @property
     def example_value(self) -> Optional[Any]:
-        """Example of value (eagerly set in __init__)."""
+        """Returns the example value for this property, if set.
+
+        Returns:
+            Optional[Any]: The example value, or None if not set.
+        """
         return self._example_value
 
     @property
     def is_abstract(self) -> bool:
-        """Is abstract flag."""
+        """Indicates whether this property is abstract.
+
+        Returns:
+            bool: True if this property is abstract, False otherwise.
+        """
         return self._is_abstract
 
     @property
     def extends(self) -> Optional[Property]:
-        """Extends."""
+        """Returns the property that this one extends, if any.
+
+        Returns:
+            Optional[Property]: The extended property, or None if not set.
+        """
         return self._extends
 
     @property
     def is_optional(self) -> bool:
-        """Is optional flag."""
+        """Indicates whether this property is optional.
+
+        Returns:
+            bool: True if this property is optional, False otherwise.
+        """
         return self._optional
 
     @property
     def is_not_in_payload(self) -> bool:
-        """Is not in payload flag."""
+        """Indicates whether this property is not included in the payload.
+
+        Returns:
+            bool: True if this property is not in the payload, False otherwise.
+        """
         return self._not_in_payload
 
     @property
     def payload_name(self) -> str:
-        """Payload name."""
+        """Returns the payload name for this property.
+
+        Returns:
+            str: The payload name, or the property name if not set.
+        """
         return self._payload_name if self._payload_name else self.name
 
     @property

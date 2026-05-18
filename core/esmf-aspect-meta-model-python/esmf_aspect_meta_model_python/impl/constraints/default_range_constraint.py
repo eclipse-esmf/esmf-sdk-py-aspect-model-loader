@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from esmf_aspect_meta_model_python.base.bound_definition import BoundDefinition
 from esmf_aspect_meta_model_python.base.constraints.range_constraint import RangeConstraint
@@ -18,9 +18,12 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 
 
 class DefaultRangeConstraint(DefaultConstraint, RangeConstraint):
-    """Default Range Constraint class."""
+    """Default implementation of a range constraint.
 
-    SCALAR_ATTR_NAMES = DefaultConstraint.SCALAR_ATTR_NAMES + [
+    Represents a range constraint with minimum and maximum values and optional bound definitions.
+    """
+
+    SCALAR_ATTR_NAMES: List[str] = DefaultConstraint.SCALAR_ATTR_NAMES + [
         "min_value",
         "max_value",
         "lower_bound_definition",
@@ -35,6 +38,15 @@ class DefaultRangeConstraint(DefaultConstraint, RangeConstraint):
         lower_bound_definition: Optional[BoundDefinition],
         upper_bound_definition: Optional[BoundDefinition],
     ):
+        """Initializes the DefaultRangeConstraint.
+
+        Args:
+            meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
+            min_value (Optional[Any]): The minimum value for the constraint.
+            max_value (Optional[Any]): The maximum value for the constraint.
+            lower_bound_definition (Optional[BoundDefinition]): The lower bound definition.
+            upper_bound_definition (Optional[BoundDefinition]): The upper bound definition.
+        """
         super().__init__(meta_model_base_attributes)
 
         self._min_value = min_value
@@ -44,36 +56,66 @@ class DefaultRangeConstraint(DefaultConstraint, RangeConstraint):
 
     @property
     def min_value(self) -> Any:
-        """Min value."""
+        """Returns the minimum value for the range constraint.
+
+        Returns:
+            Any: The minimum value.
+        """
         return self._min_value
-    
+
     @min_value.setter
     def min_value(self, min_value: Any) -> None:
-        """Min value setter."""
+        """Sets the minimum value for the range constraint.
+
+        Args:
+            min_value (Any): The minimum value to set.
+
+        Raises:
+            ValueError: If the provided min_value is None.
+        """
         if min_value is None:
             raise ValueError("Min value cannot be None.")
-        
+
         self._min_value = min_value
 
     @property
     def max_value(self) -> Optional[Any]:
-        """Max value."""
+        """Returns the maximum value for the range constraint.
+
+        Returns:
+            Optional[Any]: The maximum value, or None if not set.
+        """
         return self._max_value
-    
+
     @max_value.setter
     def max_value(self, max_value: Any) -> None:
-        """Max value setter."""
+        """Sets the maximum value for the range constraint.
+
+        Args:
+            max_value (Any): The maximum value to set.
+
+        Raises:
+            ValueError: If the provided max_value is None.
+        """
         if max_value is None:
             raise ValueError("Max value cannot be None.")
-        
+
         self._max_value = max_value
 
     @property
     def lower_bound_definition(self) -> Optional[BoundDefinition]:
-        """Lower bound definition."""
+        """Returns the lower bound definition for the range constraint.
+
+        Returns:
+            Optional[BoundDefinition]: The lower bound definition, or None if not set.
+        """
         return self._lower_bound_definition
 
     @property
     def upper_bound_definition(self) -> Optional[BoundDefinition]:
-        """Upper bound definition."""
+        """Returns the upper bound definition for the range constraint.
+
+        Returns:
+            Optional[BoundDefinition]: The upper bound definition, or None if not set.
+        """
         return self._upper_bound_definition

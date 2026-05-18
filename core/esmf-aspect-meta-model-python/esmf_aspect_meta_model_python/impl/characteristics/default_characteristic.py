@@ -8,7 +8,7 @@
 #  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #
 #   SPDX-License-Identifier: MPL-2.0
-from typing import Optional
+from typing import List, Optional
 
 from esmf_aspect_meta_model_python.base.characteristics.characteristic import Characteristic
 from esmf_aspect_meta_model_python.base.data_types.complex_type import ComplexType
@@ -18,12 +18,21 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 
 
 class DefaultCharacteristic(BaseImpl, Characteristic):
-    """Default Characteristic class."""
+    """Default implementation of a characteristic with a data type.
 
-    SCALAR_ATTR_NAMES = BaseImpl.SCALAR_ATTR_NAMES + ["data_type"]
-    REQUIRED_ATTRS = BaseImpl.REQUIRED_ATTRS + ["data_type"]
+    Represents a characteristic that may have a data type and manages parent-child relationships for complex types.
+    """
+
+    SCALAR_ATTR_NAMES: List[str] = BaseImpl.SCALAR_ATTR_NAMES + ["data_type"]
+    REQUIRED_ATTRS: List[str] = BaseImpl.REQUIRED_ATTRS + ["data_type"]
 
     def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, data_type: Optional[DataType]):
+        """Initializes the DefaultCharacteristic.
+
+        Args:
+            meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
+            data_type (Optional[DataType]): The data type for this characteristic.
+        """
         super().__init__(meta_model_base_attributes)
 
         self._data_type = data_type
@@ -32,16 +41,27 @@ class DefaultCharacteristic(BaseImpl, Characteristic):
 
     @property
     def data_type(self) -> Optional[DataType]:
-        """Data type."""
+        """Returns the data type of this characteristic, if set.
+
+        Returns:
+            Optional[DataType]: The data type, or None if not set.
+        """
         return self._data_type
 
     @data_type.setter
     def data_type(self, data_type: DataType) -> None:
-        """Data type setter."""
+        """Sets the data type for this characteristic.
+
+        Args:
+            data_type (DataType): The data type to set.
+
+        Raises:
+            ValueError: If the provided data_type is None.
+        """
         if not data_type:
             raise ValueError("Data type cannot be None.")
-        
+
         self._data_type = data_type
-        
+
         if isinstance(self._data_type, ComplexType):
             self._data_type.append_parent_element(self)

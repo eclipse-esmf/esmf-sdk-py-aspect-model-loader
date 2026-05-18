@@ -13,35 +13,28 @@ import rdflib  # type: ignore
 
 from rdflib.term import Node
 
-from esmf_aspect_meta_model_python.base.property import Property
+from esmf_aspect_meta_model_python.base.property import AbstractProperty
 from esmf_aspect_meta_model_python.impl.default_property import DefaultAbstractProperty
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
-class AbstractPropertyInstantiator(InstantiatorBase[Property]):
-    def _create_instance(self, element_node: Node) -> Property:
-        """
-        Instantiates an abstract property. It explicitly sets the
-        characteristic and the example value to None.
+class AbstractPropertyInstantiator(InstantiatorBase[AbstractProperty]):
+    def _create_instance(self, element_node: Node) -> AbstractProperty:
+        """Instantiates an abstract property, setting characteristic and example value to None.
 
-        Abstract property nodes may occur in two different shapes.
-        1) A abstract property that does not specify any of the attributes
-        optional, payloadName and notInPayload is always a direct reference
-        to an abstract property node.
+        Abstract property nodes may occur in two shapes:
+        1) A direct reference to an abstract property node (no optional, payloadName, notInPayload attributes).
+        2) A blank node with at least one of optional, payloadName, or notInPayload, referencing the property node.
 
-        2) A property that specifies at least one of the attributes optional,
-        payloadName or notInPayload is defined as a blank node.
-        The remaining attributes (e.g., preferredName, description, etc.)
-        are specified in an extra node referenced with the predicate
-        samm:property.
+        Args:
+            element_node (Node): The node representing the property (URN or blank node).
 
-        This method finds out which one of the two shapes occurs and chooses
-        one of two methods for the instantiation.
+        Returns:
+            AbstractProperty: An instance of the abstract property.
 
-        :param element_node: A URN to the node that represents the property.
-
-        :return: an instance of the property
+        Raises:
+            ValueError: If the node is not a valid URIRef or BNode.
         """
         if isinstance(element_node, rdflib.URIRef):
             return self._create_property_direct_reference(element_node)
@@ -50,10 +43,16 @@ class AbstractPropertyInstantiator(InstantiatorBase[Property]):
         else:
             raise ValueError("Invalid syntax for Abstract Property")
 
-    def _create_property_direct_reference(self, element_node: rdflib.URIRef) -> Property:
-        """The given node is a named node representing the property"""
-        meta_model_base_attributes = self._get_base_attributes(element_node)
+    def _create_property_direct_reference(self, element_node: rdflib.URIRef) -> AbstractProperty:
+        """Creates an abstract property from a named node (direct reference).
 
+        Args:
+            element_node (rdflib.URIRef): The named node representing the property.
+
+        Returns:
+            AbstractProperty: The instantiated abstract property.
+        """
+        meta_model_base_attributes = self._get_base_attributes(element_node)
         example_value = self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.example_value))
 
         return DefaultAbstractProperty(
@@ -62,9 +61,15 @@ class AbstractPropertyInstantiator(InstantiatorBase[Property]):
             abstract=True,
         )
 
-    def _create_property_blank_node(self, element_node: rdflib.BNode) -> Property:
-        """The given node is a blank node holding a reference to the property
-        and having additional attributes like optional or not_in_payload"""
+    def _create_property_blank_node(self, element_node: rdflib.BNode) -> AbstractProperty:
+        """Creates an abstract property from a blank node with additional attributes.
+
+        Args:
+            element_node (rdflib.BNode): The blank node holding a reference to the property and extra attributes.
+
+        Returns:
+            AbstractProperty: The instantiated abstract property.
+        """
         optional = (
             self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.optional)) is not None
         )

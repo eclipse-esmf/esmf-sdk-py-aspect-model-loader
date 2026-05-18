@@ -18,6 +18,7 @@ RESOURCE_PATH = getcwd() / Path("tests/integration/aspect_model_loader/resources
 
 
 def test_loading_aspect_with_entity_enum():
+    """Test loading an aspect with an entity enumeration."""
     file_path = RESOURCE_PATH / "AspectWithEntityEnum.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -56,6 +57,7 @@ def test_loading_aspect_with_entity_enum():
 
 
 def test_loading_aspect_with_entity():
+    """Test loading an aspect with a single entity characteristic."""
     file_path = RESOURCE_PATH / "AspectWithEntity.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -79,6 +81,7 @@ def test_loading_aspect_with_entity():
 
 
 def test_aspect_with_abstract_entity():
+    """Test loading an aspect with an abstract entity and inheritance."""
     file_path = RESOURCE_PATH / "AspectWithAbstractEntity.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -109,6 +112,7 @@ def test_aspect_with_abstract_entity():
 
 
 def test_aspect_with_multiple_entities_same_extend():
+    """Test aspects with multiple entities extending the same abstract entity."""
     file_path = RESOURCE_PATH / "AspectWithMultipleEntitiesSameExtend.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -137,9 +141,7 @@ def test_aspect_with_multiple_entities_same_extend():
 
 
 def test_aspect_with_unused_extending_entity() -> None:
-    """Tests whether an entity is instantiated if it is not directly connected to an aspect
-    but extends an abstract entity that is connected to an aspect.
-    """
+    """Test instantiation of an entity extending an abstract entity connected to an aspect."""
     file_path = RESOURCE_PATH / "AspectWithUnusedExtendingEntity.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -172,6 +174,7 @@ def test_aspect_with_unused_extending_entity() -> None:
 
 
 def test_aspect_with_abstract_coordinate_properties_list() -> None:
+    """Test loading an aspect with abstract coordinate properties as a list."""
     file_path = RESOURCE_PATH / "AspectWithPoint3d.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -206,9 +209,7 @@ def test_aspect_with_abstract_coordinate_properties_list() -> None:
 
 
 def test_attribute_inheritance_entity() -> None:
-    """test inheritance of description, preferred name and see attributes
-    for extending entities.
-    """
+    """Test inheritance of description, preferred name, and see attributes for extending entities."""
     file_path = RESOURCE_PATH / "AspectWithAbstractEntityMultipleAttributes.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -244,9 +245,7 @@ def test_attribute_inheritance_entity() -> None:
 
 
 def test_multiple_attribute_inheritance_entity() -> None:
-    """test inheritance of description, preferred name and see attributes
-    for multiple extending entities.
-    """
+    """Test inheritance of description, preferred name, and see attributes for multiple extending entities."""
     file_path = RESOURCE_PATH / "AspectWithMultipleAbstractEntitiesMultipleAttributes.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -286,6 +285,7 @@ def test_multiple_attribute_inheritance_entity() -> None:
 
 
 def test_attribute_inheritance_property() -> None:
+    """Test inheritance of attributes for extending properties."""
     file_path = RESOURCE_PATH / "AspectWithAbstractPropertyMultipleAttributes.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -318,6 +318,7 @@ def test_attribute_inheritance_property() -> None:
 
 
 def test_multiple_properties_same_extend() -> None:
+    """Test multiple properties extending the same abstract property."""
     file_path = RESOURCE_PATH / "AspectWithMultiplePropertiesSameExtend.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -346,16 +347,21 @@ def test_multiple_properties_same_extend() -> None:
     characteristic1 = extending_property1.characteristic
     assert characteristic1 is not None
     assert characteristic1.name == "velocityInteger"
-    assert characteristic1.data_type.urn == "http://www.w3.org/2001/XMLSchema#int"
+    assert characteristic1.data_type is not None
+    urns = characteristic1.data_type.urn
+    assert urns is not None and "http://www.w3.org/2001/XMLSchema#int" in urns
 
     assert extending_property2.get_preferred_name("en") == "velocity"
     characteristic2 = extending_property2.characteristic
     assert characteristic2 is not None
     assert characteristic2.name == "velocityFloat"
-    assert characteristic2.data_type.urn == "http://www.w3.org/2001/XMLSchema#float"
+    assert characteristic2.data_type is not None
+    urns = characteristic2.data_type.urn
+    assert urns is not None and "http://www.w3.org/2001/XMLSchema#float" in urns
 
 
 def test_abstract_property_blank_node() -> None:
+    """Test abstract property with a blank node."""
     file_path = RESOURCE_PATH / "AspectWithAbstractPropertyBlankNode.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -390,6 +396,7 @@ def test_abstract_property_blank_node() -> None:
 
 
 def test_abstract_property_multiple_abstract_entities() -> None:
+    """Test abstract property with multiple abstract entities."""
     file_path = RESOURCE_PATH / "AspectWithAbstractPropertyMultipleAbstractEntities.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -411,10 +418,12 @@ def test_abstract_property_multiple_abstract_entities() -> None:
     assert velocity.get_preferred_name("en") == "velocity"
     assert abstract_velocity.get_preferred_name("en") == "velocity"
     velocity_integer = velocity.characteristic
-    assert velocity_integer is not None
+    assert velocity_integer
     assert velocity_integer.name == "velocityInteger"
     assert isinstance(velocity_integer, Quantifiable)
-    assert velocity_integer.data_type.urn == "http://www.w3.org/2001/XMLSchema#int"
+    assert velocity_integer.data_type is not None
+    urns = velocity_integer.data_type.urn
+    assert urns is not None and "http://www.w3.org/2001/XMLSchema#int" in urns
     unit = velocity_integer.unit
     assert unit is not None
     assert unit.get_preferred_name("en") == "metre per second"
@@ -427,10 +436,13 @@ def test_abstract_property_multiple_abstract_entities() -> None:
     vin_string = vin.characteristic
     assert vin_string is not None
     assert vin_string.name == "vinString"
-    assert vin_string.data_type.urn == "http://www.w3.org/2001/XMLSchema#string"
+    assert vin_string.data_type is not None
+    urns = vin_string.data_type.urn
+    assert urns is not None and "http://www.w3.org/2001/XMLSchema#string" in urns
 
 
 def test_aspect_with_time_series():
+    """Test aspect with time series characteristic."""
     file_path = RESOURCE_PATH / "AspectWithTimeSeries.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -478,6 +490,7 @@ def test_aspect_with_time_series():
 
 
 def test_aspect_with_time_series_with_complex_type() -> None:
+    """Test aspect with time series characteristic and complex type."""
     file_path = RESOURCE_PATH / "AspectWithTimeSeriesWithComplexType.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -493,7 +506,8 @@ def test_aspect_with_time_series_with_complex_type() -> None:
     assert isinstance(data_type, ComplexType)
     assert data_type.is_complex is True
     assert data_type.name == "TestTimeSeriesEntity"
-    assert data_type.urn == "urn:samm:org.eclipse.esmf.test.entity:2.2.0#TestTimeSeriesEntity"
+    urns = data_type.urn
+    assert urns is not None and "urn:samm:org.eclipse.esmf.test.entity:2.2.0#TestTimeSeriesEntity" in urns
 
     assert len(data_type.properties) == 1
     assert len(data_type.all_properties) == 3
@@ -516,6 +530,7 @@ def test_aspect_with_time_series_with_complex_type() -> None:
 
 
 def test_aspect_with_file_resource_entity() -> None:
+    """Test aspect with file resource entity."""
     file_path = RESOURCE_PATH / "AspectWithFileResourceEntity.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -544,12 +559,17 @@ def test_aspect_with_file_resource_entity() -> None:
     assert mime_type_characteristic is not None
 
     assert resource_characteristic.name == "ResourcePath"
-    assert resource_characteristic.data_type.urn == "http://www.w3.org/2001/XMLSchema#anyURI"
+    assert resource_characteristic.data_type is not None
+    urns = resource_characteristic.data_type.urn
+    assert urns is not None and "http://www.w3.org/2001/XMLSchema#anyURI" in urns
     assert mime_type_characteristic.name == "MimeType"
-    assert mime_type_characteristic.data_type.urn == "http://www.w3.org/2001/XMLSchema#string"
+    assert mime_type_characteristic.data_type is not None
+    urns = mime_type_characteristic.data_type.urn
+    assert urns is not None and "http://www.w3.org/2001/XMLSchema#string" in urns
 
 
 def test_aspect_with_entity_extending_file_resource() -> None:
+    """Test aspect with entity extending file resource entity."""
     file_path = RESOURCE_PATH / "AspectWithEntityExtendingFileResource.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)

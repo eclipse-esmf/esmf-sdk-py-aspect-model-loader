@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-import pytest
-
 from esmf_aspect_meta_model_python.loader.instantiator.code_instantiator import CodeInstantiator
 
 
@@ -12,6 +10,7 @@ class TestCodeInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.code_instantiator.DefaultCode")
     def test_create_instance(self, default_code_mock):
+        """Test _create_instance creates a DefaultCode with correct arguments."""
         base_class_mock = mock.MagicMock(name="CodeInstantiator_class")
         base_class_mock._get_data_type = mock.MagicMock(return_value="data_type")
         base_class_mock._get_base_attributes = mock.MagicMock(return_value="meta_model_base_attributes")

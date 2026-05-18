@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-import pytest
-
 from esmf_aspect_meta_model_python.loader.instantiator.characteristic_instantiator import CharacteristicInstantiator
 
 
@@ -12,6 +10,7 @@ class TestCharacteristicInstantiator:
 
     @mock.patch("esmf_aspect_meta_model_python.loader.instantiator.characteristic_instantiator.DefaultCharacteristic")
     def test_create_instance(self, default_characteristic_mock):
+        """Test _create_instance creates a DefaultCharacteristic with correct arguments."""
         base_class_mock = mock.MagicMock(name="CharacteristicInstantiator_class")
         base_class_mock._get_data_type = mock.MagicMock(return_value="data_type")
         base_class_mock._get_base_attributes = mock.MagicMock(return_value="meta_model_base_attributes")

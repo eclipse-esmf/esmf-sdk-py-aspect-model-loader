@@ -17,6 +17,7 @@ class TestDefaultAspect:
     @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.DefaultAspect._set_parent_element_on_child_elements")
     @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.BaseImpl.__init__")
     def test_init(self, super_mock, set_parent_element_on_child_elements_mock):
+        """Test __init__ method."""
         result = DefaultAspect(
             self.meta_model_mock,
             [self.property_mock],
@@ -34,6 +35,7 @@ class TestDefaultAspect:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.BaseImpl.__init__")
     def test_set_parent_element_on_child_elements(self, _):
+        """Test _set_parent_element_on_child_elements method."""
         aspect = DefaultAspect(
             self.meta_model_mock,
             [self.property_mock],
@@ -48,6 +50,7 @@ class TestDefaultAspect:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.BaseImpl.__init__")
     def test_operations(self, _):
+        """Test operations property."""
         aspect = DefaultAspect(
             self.meta_model_mock,
             [self.property_mock],
@@ -61,6 +64,7 @@ class TestDefaultAspect:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.BaseImpl.__init__")
     def test_properties(self, _):
+        """Test properties property."""
         aspect = DefaultAspect(
             self.meta_model_mock,
             [self.property_mock],
@@ -74,6 +78,7 @@ class TestDefaultAspect:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.BaseImpl.__init__")
     def test_events(self, _):
+        """Test events property."""
         aspect = DefaultAspect(
             self.meta_model_mock,
             [self.property_mock],
@@ -87,6 +92,7 @@ class TestDefaultAspect:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.BaseImpl.__init__")
     def test_is_collection_aspect(self, _):
+        """Test is_collection_aspect property."""
         aspect = DefaultAspect(
             self.meta_model_mock,
             [self.property_mock],

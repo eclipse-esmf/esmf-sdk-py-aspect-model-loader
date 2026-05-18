@@ -21,9 +21,25 @@ from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class TraitInstantiator(InstantiatorBase[Trait]):
-    def _create_instance(self, element_node: Node) -> Trait:
-        meta_model_base_attributes = self._get_base_attributes(element_node)
+    """Instantiates Trait elements from RDF nodes.
 
+    This class provides logic to create Trait instances, extract constraints, and handle validation for traits
+    from RDF graphs.
+    """
+
+    def _create_instance(self, element_node: Node) -> Trait:
+        """Creates a Trait instance from the given RDF node.
+
+        Args:
+            element_node (Node): The RDF node representing the trait.
+
+        Returns:
+            Trait: The created Trait instance.
+
+        Raises:
+            ValueError: If the trait has no constraints or an element is not a Constraint.
+        """
+        meta_model_base_attributes = self._get_base_attributes(element_node)
         constraint_subjects = self._aspect_graph.objects(
             subject=element_node,
             predicate=self._sammc.get_urn(SAMMC.constraint),
@@ -31,7 +47,9 @@ class TraitInstantiator(InstantiatorBase[Trait]):
 
         constraints: List[Constraint] = []
         for constraint_subject in constraint_subjects:
-            element = self._model_element_factory.create_element(constraint_subject, element_node, attr_name=self._sammc.get_urn(SAMMC.constraint))
+            element = self._model_element_factory.create_element(
+                constraint_subject, element_node, attr_name=self._sammc.get_urn(SAMMC.constraint)
+            )
             if isinstance(element, Constraint):
                 constraints.append(element)
             else:

@@ -18,29 +18,51 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 
 
 class DefaultEnumeration(DefaultCharacteristic, Enumeration):
-    """Default Enumeration class."""
+    """Default implementation of an enumeration characteristic.
 
-    LIST_ATTR_NAMES = DefaultCharacteristic.LIST_ATTR_NAMES + ["values"]
-    REQUIRED_ATTRS = DefaultCharacteristic.REQUIRED_ATTRS + ["values"]
+    Represents an enumeration with a set of possible values and an optional data type.
+    """
+
+    LIST_ATTR_NAMES: List[str] = DefaultCharacteristic.LIST_ATTR_NAMES + ["values"]
+    REQUIRED_ATTRS: List[str] = DefaultCharacteristic.REQUIRED_ATTRS + ["values"]
 
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,
         data_type: Optional[DataType],
-        values: Optional[List],
+        values: List,
     ):
+        """Initializes the DefaultEnumeration.
+
+        Args:
+            meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
+            data_type (Optional[DataType]): The data type for this enumeration.
+            values (List): The list of possible values for the enumeration.
+        """
         super().__init__(meta_model_base_attributes, data_type)
+
         self._values = values
 
     @property
-    def values(self) -> Optional[List]:
-        """Values."""
+    def values(self) -> List:
+        """Returns the list of possible values for the enumeration.
+
+        Returns:
+            List: The list of enumeration values.
+        """
         return self._values
-    
+
     @values.setter
-    def values(self, values: List) -> None:
-        """Values setter."""
+    def values(self, values: List):
+        """Sets the list of possible values for the enumeration.
+
+        Args:
+            values (List): The list of enumeration values to set.
+
+        Raises:
+            ValueError: If the provided values list is None or empty.
+        """
         if not values:
             raise ValueError("Values cannot be None.")
-        
+
         self._values = values
