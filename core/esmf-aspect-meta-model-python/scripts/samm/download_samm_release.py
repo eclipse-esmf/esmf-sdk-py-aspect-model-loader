@@ -26,7 +26,7 @@ def main():
 
 
 def download_jar(version):
-    """Downloads the release .jar of the samm for the selected version"""
+    """Downloads the release .jar of the samm for the selected version."""
 
     print(f"Start downloading SAMM Version {version}")
     url = (
@@ -36,20 +36,20 @@ def download_jar(version):
 
     request = requests.get(url, allow_redirects=True)
 
-    open(f"esmf-aspect-meta-model-{version}.jar", "wb").write(request.content)
+    with open(f"esmf-aspect-meta-model-{version}.jar", "wb") as f:
+        f.write(request.content)
     print("JAR-File Downloaded")
 
 
 def extract_jar(version):
-    """Copies all folders in the archive that start with "samm" into the
-    samm_aspect_meta_model folder. The archive gets deleted afterwards
+    """Copy all folders in the archive that start with "samm" into the
+    samm_aspect_meta_model folder. The archive gets deleted afterwards.
     """
     print(f"Start extracting files from esmf-aspect-meta-model-{version}.jar")
-    archive = zipfile.ZipFile(f"esmf-aspect-meta-model-{version}.jar")
-    for file in archive.namelist():
-        if file.startswith("samm"):
-            archive.extract(file, "./esmf_aspect_meta_model_python/samm_aspect_meta_model")
-    archive.close()
+    with zipfile.ZipFile(f"esmf-aspect-meta-model-{version}.jar") as archive:
+        for file in archive.namelist():
+            if file.startswith("samm"):
+                archive.extract(file, "./esmf_aspect_meta_model_python/samm_aspect_meta_model")
     print("Done extracting files.")
 
     print("Deleting SAMM JAR file.")

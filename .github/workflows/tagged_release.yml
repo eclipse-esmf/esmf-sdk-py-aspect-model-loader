@@ -31,7 +31,6 @@ concurrency: # Prevent concurrent releases from interfering with each other
 
 env:
   RELEASE_VERSION: ${{ github.event.inputs.release_version }}
-  POETRY_VERSION: "1.5.0"
   PYTHON_VERSION: "3.10"
   WORKING_DIR: core/esmf-aspect-meta-model-python
   PYPI_PACKAGE_NAME: "esmf-aspect-model-loader"
@@ -113,25 +112,25 @@ jobs:
               raise SystemExit(f"::error::Invalid PEP 440 version: {version}")
           EOF
 
-      - name: Set up Poetry
-        uses: abatilo/actions-poetry@3765cf608f2d4a72178a9fc5b918668e542b89b1 # v4.0.0
+      - name: Install uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
-          poetry-version: ${{ env.POETRY_VERSION }}
+          uv-version: "0.11.19"
 
       - name: Build esmf-aspect
         working-directory: ${{ env.WORKING_DIR }}
         run: |
-          poetry install --no-interaction --no-ansi
-          poetry run download-samm-release
-          poetry build
+          uv sync
+          uv run download-samm-release
+          uv build
 
       - name: Run tests
         working-directory: ${{ env.WORKING_DIR }}
-        run: poetry run tox -e "py${PYTHON_VERSION//./}"
+        run: uv run tox -e "py${PYTHON_VERSION//./}"
 
       - name: Run code style checks
         working-directory: ${{ env.WORKING_DIR }}
-        run: poetry run tox -e pep8
+        run: uv run tox -e pep8
 
   # ──────────────────────────────────────────────────────────────────────────────
   # Job 2: Bump versions, build, publish to PyPI, tag, and create GitHub release
@@ -176,10 +175,10 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Set up Poetry
-        uses: abatilo/actions-poetry@3765cf608f2d4a72178a9fc5b918668e542b89b1 # v4.0.0
+      - name: Install uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
-          poetry-version: ${{ env.POETRY_VERSION }}
+          uv-version: "0.11.19"
 
       # Use the standard bot identity for automated commits so they are clearly
       # distinguishable from human commits in git log
@@ -259,7 +258,7 @@ jobs:
       # Version check moved AFTER branch checkout to compare against the correct branch's version
       - name: Get current version from release branch
         working-directory: ${{ env.WORKING_DIR }}
-        run: echo "CURRENT_VERSION=$(poetry version -s)" >> "${GITHUB_ENV}"
+        run: echo "CURRENT_VERSION=$(uv version | awk '{print $2}')" >> "${GITHUB_ENV}"
 
       # Skip version increment check for pre-releases (e.g. 1.2.3-M1) since they may
       # re-use the same major.minor.patch as a previous pre-release or the final release
@@ -297,13 +296,13 @@ jobs:
       - name: Set esmf-aspect project version
         working-directory: ${{ env.WORKING_DIR }}
         run: |
-          poetry version "${RELEASE_VERSION}"
-          actual="$(poetry version -s)"
+          uv version "${RELEASE_VERSION}"
+          actual="$(uv version | awk '{print $2}')"
           if [[ "${actual}" != "${RELEASE_VERSION}" ]]; then
             echo "::error::Version mismatch: expected ${RELEASE_VERSION}, got ${actual}"
             exit 1
           fi
-          echo "✅ Poetry version set to: ${actual}"
+          echo "✅ uv version set to: ${actual}"
 
       # Stage changes locally but don't push yet - allows rollback if publish fails
       - name: Stage version changes
@@ -330,9 +329,9 @@ jobs:
       - name: Build package
         working-directory: ${{ env.WORKING_DIR }}
         run: |
-          poetry install --no-interaction --no-ansi
-          poetry run download-samm-release
-          poetry build
+          uv sync
+          uv run download-samm-release
+          uv build
           echo "✅ Package built successfully"
 
       # Ensure the built artifact actually contains the expected version to catch
@@ -370,9 +369,9 @@ jobs:
       - name: Publish to PyPI
         working-directory: ${{ env.WORKING_DIR }}
         env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
-          poetry publish
+          uv publish
           echo "✅ Package published to PyPI"
 
       # Only push version commit after successful PyPI publish
