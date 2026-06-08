@@ -11,7 +11,7 @@
 
 
 SAMM_VERSION = "2.2.0"
-JAVA_CLI_VERSION = "2.12.0"
+JAVA_CLI_VERSION = "2.13.1"
 
 SAMM_NAMESPACE_PREFIX = "samm"
 SAMM_ORG_IDENTIFIER = "org.eclipse.esmf.samm"
