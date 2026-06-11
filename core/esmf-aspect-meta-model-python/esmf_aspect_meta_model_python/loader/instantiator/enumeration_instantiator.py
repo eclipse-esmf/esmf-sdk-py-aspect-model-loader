@@ -17,7 +17,6 @@ from rdflib.term import Node
 
 from esmf_aspect_meta_model_python.base.characteristics.enumeration import Enumeration
 from esmf_aspect_meta_model_python.impl.characteristics.default_enumeration import DefaultEnumeration
-from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
 from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
@@ -25,29 +24,100 @@ from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class EnumerationInstantiator(InstantiatorBase[Enumeration]):
-    def _create_instance(self, element_node: Node) -> Enumeration:
-        data_type = self._get_data_type(element_node)
-        if data_type is None:
-            raise TypeError(DATA_TYPE_ERROR_MSG)
+    """Instantiates Enumeration elements from RDF nodes.
 
+    This class provides logic to create Enumeration instances, extract values, and handle both simple and complex
+    enumeration types from RDF graphs.
+    """
+
+    def _create_instance(self, element_node: Node) -> Enumeration:
+        """Creates an Enumeration instance from the given RDF node.
+
+        Args:
+            element_node (Node): The RDF node representing the enumeration.
+
+        Returns:
+            Enumeration: The created Enumeration instance.
+        """
+        data_type = self._get_data_type(element_node)
         meta_model_base_attributes = self._get_base_attributes(element_node)
         value_collection_node = self._aspect_graph.value(
             subject=element_node,
             predicate=self._sammc.get_urn(SAMMC.values),
         )
         value_nodes = RdfHelper.get_rdf_list_values(value_collection_node, self._aspect_graph)
-        values = [self.__to_enum_node_value(value_node) for value_node in value_nodes]
+        values = [self.__to_enum_node_value(value_node) for value_node in value_nodes if value_node]
 
         return DefaultEnumeration(meta_model_base_attributes, data_type, values)
 
-    def __to_enum_node_value(self, value_node: Node) -> Union[Dict, str]:
+    def _get_node_name(self, value_node: Node, dict_value: Dict) -> str:
+        """Resolves the name for a value node using preferredName, value, or the node fragment.
+
+        Args:
+            value_node (Node): The RDF node for the value.
+            dict_value (Dict): The dictionary of value properties.
+
+        Returns:
+            str: The resolved node name.
         """
-        This method instantiates one possible value of an enumeration.
-        :param value_node:  Node of the Graph that represents one enumeration value.
-        The Argument can either be a Literal or a URIRef.
-        - If value_node is a Literal it will represent e.g. a string or an integer value
-        - If value_node is a URIRef it will represent a value of a ComplexType
-        :return: the one generated value of the enumeration
+        value_node_name: str = ""
+        value_node_name_parts = str(value_node).split("#")
+
+        if len(value_node_name_parts) > 1:
+            value_node_name = value_node_name_parts[1]
+        else:
+            if "preferredName" in dict_value:
+                value_node_name = "".join(dict_value["preferredName"].split(" "))
+            elif "value" in dict_value:
+                value_node_name = dict_value["value"]
+            else:
+                value_node_name = value_node_name_parts[0]
+
+        return value_node_name
+
+    def _get_complex_data_type_value(self, value_node: Node) -> Dict:
+        """Extracts a complex data type value from an RDF node.
+
+        Args:
+            value_node (Node): The RDF node representing the complex value.
+
+        Returns:
+            Dict: The dictionary representing the complex value.
+        """
+        dict_value: Dict = {}
+
+        for property_urn, property_value in self._aspect_graph.predicate_objects(value_node):
+            if property_urn != rdflib.RDF.type and isinstance(property_urn, str):
+                property_name = property_urn.split("#")[1]
+                actual_value: Optional[Any]
+
+                if self.__is_collection_value(property_urn):
+                    actual_value = self.__instantiate_enum_collection(property_value)
+                else:
+                    actual_value = self.__to_enum_node_value(property_value)
+
+                if property_name == "see":
+                    dict_value.setdefault(property_name, []).append(actual_value)
+                else:
+                    dict_value[property_name] = actual_value
+
+        value_node_name = self._get_node_name(value_node, dict_value)
+        value_key = self._samm.get_urn(SAMM.name).toPython()
+        dict_value[value_key] = value_node_name  # type: ignore
+
+        return dict_value
+
+    def __to_enum_node_value(self, value_node: Node) -> Union[Dict, str]:
+        """Instantiates one possible value of an enumeration from an RDF node.
+
+        Args:
+            value_node (Node): The RDF node representing the value.
+
+        Returns:
+            Union[Dict, str]: The generated value (simple or complex).
+
+        Raises:
+            TypeError: If the node type is not allowed for enumeration values.
         """
         str_value: Optional[str] = None
         dict_value: Optional[Dict] = None
@@ -60,26 +130,7 @@ class EnumerationInstantiator(InstantiatorBase[Enumeration]):
 
         elif isinstance(value_node, rdflib.URIRef) or isinstance(value_node, rdflib.term.BNode):
             # value represents a complex data type
-            dict_value = {}
-
-            for property_urn, property_value in self._aspect_graph.predicate_objects(value_node):
-                if property_urn != rdflib.RDF.type and isinstance(property_urn, str):
-                    property_name = property_urn.split("#")[1]
-
-                    actual_value: Optional[Any]
-                    if self.__is_collection_value(property_urn):
-                        actual_value = self.__instantiate_enum_collection(property_value)
-                    else:
-                        actual_value = self.__to_enum_node_value(property_value)
-
-                    if property_name == "see":
-                        dict_value.setdefault(property_name, []).append(actual_value)
-                    else:
-                        dict_value[property_name] = actual_value
-
-            value_node_name = value_node.split("#")[1]
-            value_key = self._samm.get_urn(SAMM.name).toPython()
-            dict_value[value_key] = value_node_name  # type: ignore
+            dict_value = self._get_complex_data_type_value(value_node)
 
         elif value_node == rdflib.namespace.RDF.nil:
             # illegal node type for enumeration value (e.g., Blank Node)
@@ -91,6 +142,14 @@ class EnumerationInstantiator(InstantiatorBase[Enumeration]):
         return str_value if str_value is not None else dict_value if dict_value is not None else ""
 
     def __is_collection_value(self, property_subject: str) -> bool:
+        """Checks if the property subject is a collection value.
+
+        Args:
+            property_subject (str): The property subject URI.
+
+        Returns:
+            bool: True if the property is a collection, False otherwise.
+        """
         characteristic = self._aspect_graph.value(  # type: ignore
             subject=property_subject,
             predicate=self._samm.get_urn(SAMM.characteristic),
@@ -100,7 +159,14 @@ class EnumerationInstantiator(InstantiatorBase[Enumeration]):
         return characteristic_type in self._sammc.collections_urns()
 
     def __instantiate_enum_collection(self, value_list) -> List[Union[Dict, str]]:
-        """creates a collection as a child for enumeration characteristics"""
+        """Creates a collection as a child for enumeration characteristics.
+
+        Args:
+            value_list: The RDF list node containing the values.
+
+        Returns:
+            List[Union[Dict, str]]: The list of values in the collection.
+        """
         value_node_list = RdfHelper.get_rdf_list_values(value_list, self._aspect_graph)
         values = []
         for value_node in value_node_list:

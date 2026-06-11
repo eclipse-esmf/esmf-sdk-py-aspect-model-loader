@@ -18,19 +18,49 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 
 
 class DefaultEvent(BaseImpl, Event):
-    """Default Event class."""
+    """Default implementation of an event in the meta model.
 
-    LIST_ATTR_NAMES = BaseImpl.LIST_ATTR_NAMES + ["parameters"]
+    Represents an event with a list of parameters.
+    """
+
+    LIST_ATTR_NAMES: List[str] = BaseImpl.LIST_ATTR_NAMES + ["parameters"]
+    REQUIRED_ATTRS: List[str] = BaseImpl.REQUIRED_ATTRS + ["parameters"]
 
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,
         parameters: List[Property],
     ):
+        """Initializes a DefaultEvent instance.
+
+        Args:
+            meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
+            parameters (List[Property]): The list of parameters for this event.
+        """
         super().__init__(meta_model_base_attributes)
+
         self._parameters = parameters
 
     @property
     def parameters(self) -> List[Property]:
-        """Parameters."""
+        """Returns the list of parameters for this event.
+
+        Returns:
+            List[Property]: The parameters defined for this event.
+        """
         return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters: List[Property]):
+        """Sets the list of parameters for this event.
+
+        Args:
+            parameters (List[Property]): The new list of parameters to set.
+
+        Raises:
+            ValueError: If the parameters list is empty.
+        """
+        if not parameters:
+            raise ValueError("Event must have at least one parameter.")
+
+        self._parameters = parameters

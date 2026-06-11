@@ -12,90 +12,113 @@
 from rdflib import BNode, Node, URIRef
 
 from esmf_aspect_meta_model_python.base.property import Property
-from esmf_aspect_meta_model_python.impl.default_property import (
-    DefaultBlankProperty,
-    DefaultProperty,
-    DefaultPropertyWithExtends,
-)
+from esmf_aspect_meta_model_python.impl.default_property import DefaultProperty
 from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorBase
 from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class PropertyInstantiator(InstantiatorBase[Property]):
     def _create_instance(self, element_node: Node) -> Property:
+        """Instantiate a property by eagerly resolving all attributes.
+
+        Handles three property node shapes: direct reference, blank node, and blank node with extends.
+
+        Args:
+            element_node (Node): The RDF node representing the property.
+        Returns:
+            Property: The created Property instance.
+        Raises:
+            ValueError: If the property node shape is not allowed.
         """
-        Instantiates a property by instantiating the child characteristic and
-        extracting additional attributes.
-
-        Property Nodes may occur in three different shapes.
-        1) A property that does not extend another property and does not
-        specify any of the attributes optional, payloadName and notInPayload
-        is always a direct reference to a property node.
-
-        2) A property that does not extend another property and specifies
-        at least one of the attributes optional, payloadName or notInPayload
-        is defined as a blank node. The remaining attributes (e.g., preferredName,
-        characteristic, etc.) are specified in an extra node referenced with
-        the predicate samm:property.
-
-        3) A property that extends another property is defined as a blank node.
-        All attributes (e.g., characteristic, exampleValue) are specified in the
-        same node.
-
-        This method finds out which one of the three shapes occurs and chooses
-        one of three methods for the instantiation.
-
-        :param element_node: Either URN to the node or a BNode that
-        represents the property.
-
-        :return: an instance of the property
-        """
-        property_instance = None
-
         if isinstance(element_node, URIRef):
-            property_instance = self._create_property_direct_reference(element_node)
+            return self._create_property_direct_reference(element_node)
 
         elif isinstance(element_node, BNode):
             if self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.property)) is not None:
-                property_instance = self._create_property_blank_node(element_node)
+                return self._create_property_blank_node(element_node)
             elif self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.extends)) is not None:
-                property_instance = self._create_property_with_extends(element_node)
+                return self._create_property_with_extends(element_node)
 
-        if not property_instance:
-            raise ValueError("The syntax of the property is not allowed.")
-
-        return property_instance
+        raise ValueError("The syntax of the property is not allowed.")
 
     def _create_property_direct_reference(self, element_node: URIRef) -> Property:
-        """The given node is a named node representing the property"""
+        """Construct a DefaultProperty instance with all attributes eagerly resolved.
+
+        Args:
+            element_node (URIRef): The RDF node representing the property.
+        Returns:
+            Property: The created DefaultProperty instance.
+        """
+        characteristic = self._get_child(element_node, self._samm.get_urn(SAMM.characteristic), required=True)
+        example_value = self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.example_value))
+
         return DefaultProperty(
             meta_model_base_attributes=self._get_base_attributes(element_node),
-            elements_factory=self._model_element_factory,
-            graph_node=element_node,
+            characteristic=characteristic,
+            example_value=example_value,
         )
 
     def _create_property_blank_node(self, element_node: BNode) -> Property:
-        """The given node is a blank node holding a reference to the property
-        and having additional attributes like optional or not_in_payload."""
-        property_node = self._aspect_graph.value(
-            subject=element_node,
-            predicate=self._samm.get_urn(SAMM.property),
-        )
-        if not property_node:
-            raise ValueError(f"Could not find property for the node {element_node}")
+        """Handle a blank node holding a reference to the property and having additional attributes.
 
-        return DefaultBlankProperty(
-            base_element_node=element_node,
+        All attributes are eagerly resolved.
+
+        Args:
+            element_node (BNode): The blank RDF node representing the property.
+        Returns:
+            Property: The created DefaultProperty instance.
+        Raises:
+            ValueError: If the property node cannot be found.
+        """
+        property_node = self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.property))
+        if not property_node:
+            raise ValueError(f"Could not found property for the node {element_node}")
+
+        optional_node = self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.optional))
+        not_in_payload_node = self._aspect_graph.value(
+            subject=element_node, predicate=self._samm.get_urn(SAMM.not_in_payload)
+        )
+        payload_name = self._get_child(element_node, self._samm.get_urn(SAMM.payload_name))
+        characteristic = self._get_child(
+            property_node,  # type: ignore
+            self._samm.get_urn(SAMM.characteristic),
+            required=True,
+        )
+        example_value = self._aspect_graph.value(
+            subject=property_node,
+            predicate=self._samm.get_urn(SAMM.example_value),
+        )
+
+        return DefaultProperty(
             meta_model_base_attributes=self._get_base_attributes(property_node),
-            elements_factory=self._model_element_factory,
-            graph_node=property_node,
+            characteristic=characteristic,
+            example_value=example_value,
+            optional=optional_node is not None,
+            not_in_payload=not_in_payload_node is not None,
+            payload_name=payload_name,
         )
 
     def _create_property_with_extends(self, element_node: BNode) -> Property:
-        """The given node is a blank node representing a property extending
-        another property."""
-        return DefaultPropertyWithExtends(
+        """Construct a DefaultPropertyWithExtends instance with all attributes eagerly resolved.
+
+        Args:
+            element_node (BNode): The blank RDF node representing the property with extends.
+        Returns:
+            Property: The created DefaultProperty instance (with extends).
+        """
+        payload_name = self._get_child(element_node, self._samm.get_urn(SAMM.payload_name))
+        extends = self._get_child(element_node, self._samm.get_urn(SAMM.extends), required=True)
+        characteristic = self._get_child(
+            element_node,
+            self._samm.get_urn(SAMM.characteristic),
+            required=True,
+        )
+        example_value = self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.example_value))
+
+        return DefaultProperty(
             meta_model_base_attributes=self._get_base_attributes(element_node),
-            elements_factory=self._model_element_factory,
-            graph_node=element_node,
+            characteristic=characteristic,
+            example_value=example_value,
+            extends=extends,
+            payload_name=payload_name,
         )

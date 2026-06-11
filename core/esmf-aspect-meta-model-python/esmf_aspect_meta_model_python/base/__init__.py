@@ -43,6 +43,6 @@ from .data_types.scalar import Scalar
 from .either import Either
 from .event import Event
 from .operation import Operation
-from .property import Property
+from .property import AbstractProperty, Property
 from .quantity_kind import QuantityKind
 from .unit import Unit

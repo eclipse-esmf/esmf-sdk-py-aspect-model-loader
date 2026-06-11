@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import Optional
+from typing import List, Optional
 
 from esmf_aspect_meta_model_python.base.characteristics.quantifiable.quantifiable import Quantifiable
 from esmf_aspect_meta_model_python.base.data_types.data_type import DataType
@@ -19,22 +19,37 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 
 
 class DefaultQuantifiable(DefaultCharacteristic, Quantifiable):
-    """Default Quantifiable class."""
+    """Default implementation of a quantifiable characteristic.
 
-    LIST_ATTR_NAMES = DefaultCharacteristic.LIST_ATTR_NAMES + ["unit"]
+    Represents a quantifiable characteristic with an optional unit and data type.
+    """
+
+    SCALAR_ATTR_NAMES: List[str] = DefaultCharacteristic.SCALAR_ATTR_NAMES + ["unit"]
 
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,
-        data_type: DataType,
+        data_type: Optional[DataType],
         unit: Optional[Unit],
     ):
+        """Initializes the DefaultQuantifiable.
+
+        Args:
+            meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
+            data_type (Optional[DataType]): The data type for this quantifiable characteristic.
+            unit (Optional[Unit]): The unit for this quantifiable characteristic.
+        """
         super().__init__(meta_model_base_attributes, data_type)
+
         self._unit = unit
         if self.unit is not None:
             self.unit.append_parent_element(self)
 
     @property
     def unit(self) -> Optional[Unit]:
-        """Unit."""
+        """Returns the unit for the quantifiable characteristic, if set.
+
+        Returns:
+            Optional[Unit]: The unit, or None if not set.
+        """
         return self._unit
