@@ -296,4 +296,4 @@ class TestSammCliErrorHandling:
 
         samm_cli.validate("/path/to/nonexistent/file.ttl")
 
-        assert capfd.readouterr()[1] == "File not found: /path/to/nonexistent/file.ttl\n"
+        assert capfd.readouterr()[1].rstrip() == "File not found: /path/to/nonexistent/file.ttl"

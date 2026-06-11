@@ -21,8 +21,13 @@ concurrency: # Only run one workflow per branch at a time, and cancel any in-pro
 
 jobs:
   build:
-    name: Check if passes all requirements
-    runs-on: ubuntu-latest
+    name: Check if passes all requirements on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-15-intel]
 
     defaults:
       run:
