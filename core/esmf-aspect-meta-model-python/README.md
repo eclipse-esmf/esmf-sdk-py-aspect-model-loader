@@ -147,7 +147,7 @@ For instance, validation of a model can be done with the following code snippet:
 from esmf_aspect_meta_model_python.samm_cli import SammCli
 
 samm_cli = SammCli()
-model_path = "Paht_to_the_model/Model.ttl"
+model_path = "Path_to_the_model/Model.ttl"
 samm_cli.validate(model_path)
 # Input model is valid
 ```
