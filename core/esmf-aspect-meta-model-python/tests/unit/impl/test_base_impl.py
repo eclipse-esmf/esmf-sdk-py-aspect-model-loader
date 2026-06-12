@@ -202,7 +202,7 @@ class TestBaseImpl:
         """Test _get_scalar_attr_info output."""
         prepare_attr_message_mock.return_value = "attr_message"
         base = BaseImpl(self.meta_model_mock)
-        base.SCALAR_ATTR_NAMES = ["attr_name"]
+        base.SCALAR_ATTR_NAMES = ("attr_name",)
         base.attr_name = "attr_value"
         result = base._get_scalar_attr_info()
 
@@ -211,7 +211,7 @@ class TestBaseImpl:
     def test_get_scalar_attr_info_no_attr_value(self):
         """Test _get_scalar_attr_info output when attribute value is None."""
         base = BaseImpl(self.meta_model_mock)
-        base.SCALAR_ATTR_NAMES = ["attr_name"]
+        base.SCALAR_ATTR_NAMES = ("attr_name",)
         base.attr_name = None
         result = base._get_scalar_attr_info()
 
@@ -278,10 +278,12 @@ class TestBaseImpl:
         attr_value_mock.urn = "urn:model#aspect"
         base = BaseImpl(self.meta_model_mock)
         base.REQUIRED_ATTRS = "attr_name"
-        result = base._validate_attribute("attr_name", attr_value_mock)
+        validating_attrs = set()
+        result = base._validate_attribute("attr_name", attr_value_mock, validating_attrs)
 
         assert result is None
         attr_value_mock.validate.assert_called_once()
+        assert validating_attrs == set()
 
     @mock.patch("esmf_aspect_meta_model_python.impl.base_impl.isinstance")
     def test_validate_attribute_no_required_attr(self, isinstance_mock):
@@ -291,19 +293,25 @@ class TestBaseImpl:
         attr_value_mock.urn = "urn:model#aspect"
         base = BaseImpl(self.meta_model_mock)
         base.REQUIRED_ATTRS = ["other_attr_name"]
-        result = base._validate_attribute("attr_name", attr_value_mock)
+        validating_attrs = set()
+        result = base._validate_attribute("attr_name", attr_value_mock, validating_attrs)
 
         assert result is None
         attr_value_mock.validate.assert_not_called()
+        assert validating_attrs == set()
 
     def test_validate_attribute_raise_exception(self):
         """Test _validate_attribute with missing required value."""
         base = BaseImpl(self.meta_model_mock)
         base.REQUIRED_ATTRS = "attr_name"
+        validating_attrs = set()
+        attr_value = None
         with pytest.raises(ValueError) as error:
-            base._validate_attribute("attr_name", None)
+            base._validate_attribute("attr_name", attr_value, validating_attrs)
 
-        assert str(error.value) == "BaseImpl is missing required attribute: attr_name. key: NoneType_attr_name: None"
+        assert str(error.value) == (
+            f"BaseImpl is missing required attribute: attr_name. key: NoneType_{id(attr_value)}_attr_name: None"
+        )
 
     @mock.patch("esmf_aspect_meta_model_python.impl.base_impl.isinstance")
     def test_validate_attribute_already_validated(self, isinstance_mock):
@@ -311,17 +319,42 @@ class TestBaseImpl:
         base = BaseImpl(self.meta_model_mock)
         attr_value_mock = mock.MagicMock(name="attr_value")
         attr_value_mock.urn = "urn:model#aspect"
-        base._validating_attrs = {"urn:model#aspect"}
-        result = base._validate_attribute("attr_name", attr_value_mock)
+        validating_attrs = {
+            "urn:model#aspect",
+        }
+        result = base._validate_attribute("attr_name", attr_value_mock, validating_attrs)
 
         assert result is None
         isinstance_mock.assert_called_once_with(attr_value_mock, BaseImpl)
+        assert validating_attrs == {
+            "urn:model#aspect",
+        }
 
     def test_validate(self):
         """Test validate method with valid attributes."""
         base = BaseImpl(self.meta_model_mock)
-        base.SCALAR_ATTR_NAMES = ["scalar_attr"]
-        base.LIST_ATTR_NAMES = ["list_attr"]
+        base.SCALAR_ATTR_NAMES = ("scalar_attr",)
+        base.LIST_ATTR_NAMES = ("list_attr",)
+        base.scalar_attr = "scalar_value"
+        base.list_attr = ["list_value"]
+        validate_attribute_mock = mock.MagicMock(name="validate_attribute")
+        base._validate_attribute = validate_attribute_mock
+        validating_attrs = set()
+        result = base.validate(validating_attrs)
+
+        assert result is None
+        validate_attribute_mock.assert_has_calls(
+            [
+                mock.call("scalar_attr", "scalar_value", validating_attrs),
+                mock.call("list_attr", "list_value", validating_attrs),
+            ]
+        )
+
+    def test_validate_empty_input_set(self):
+        """Test validate method with valid attributes."""
+        base = BaseImpl(self.meta_model_mock)
+        base.SCALAR_ATTR_NAMES = ("scalar_attr",)
+        base.LIST_ATTR_NAMES = ("list_attr",)
         base.scalar_attr = "scalar_value"
         base.list_attr = ["list_value"]
         validate_attribute_mock = mock.MagicMock(name="validate_attribute")
@@ -331,7 +364,7 @@ class TestBaseImpl:
         assert result is None
         validate_attribute_mock.assert_has_calls(
             [
-                mock.call("scalar_attr", "scalar_value"),
-                mock.call("list_attr", "list_value"),
+                mock.call("scalar_attr", "scalar_value", set()),
+                mock.call("list_attr", "list_value", set()),
             ]
         )

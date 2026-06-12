@@ -154,10 +154,40 @@ class TestModelElementFactory:
         factory = self._get_model_element_factory_instance()
         factory._cache = cache_mock
         with pytest.raises(ValueError) as error:
-            factory.create_element("node", parent_obj=None, attr_name="")
+            factory.create_element("node", parent_obj="", attr_name="")
 
         assert str(error.value) == ("Cannot defer reference for node node without parent object and attribute name.")
         cache_mock.is_in_active_path.assert_called_once_with("node")
+
+    def test_create_element_cycle_no_attr_name(self):
+        """Test create_element raises ValueError."""
+        cache_mock = mock.MagicMock(name="cache")
+        cache_mock.is_in_active_path.return_value = True
+        factory = self._get_model_element_factory_instance()
+        factory._cache = cache_mock
+        with pytest.raises(ValueError) as error:
+            factory.create_element("node", parent_obj="parent", attr_name="")
+
+        assert str(error.value) == ("Cannot defer reference for node node without parent object and attribute name.")
+        cache_mock.is_in_active_path.assert_called_once_with("node")
+
+    def test_create_element_cycle_no_resolved_attr_name(self):
+        """Test create_element raises ValueError."""
+        cache_mock = mock.MagicMock(name="cache")
+        cache_mock.is_in_active_path.return_value = True
+        samm_mock = mock.MagicMock(name="samm")
+        samm_mock.get_name.return_value = ""
+        factory = self._get_model_element_factory_instance()
+        factory._cache = cache_mock
+        factory._samm = samm_mock
+        with pytest.raises(ValueError) as error:
+            factory.create_element("node", parent_obj="parent", attr_name="attr")
+
+        assert str(error.value) == (
+            "Cannot resolve attribute name for attr in SAMM vocabulary. " "Cannot defer reference for node node."
+        )
+        cache_mock.is_in_active_path.assert_called_once_with("node")
+        samm_mock.get_name.assert_called_once_with("attr")
 
     def test_create_element_cached(self):
         """Test create_element returns cached instance if available."""

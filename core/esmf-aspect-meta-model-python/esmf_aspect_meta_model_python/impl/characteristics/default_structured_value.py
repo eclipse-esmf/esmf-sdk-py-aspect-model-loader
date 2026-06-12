@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import List, Optional
+from typing import List, Tuple
 
 from esmf_aspect_meta_model_python.base.characteristics.structured_value import StructuredValue
 from esmf_aspect_meta_model_python.base.data_types.data_type import DataType
@@ -23,23 +23,23 @@ class DefaultStructuredValue(DefaultCharacteristic, StructuredValue):
     Represents a structured value with a deconstruction rule and a list of elements.
     """
 
-    SCALAR_ATTR_NAMES: List[str] = DefaultCharacteristic.SCALAR_ATTR_NAMES + ["deconstruction_rule"]
-    LIST_ATTR_NAMES: List[str] = DefaultCharacteristic.LIST_ATTR_NAMES + ["elements"]
-    REQUIRED_ATTRS: List[str] = DefaultCharacteristic.REQUIRED_ATTRS + ["deconstruction_rule", "elements"]
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = DefaultCharacteristic.SCALAR_ATTR_NAMES + ("deconstruction_rule",)
+    LIST_ATTR_NAMES: Tuple[str, ...] = DefaultCharacteristic.LIST_ATTR_NAMES + ("elements",)
+    REQUIRED_ATTRS: Tuple[str, ...] = DefaultCharacteristic.REQUIRED_ATTRS + ("deconstruction_rule", "elements")
 
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,
-        data_type: Optional[DataType],
-        deconstruction_rule: Optional[str],
+        data_type: DataType,
+        deconstruction_rule: str,
         elements: List,
     ):
         """Initializes the DefaultStructuredValue.
 
         Args:
             meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
-            data_type (Optional[DataType]): The data type for this structured value.
-            deconstruction_rule (Optional[str]): The rule for deconstructing the value.
+            data_type (DataType): The data type for this structured value.
+            deconstruction_rule (str): The rule for deconstructing the value.
             elements (List): The list of elements that make up the structured value.
         """
         super().__init__(meta_model_base_attributes, data_type)
@@ -48,28 +48,13 @@ class DefaultStructuredValue(DefaultCharacteristic, StructuredValue):
         self._elements = elements
 
     @property
-    def deconstruction_rule(self) -> Optional[str]:
+    def deconstruction_rule(self) -> str:
         """Returns the deconstruction rule for the structured value.
 
         Returns:
-            Optional[str]: The deconstruction rule as a string, or None if not set.
+            str: The deconstruction rule as a string, or None if not set.
         """
         return self._deconstruction_rule
-
-    @deconstruction_rule.setter
-    def deconstruction_rule(self, deconstruction_rule: str) -> None:
-        """Sets the deconstruction rule for the structured value.
-
-        Args:
-            deconstruction_rule (str): The deconstruction rule to set.
-
-        Raises:
-            ValueError: If the provided deconstruction_rule is None or empty.
-        """
-        if not deconstruction_rule:
-            raise ValueError("Deconstruction rule cannot be None.")
-
-        self._deconstruction_rule = deconstruction_rule
 
     @property
     def elements(self) -> List:
@@ -79,18 +64,3 @@ class DefaultStructuredValue(DefaultCharacteristic, StructuredValue):
             List: The list of elements.
         """
         return self._elements
-
-    @elements.setter
-    def elements(self, elements: List) -> None:
-        """Sets the list of elements for the structured value.
-
-        Args:
-            elements (List): The list of elements to set.
-
-        Raises:
-            ValueError: If the provided elements list is None or empty.
-        """
-        if not elements:
-            raise ValueError("Elements cannot be None or empty.")
-
-        self._elements = elements

@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import Any, List, Optional
+from typing import Any, List, Tuple
 
 from esmf_aspect_meta_model_python.base.characteristics.state import State
 from esmf_aspect_meta_model_python.base.data_types.data_type import DataType
@@ -23,16 +23,12 @@ class DefaultState(DefaultEnumeration, State):
     Represents a state with a set of possible values, a default value, and an optional data type.
     """
 
-    SCALAR_ATTR_NAMES: List[str] = DefaultEnumeration.SCALAR_ATTR_NAMES + ["default_value"]
-    # TODO: Check if default_value should be added to REQUIRED_ATTRS
-    # Can the dafault_value be None? If not, it should be added to REQUIRED_ATTRS and
-    # added a check with raising exception if empty
-    # REQUIRED_ATTRS = DefaultEnumeration.REQUIRED_ATTRS + ["default_value"]
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = DefaultEnumeration.SCALAR_ATTR_NAMES + ("default_value",)
 
     def __init__(
         self,
         meta_model_base_attributes: MetaModelBaseAttributes,
-        data_type: Optional[DataType],
+        data_type: DataType,
         values: List,
         default_value: Any,
     ):
@@ -40,7 +36,7 @@ class DefaultState(DefaultEnumeration, State):
 
         Args:
             meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
-            data_type (Optional[DataType]): The data type for this state.
+            data_type (DataType): The data type for this state.
             values (List): The list of possible values for the state.
             default_value (Any): The default value for the state.
         """
@@ -56,12 +52,3 @@ class DefaultState(DefaultEnumeration, State):
             Any: The default value.
         """
         return self._default_value
-
-    @default_value.setter
-    def default_value(self, value):
-        """Sets the default value for the state.
-
-        Args:
-            value (Any): The default value to set.
-        """
-        self._default_value = value

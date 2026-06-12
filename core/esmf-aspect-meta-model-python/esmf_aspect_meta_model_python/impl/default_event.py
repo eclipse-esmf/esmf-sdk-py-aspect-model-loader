@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import List
+from typing import List, Tuple
 
 from esmf_aspect_meta_model_python import Property
 from esmf_aspect_meta_model_python.base.event import Event
@@ -23,8 +23,8 @@ class DefaultEvent(BaseImpl, Event):
     Represents an event with a list of parameters.
     """
 
-    LIST_ATTR_NAMES: List[str] = BaseImpl.LIST_ATTR_NAMES + ["parameters"]
-    REQUIRED_ATTRS: List[str] = BaseImpl.REQUIRED_ATTRS + ["parameters"]
+    LIST_ATTR_NAMES: Tuple[str, ...] = BaseImpl.LIST_ATTR_NAMES + ("parameters",)
+    REQUIRED_ATTRS: Tuple[str, ...] = BaseImpl.REQUIRED_ATTRS + ("parameters",)
 
     def __init__(
         self,
@@ -49,18 +49,3 @@ class DefaultEvent(BaseImpl, Event):
             List[Property]: The parameters defined for this event.
         """
         return self._parameters
-
-    @parameters.setter
-    def parameters(self, parameters: List[Property]):
-        """Sets the list of parameters for this event.
-
-        Args:
-            parameters (List[Property]): The new list of parameters to set.
-
-        Raises:
-            ValueError: If the parameters list is empty.
-        """
-        if not parameters:
-            raise ValueError("Event must have at least one parameter.")
-
-        self._parameters = parameters

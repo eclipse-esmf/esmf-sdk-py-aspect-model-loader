@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-import pytest
-
 from esmf_aspect_meta_model_python.impl import DefaultLengthConstraint
 
 
@@ -29,21 +27,6 @@ class TestDefaultLengthConstraint:
 
         assert result == 0
 
-    def test_min_value_setter(self):
-        """Test min_value setter."""
-        length_constraint = DefaultLengthConstraint(self.meta_model_mock, 0, 1)
-        length_constraint.min_value = 2
-
-        assert length_constraint._min_value == 2
-
-    def test_min_value_setter_raise_error(self):
-        """Test min_value setter raises ValueError when min_value is None."""
-        length_constraint = DefaultLengthConstraint(self.meta_model_mock, 0, 1)
-        with pytest.raises(ValueError) as exc_info:
-            length_constraint.min_value = None
-
-        assert str(exc_info.value) == "Min value cannot be None."
-
     @mock.patch("esmf_aspect_meta_model_python.impl.constraints.default_length_constraint.DefaultConstraint.__init__")
     def test_max_value(self, _):
         """Test max_value getter."""
@@ -51,18 +34,3 @@ class TestDefaultLengthConstraint:
         result = length_constraint.max_value
 
         assert result == 1
-
-    def test_max_value_setter(self):
-        """Test max_value setter."""
-        length_constraint = DefaultLengthConstraint(self.meta_model_mock, 0, 1)
-        length_constraint.max_value = 2
-
-        assert length_constraint._max_value == 2
-
-    def test_max_value_setter_raise_error(self):
-        """Test max_value setter raises ValueError when max_value is None."""
-        length_constraint = DefaultLengthConstraint(self.meta_model_mock, 0, 1)
-        with pytest.raises(ValueError) as exc_info:
-            length_constraint.max_value = None
-
-        assert str(exc_info.value) == "Max value cannot be None."

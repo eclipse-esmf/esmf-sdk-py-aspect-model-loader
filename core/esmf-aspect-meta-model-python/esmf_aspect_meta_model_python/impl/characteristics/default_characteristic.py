@@ -8,7 +8,7 @@
 #  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #
 #   SPDX-License-Identifier: MPL-2.0
-from typing import List, Optional
+from typing import Optional, Tuple
 
 from esmf_aspect_meta_model_python.base.characteristics.characteristic import Characteristic
 from esmf_aspect_meta_model_python.base.data_types.complex_type import ComplexType
@@ -23,8 +23,8 @@ class DefaultCharacteristic(BaseImpl, Characteristic):
     Represents a characteristic that may have a data type and manages parent-child relationships for complex types.
     """
 
-    SCALAR_ATTR_NAMES: List[str] = BaseImpl.SCALAR_ATTR_NAMES + ["data_type"]
-    REQUIRED_ATTRS: List[str] = BaseImpl.REQUIRED_ATTRS + ["data_type"]
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = BaseImpl.SCALAR_ATTR_NAMES + ("data_type",)
+    REQUIRED_ATTRS: Tuple[str, ...] = BaseImpl.REQUIRED_ATTRS + ("data_type",)
 
     def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, data_type: Optional[DataType]):
         """Initializes the DefaultCharacteristic.
@@ -36,7 +36,7 @@ class DefaultCharacteristic(BaseImpl, Characteristic):
         super().__init__(meta_model_base_attributes)
 
         self._data_type = data_type
-        if self._data_type and isinstance(self._data_type, ComplexType):
+        if isinstance(self._data_type, ComplexType):
             self._data_type.append_parent_element(self)
 
     @property
@@ -47,21 +47,3 @@ class DefaultCharacteristic(BaseImpl, Characteristic):
             Optional[DataType]: The data type, or None if not set.
         """
         return self._data_type
-
-    @data_type.setter
-    def data_type(self, data_type: DataType) -> None:
-        """Sets the data type for this characteristic.
-
-        Args:
-            data_type (DataType): The data type to set.
-
-        Raises:
-            ValueError: If the provided data_type is None.
-        """
-        if not data_type:
-            raise ValueError("Data type cannot be None.")
-
-        self._data_type = data_type
-
-        if isinstance(self._data_type, ComplexType):
-            self._data_type.append_parent_element(self)

@@ -38,6 +38,9 @@ class StructuredValueInstantiator(InstantiatorBase[StructuredValue]):
             StructuredValue: The created StructuredValue instance.
         """
         data_type = self._get_data_type(element_node)
+        if not data_type:
+            raise ValueError(f"StructuredValue {element_node} must have a data type.")
+
         meta_model_base_attributes = self._get_base_attributes(element_node)
         deconstruction_rule = RdfHelper.to_python(
             self._aspect_graph.value(

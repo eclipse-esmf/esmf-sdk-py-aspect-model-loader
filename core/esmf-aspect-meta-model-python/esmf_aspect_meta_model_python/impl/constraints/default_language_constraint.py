@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import List
+from typing import Tuple
 
 from esmf_aspect_meta_model_python.base.constraints.language_constraint import LanguageConstraint
 from esmf_aspect_meta_model_python.impl.constraints.default_constraint import DefaultConstraint
@@ -22,8 +22,8 @@ class DefaultLanguageConstraint(DefaultConstraint, LanguageConstraint):
     Represents a language constraint with a required language code.
     """
 
-    SCALAR_ATTR_NAMES: List[str] = DefaultConstraint.SCALAR_ATTR_NAMES + ["language_code"]
-    REQUIRED_ATTRS: List[str] = DefaultConstraint.REQUIRED_ATTRS + ["language_code"]
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = DefaultConstraint.SCALAR_ATTR_NAMES + ("language_code",)
+    REQUIRED_ATTRS: Tuple[str, ...] = DefaultConstraint.REQUIRED_ATTRS + ("language_code",)
 
     def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, language_code: str):
         """Initializes the DefaultLanguageConstraint.
@@ -44,18 +44,3 @@ class DefaultLanguageConstraint(DefaultConstraint, LanguageConstraint):
             str: The language code.
         """
         return self._language_code
-
-    @language_code.setter
-    def language_code(self, language_code: str) -> None:
-        """Sets the language code for the constraint.
-
-        Args:
-            language_code (str): The language code to set.
-
-        Raises:
-            ValueError: If the provided language_code is None or empty.
-        """
-        if not language_code:
-            raise ValueError("Language code cannot be None or empty.")
-
-        self._language_code = language_code

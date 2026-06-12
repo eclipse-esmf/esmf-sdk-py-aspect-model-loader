@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-import pytest
-
 from esmf_aspect_meta_model_python.impl import DefaultEnumeration
 
 
@@ -30,20 +28,3 @@ class TestDefaultEnumeration:
         result = characteristic.values
 
         assert result == ["value"]
-
-    def test_values_setter(self):
-        """Test values setter with valid input."""
-        characteristic = DefaultEnumeration(self.meta_model_mock, self.data_type_mock, ["value"])
-        characteristic.values = ["new_value"]
-        result = characteristic.values
-
-        assert result == ["new_value"]
-        assert characteristic._values == ["new_value"]
-
-    def test_values_setter_raise_exception(self):
-        """Test exception when setting values to None."""
-        characteristic = DefaultEnumeration(self.meta_model_mock, self.data_type_mock, ["value"])
-        with pytest.raises(ValueError) as error:
-            characteristic.values = None
-
-        assert str(error.value) == "Values cannot be None."

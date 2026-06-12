@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import List, Optional
+from typing import Optional, Tuple
 
 from esmf_aspect_meta_model_python.base.characteristics.characteristic import Characteristic
 from esmf_aspect_meta_model_python.base.characteristics.collection.collection import Collection
@@ -24,7 +24,7 @@ class DefaultCollection(DefaultCharacteristic, Collection):
     Represents a collection with a specific element characteristic and optional data type.
     """
 
-    SCALAR_ATTR_NAMES: List[str] = DefaultCharacteristic.SCALAR_ATTR_NAMES + ["element_characteristic"]
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = DefaultCharacteristic.SCALAR_ATTR_NAMES + ("element_characteristic",)
 
     def __init__(
         self,
@@ -56,19 +56,3 @@ class DefaultCollection(DefaultCharacteristic, Collection):
             Optional[Characteristic]: The element characteristic, or None if not set.
         """
         return self._element_characteristic
-
-    @element_characteristic.setter
-    def element_characteristic(self, element_characteristic: Characteristic) -> None:
-        """Sets the characteristic for the collection's elements.
-
-        Args:
-            element_characteristic (Characteristic): The element characteristic to set.
-
-        Raises:
-            ValueError: If the provided element_characteristic is None.
-        """
-        if not element_characteristic:
-            raise ValueError("Element characteristic cannot be None.")
-
-        self._element_characteristic = element_characteristic
-        self._set_parent_element_on_child_element()

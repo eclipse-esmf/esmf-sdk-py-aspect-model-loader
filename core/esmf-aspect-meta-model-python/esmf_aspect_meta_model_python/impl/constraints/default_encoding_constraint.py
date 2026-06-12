@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import List, Optional
+from typing import Tuple
 
 from esmf_aspect_meta_model_python.base.constraints.encoding_constraint import EncodingConstraint
 from esmf_aspect_meta_model_python.impl.constraints.default_constraint import DefaultConstraint
@@ -22,40 +22,25 @@ class DefaultEncodingConstraint(DefaultConstraint, EncodingConstraint):
     Represents an encoding constraint with a required value.
     """
 
-    SCALAR_ATTR_NAMES: List[str] = DefaultConstraint.SCALAR_ATTR_NAMES + ["value"]
-    REQUIRED_ATTRS: List[str] = DefaultConstraint.REQUIRED_ATTRS + ["value"]
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = DefaultConstraint.SCALAR_ATTR_NAMES + ("value",)
+    REQUIRED_ATTRS: Tuple[str, ...] = DefaultConstraint.REQUIRED_ATTRS + ("value",)
 
-    def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, value: Optional[str]):
+    def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes, value: str):
         """Initializes the DefaultEncodingConstraint.
 
         Args:
             meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
-            value (Optional[str]): The value for the encoding constraint.
+            value (str): The value for the encoding constraint.
         """
         super().__init__(meta_model_base_attributes)
 
         self._value = value
 
     @property
-    def value(self) -> Optional[str]:
+    def value(self) -> str:
         """Returns the value for the encoding constraint.
 
         Returns:
-            Optional[str]: The value, or None if not set.
+            str: The value, or None if not set.
         """
         return self._value
-
-    @value.setter
-    def value(self, value: str) -> None:
-        """Sets the value for the encoding constraint.
-
-        Args:
-            value (str): The value to set.
-
-        Raises:
-            ValueError: If the provided value is None or empty.
-        """
-        if not value:
-            raise ValueError("Value cannot be None.")
-
-        self._value = value

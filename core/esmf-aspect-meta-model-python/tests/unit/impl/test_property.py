@@ -194,11 +194,21 @@ class TestDefaultProperty:
     @mock.patch("esmf_aspect_meta_model_python.impl.default_property.BaseImpl.__init__")
     def test_init(self, super_mock):
         """Test DefaultProperty initialization and assignments."""
-        result = self._get_property_class()
+        characteristic_mock = mock.MagicMock(name="characteristic")
+        result = DefaultProperty(
+            meta_model_base_attributes=self.meta_model_mock,
+            characteristic=characteristic_mock,
+            example_value=self.example_value,
+            extends=self.property_mock,
+            abstract=self.abstract,
+            optional=self.optional,
+            not_in_payload=self.not_in_payload,
+            payload_name=self.payload_name,
+        )
 
         super_mock.assert_called_once_with(self.meta_model_mock)
-        self.characteristic_mock.append_parent_element.assert_called_once_with(result)
-        assert result._characteristic == self.characteristic_mock
+        characteristic_mock.append_parent_element.assert_called_once_with(result)
+        assert result._characteristic == characteristic_mock
         assert result._example_value == self.example_value
         assert result._is_abstract == self.abstract
         assert result._extends == self.property_mock

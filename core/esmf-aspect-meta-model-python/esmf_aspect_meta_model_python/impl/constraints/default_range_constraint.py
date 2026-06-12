@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import Any, List, Optional
+from typing import Any, Optional, Tuple
 
 from esmf_aspect_meta_model_python.base.bound_definition import BoundDefinition
 from esmf_aspect_meta_model_python.base.constraints.range_constraint import RangeConstraint
@@ -23,12 +23,12 @@ class DefaultRangeConstraint(DefaultConstraint, RangeConstraint):
     Represents a range constraint with minimum and maximum values and optional bound definitions.
     """
 
-    SCALAR_ATTR_NAMES: List[str] = DefaultConstraint.SCALAR_ATTR_NAMES + [
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = DefaultConstraint.SCALAR_ATTR_NAMES + (
         "min_value",
         "max_value",
         "lower_bound_definition",
         "upper_bound_definition",
-    ]
+    )
 
     def __init__(
         self,
@@ -63,21 +63,6 @@ class DefaultRangeConstraint(DefaultConstraint, RangeConstraint):
         """
         return self._min_value
 
-    @min_value.setter
-    def min_value(self, min_value: Any) -> None:
-        """Sets the minimum value for the range constraint.
-
-        Args:
-            min_value (Any): The minimum value to set.
-
-        Raises:
-            ValueError: If the provided min_value is None.
-        """
-        if min_value is None:
-            raise ValueError("Min value cannot be None.")
-
-        self._min_value = min_value
-
     @property
     def max_value(self) -> Optional[Any]:
         """Returns the maximum value for the range constraint.
@@ -86,21 +71,6 @@ class DefaultRangeConstraint(DefaultConstraint, RangeConstraint):
             Optional[Any]: The maximum value, or None if not set.
         """
         return self._max_value
-
-    @max_value.setter
-    def max_value(self, max_value: Any) -> None:
-        """Sets the maximum value for the range constraint.
-
-        Args:
-            max_value (Any): The maximum value to set.
-
-        Raises:
-            ValueError: If the provided max_value is None.
-        """
-        if max_value is None:
-            raise ValueError("Max value cannot be None.")
-
-        self._max_value = max_value
 
     @property
     def lower_bound_definition(self) -> Optional[BoundDefinition]:

@@ -11,6 +11,8 @@
 
 from typing import Optional
 
+from rdflib import Node
+
 from esmf_aspect_meta_model_python.base.base import Base
 from esmf_aspect_meta_model_python.base.cache_strategy import CacheStrategy
 
@@ -22,15 +24,15 @@ class DeferredReference:
     Stores the parent object, the attribute name, and the target node's URN.
     """
 
-    def __init__(self, parent_obj, attr_name: str, target_urn: str):
+    def __init__(self, parent_obj_ref: Node, attr_name: str, target_urn: str):
         """Initializes a DeferredReference instance.
 
         Args:
-            parent_obj: The parent object holding the reference.
+            parent_obj_ref: The reference to the parent object holding the deferred reference.
             attr_name (str): The attribute name on the parent object.
             target_urn (str): The URN of the target object to reference.
         """
-        self.parent_obj = str(parent_obj)
+        self.parent_obj_ref = str(parent_obj_ref)
         self.attr_name = attr_name
         self.target_urn = str(target_urn)
 
@@ -44,28 +46,43 @@ class DeferredReference:
             ValueError: If the target object cannot be found in the cache.
         """
         target_obj = cache.get(self.target_urn)
-        parent_obj = cache.get(self.parent_obj)
+        parent_obj = cache.get(self.parent_obj_ref)
 
         if target_obj is not None:
-            if getattr(parent_obj, self.attr_name, None) is None:
-                setattr(parent_obj, self.attr_name, target_obj)
+            attr = getattr(parent_obj, self.attr_name, None)
+            if not attr:
+                if isinstance(attr, property) and getattr(attr, "fset", None) is None:
+                    # TODO: Clarify what to do in case if setter is missing
+                    try:
+                        setattr(parent_obj, "_" + self.attr_name, target_obj)
+                    except AttributeError:
+                        raise ValueError(
+                            f"Cannot set attribute {self.attr_name} on {parent_obj}. No setter or backing field found."
+                        )
+                else:
+                    if isinstance(attr, list):
+                        attr.append(target_obj)
+                    else:
+                        setattr(parent_obj, self.attr_name, target_obj)
+                        # Property attrname "example_value" "some value"
+
         else:
             raise ValueError(f"Cannot restore reference: No object found in cache with URN {self.target_urn}")
 
     def __hash__(self):
         """Returns the hash value for the deferred reference."""
-        return hash((self.parent_obj, self.attr_name, self.target_urn))
+        return hash((self.parent_obj_ref, self.attr_name, self.target_urn))
 
     def __eq__(self, other):
         """Checks equality with another DeferredReference."""
-        checks = [
-            isinstance(other, DeferredReference),
-            self.parent_obj == getattr(other, "parent_obj", None),
-            self.attr_name == getattr(other, "attr_name", None),
-            self.target_urn == getattr(other, "target_urn", None),
-        ]
+        if not isinstance(other, DeferredReference):
+            return False
 
-        return all(checks)
+        return (
+            self.parent_obj_ref == other.parent_obj_ref
+            and self.attr_name == other.attr_name
+            and self.target_urn == other.target_urn
+        )
 
 
 class DefaultElementCache(CacheStrategy):
@@ -163,6 +180,6 @@ class DefaultElementCache(CacheStrategy):
             return
 
         if cached_element:
-            print(f"Element with the name {name} already exist. Overwrite existing element.")
+            2
 
         self._instance_cache[name] = model_element

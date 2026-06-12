@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-import pytest
-
 from esmf_aspect_meta_model_python.impl import DefaultStructuredValue
 
 
@@ -34,27 +32,6 @@ class TestDefaultStructuredValue:
 
         assert result == "deconstruction_rule"
 
-    def test_deconstruction_rule_setter(self):
-        characteristic = DefaultStructuredValue(
-            self.meta_model_mock,
-            self.data_type_mock,
-            "deconstruction_rule",
-            ["element"],
-        )
-        characteristic.deconstruction_rule = "new_deconstruction_rule"
-        result = characteristic.deconstruction_rule
-
-        assert result == "new_deconstruction_rule"
-
-    def test_deconstruction_rule_setter_raise_exception(self):
-        characteristic = DefaultStructuredValue(
-            self.meta_model_mock, self.data_type_mock, "deconstruction_rule", ["element"]
-        )
-        with pytest.raises(ValueError) as error:
-            characteristic.deconstruction_rule = None
-
-        assert str(error.value) == "Deconstruction rule cannot be None."
-
     @mock.patch(
         "esmf_aspect_meta_model_python.impl.characteristics.default_structured_value.DefaultCharacteristic.__init__"
     )
@@ -68,25 +45,3 @@ class TestDefaultStructuredValue:
         result = characteristic.elements
 
         assert result == ["element"]
-
-    def test_elements_setter(self):
-        characteristic = DefaultStructuredValue(
-            self.meta_model_mock,
-            self.data_type_mock,
-            "deconstruction_rule",
-            ["element"],
-        )
-        characteristic.elements = ["new_element"]
-        result = characteristic.elements
-
-        assert result == ["new_element"]
-        assert characteristic._elements == ["new_element"]
-
-    def test_elements_setter_raise_exception(self):
-        characteristic = DefaultStructuredValue(
-            self.meta_model_mock, self.data_type_mock, "deconstruction_rule", ["element"]
-        )
-        with pytest.raises(ValueError) as error:
-            characteristic.elements = []
-
-        assert str(error.value) == "Elements cannot be None or empty."

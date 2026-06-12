@@ -26,6 +26,12 @@ class TestDataType:
 
         assert result is False
 
+    def test_is_complex(self):
+        data_type = DataTypeInterface("urn")
+        result = data_type.is_complex
+
+        assert result is True
+
     def test_resp(self):
         data_type = DataTypeInterface("urn")
         result = repr(data_type)

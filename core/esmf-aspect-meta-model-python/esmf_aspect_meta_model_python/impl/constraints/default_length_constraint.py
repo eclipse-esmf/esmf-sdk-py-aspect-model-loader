@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import List, Optional
+from typing import Optional, Tuple
 
 from esmf_aspect_meta_model_python.base.constraints.length_constraint import LengthConstraint
 from esmf_aspect_meta_model_python.impl.constraints.default_constraint import DefaultConstraint
@@ -22,7 +22,7 @@ class DefaultLengthConstraint(DefaultConstraint, LengthConstraint):
     Represents a length constraint with optional minimum and maximum values.
     """
 
-    SCALAR_ATTR_NAMES: List[str] = DefaultConstraint.SCALAR_ATTR_NAMES + ["min_value", "max_value"]
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = DefaultConstraint.SCALAR_ATTR_NAMES + ("min_value", "max_value")
 
     def __init__(
         self,
@@ -51,21 +51,6 @@ class DefaultLengthConstraint(DefaultConstraint, LengthConstraint):
         """
         return self._min_value
 
-    @min_value.setter
-    def min_value(self, min_value: int) -> None:
-        """Sets the minimum value for the length constraint.
-
-        Args:
-            min_value (int): The minimum value to set.
-
-        Raises:
-            ValueError: If the provided min_value is None or zero.
-        """
-        if not min_value:
-            raise ValueError("Min value cannot be None.")
-
-        self._min_value = min_value
-
     @property
     def max_value(self) -> Optional[int]:
         """Returns the maximum value for the length constraint.
@@ -74,18 +59,3 @@ class DefaultLengthConstraint(DefaultConstraint, LengthConstraint):
             Optional[int]: The maximum value, or None if not set.
         """
         return self._max_value
-
-    @max_value.setter
-    def max_value(self, max_value: int) -> None:
-        """Sets the maximum value for the length constraint.
-
-        Args:
-            max_value (int): The maximum value to set.
-
-        Raises:
-            ValueError: If the provided max_value is None or zero.
-        """
-        if not max_value:
-            raise ValueError("Max value cannot be None.")
-
-        self._max_value = max_value

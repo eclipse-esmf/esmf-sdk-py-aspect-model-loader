@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from esmf_aspect_meta_model_python.base.characteristics.characteristic import Characteristic
 from esmf_aspect_meta_model_python.base.property import AbstractProperty, Property
@@ -25,13 +25,13 @@ class DefaultAbstractProperty(BaseImpl, AbstractProperty):
         - it must only be used in Abstract Entities
     """
 
-    SCALAR_ATTR_NAMES: List[str] = BaseImpl.SCALAR_ATTR_NAMES + [
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = BaseImpl.SCALAR_ATTR_NAMES + (
         "example_value",
         "extends",
         "optional",
         "not_in_payload",
         "payload_name",
-    ]
+    )
 
     def __init__(
         self,
@@ -152,21 +152,21 @@ class DefaultAbstractProperty(BaseImpl, AbstractProperty):
         return self._see if self.extends is None else self._see + self.extends.see
 
 
-class DefaultProperty(BaseImpl, Property):
+class DefaultProperty(DefaultAbstractProperty, Property):
     """Default implementation of a property in the meta model.
 
     Represents a property with a characteristic, example value, and various flags.
     """
 
-    SCALAR_ATTR_NAMES: List[str] = BaseImpl.SCALAR_ATTR_NAMES + [
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = BaseImpl.SCALAR_ATTR_NAMES + (
         "characteristic",
         "example_value",
         "extends",
         "optional",
         "not_in_payload",
         "payload_name",
-    ]
-    REQUIRED_ATTRS: List[str] = BaseImpl.REQUIRED_ATTRS + ["characteristic"]
+    )
+    REQUIRED_ATTRS: Tuple[str, ...] = BaseImpl.REQUIRED_ATTRS + ("characteristic",)
 
     def __init__(
         self,
@@ -231,6 +231,7 @@ class DefaultProperty(BaseImpl, Property):
         Raises:
             ValueError: If the characteristic is not provided.
         """
+        # No-op on first call: _characteristic might start as None and initialized with setter later.
         if not characteristic:
             raise ValueError("Property must have a characteristic.")
 

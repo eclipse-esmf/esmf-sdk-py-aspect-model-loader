@@ -14,13 +14,14 @@ class TestComplexType:
     @mock.patch("esmf_aspect_meta_model_python.impl.data_types.default_complex_type.BaseImpl.__init__")
     def test_init(self, super_mock):
         """Test DefaultComplexType initialization."""
+        property_mock = mock.MagicMock(name="property")
         DefaultComplexType._instances = {}
         DefaultComplexType.urn = "urn"
-        result = DefaultComplexType(self.meta_model_mock, [None, self.property_mock], "extends_urn")
+        result = DefaultComplexType(self.meta_model_mock, [property_mock], "extends_urn")
 
         super_mock.assert_called_once_with(self.meta_model_mock)
-        self.property_mock.append_parent_element.assert_called_once_with(result)
-        assert result._DefaultComplexType__properties == [None, self.property_mock]
+        property_mock.append_parent_element.assert_called_once_with(result)
+        assert result._DefaultComplexType__properties == [property_mock]
         assert result._DefaultComplexType__extends_urn == "extends_urn"
         assert DefaultComplexType._instances == {"urn": result}
 
@@ -28,7 +29,7 @@ class TestComplexType:
     def test_extend_no_instance(self, _):
         """Test extends property when no instance exists."""
         DefaultComplexType.urn = None
-        complex_type = DefaultComplexType(self.meta_model_mock, [self.property_mock], "extends_urn")
+        complex_type = DefaultComplexType(self.meta_model_mock, [self.property_mock], None)
         result = complex_type.extends
 
         assert result is None
@@ -170,13 +171,3 @@ class TestComplexType:
         result = complex_type.properties
 
         assert result == [self.property_mock]
-
-    def test_properties_setter(self):
-        """Test properties setter with valid input."""
-        property_mock = mock.MagicMock(name="property")
-        complex_type = DefaultComplexType(self.meta_model_mock, [], None)
-        complex_type.properties = [property_mock]
-        result = complex_type.properties
-
-        assert result == [property_mock]
-        property_mock.append_parent_element.assert_called_once_with(complex_type)

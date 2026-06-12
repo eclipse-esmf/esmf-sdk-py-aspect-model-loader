@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import List, Optional
+from typing import Optional, Tuple
 
 from esmf_aspect_meta_model_python.base.characteristics.quantifiable.quantifiable import Quantifiable
 from esmf_aspect_meta_model_python.base.data_types.data_type import DataType
@@ -24,7 +24,7 @@ class DefaultQuantifiable(DefaultCharacteristic, Quantifiable):
     Represents a quantifiable characteristic with an optional unit and data type.
     """
 
-    SCALAR_ATTR_NAMES: List[str] = DefaultCharacteristic.SCALAR_ATTR_NAMES + ["unit"]
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = DefaultCharacteristic.SCALAR_ATTR_NAMES + ("unit",)
 
     def __init__(
         self,

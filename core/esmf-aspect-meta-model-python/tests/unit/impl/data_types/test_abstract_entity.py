@@ -22,7 +22,7 @@ class TestDefaultAbstractEntity:
     def test_extending_elements(self, default_complex_type_mock):
         default_complex_type_mock._instances = {"extending_element": "extending_element_instance"}
         abstract_entity = DefaultAbstractEntity(
-            self.meta_model_mock, [self.property_mock], "extends", ["extending_element"]
+            self.meta_model_mock, [self.property_mock], "extends", ["extending_element", "extending_element_2"]
         )
         result = abstract_entity.extending_elements
 

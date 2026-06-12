@@ -11,7 +11,7 @@
 
 import abc
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from esmf_aspect_meta_model_python.base.base import Base
 from esmf_aspect_meta_model_python.base.is_described import IsDescribed
@@ -24,9 +24,9 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
     Provides common attribute management, string representation, and validation logic for meta model elements.
     """
 
-    SCALAR_ATTR_NAMES: List[str] = ["meta_model_version", "urn", "preferred_names", "descriptions"]
-    LIST_ATTR_NAMES: List[str] = ["see"]
-    REQUIRED_ATTRS: List[str] = []
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = ("meta_model_version", "urn", "preferred_names", "descriptions")
+    LIST_ATTR_NAMES: Tuple[str, ...] = ("see",)
+    REQUIRED_ATTRS: Tuple[str, ...] = tuple()  # To be defined in subclasses if they have required attributes.
 
     def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes):
         """Initializes the base implementation with meta model attributes.
@@ -41,7 +41,6 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
         self._descriptions = meta_model_base_attributes.descriptions
         self._see = meta_model_base_attributes.see
         self._parent_elements: Optional[list[Base]] = None
-        self._validating_attrs: set[str] = set()
 
     @property
     def parent_elements(self) -> Optional[list[Base]]:
@@ -59,6 +58,7 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
         Args:
             elements (list[Base]): The list of parent elements to set.
         """
+        # No-op on first call: _parent_elements might start as None and initialized with setter later.
         if self._parent_elements:
             self._parent_elements = elements
 
@@ -223,7 +223,7 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
 
         return message
 
-    def _validate_attribute(self, attr_name: str, attr_value: Any):
+    def _validate_attribute(self, attr_name: str, attr_value: Any, validating_attrs: set[str]):
         """Validates a single attribute for requiredness and recursive validation.
 
         Args:
@@ -238,10 +238,10 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
         if isinstance(attr_value, BaseImpl) and attr_value.urn:
             key = attr_value.urn
         else:
-            key = f"{attr_value.__class__.__name__}_{attr_name}"
+            key = f"{attr_value.__class__.__name__}_{id(attr_value)}_{attr_name}"
 
-        if key not in self._validating_attrs:
-            self._validating_attrs.add(key)
+        if key not in validating_attrs:
+            validating_attrs.add(key)
 
             if attr_name in self.REQUIRED_ATTRS:
                 if not attr_value:
@@ -251,11 +251,11 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
                     )
 
             if attr_value and isinstance(attr_value, BaseImpl):
-                attr_value.validate()
+                attr_value.validate(validating_attrs)
 
-            self._validating_attrs.remove(key)
+            validating_attrs.remove(key)
 
-    def validate(self) -> None:
+    def validate(self, validating_attrs: set[str] = set()) -> None:
         """Validates the element and its attributes recursively.
 
         Raises:
@@ -263,9 +263,9 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
         """
         for attr_name in self.SCALAR_ATTR_NAMES:
             attr_value = getattr(self, attr_name, None)
-            self._validate_attribute(attr_name, attr_value)
+            self._validate_attribute(attr_name, attr_value, validating_attrs)
 
         for attr_name in self.LIST_ATTR_NAMES:
             attr_list = getattr(self, attr_name, [])
             for attr_value in attr_list:
-                self._validate_attribute(attr_name, attr_value)
+                self._validate_attribute(attr_name, attr_value, validating_attrs)

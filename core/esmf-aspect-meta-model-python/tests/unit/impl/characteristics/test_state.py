@@ -26,11 +26,3 @@ class TestDefaultState:
         result = characteristic.default_value
 
         assert result == "default_value"
-
-    def test_default_value_setter(self):
-        """Test default_value setter."""
-        characteristic = DefaultState(self.meta_model_mock, self.data_type_mock, ["value"], "default_value")
-        characteristic.default_value = "new_default_value"
-        result = characteristic.default_value
-
-        assert result == "new_default_value"

@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from esmf_aspect_meta_model_python.base.operation import Operation
 from esmf_aspect_meta_model_python.base.property import Property
@@ -23,9 +23,9 @@ class DefaultOperation(BaseImpl, Operation):
     Represents an operation with input and output properties.
     """
 
-    SCALAR_ATTR_NAMES: List[str] = BaseImpl.SCALAR_ATTR_NAMES + ["output_property"]
-    LIST_ATTR_NAMES: List[str] = BaseImpl.LIST_ATTR_NAMES + ["input_properties"]
-    REQUIRED_ATTRS: List[str] = BaseImpl.REQUIRED_ATTRS + ["input_properties"]
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = BaseImpl.SCALAR_ATTR_NAMES + ("output_property",)
+    LIST_ATTR_NAMES: Tuple[str, ...] = BaseImpl.LIST_ATTR_NAMES + ("input_properties",)
+    REQUIRED_ATTRS: Tuple[str, ...] = BaseImpl.REQUIRED_ATTRS + ("input_properties",)
 
     def __init__(
         self,
@@ -49,8 +49,7 @@ class DefaultOperation(BaseImpl, Operation):
     def _set_parent_element_on_child_elements(self) -> None:
         """Sets this operation as the parent element on all child elements (input and output properties)."""
         for input_property in self.input_properties:
-            if input_property:
-                input_property.append_parent_element(self)
+            input_property.append_parent_element(self)
 
         if self.output_property:
             self.output_property.append_parent_element(self)
@@ -64,24 +63,6 @@ class DefaultOperation(BaseImpl, Operation):
         """
         return self._input_properties
 
-    @input_properties.setter
-    def input_properties(self, input_properties: List[Property]) -> None:
-        """Sets the list of input properties for this operation.
-
-        Args:
-            input_properties (List[Property]): The new list of input properties to set.
-
-        Raises:
-            ValueError: If the input_properties list is empty.
-        """
-        if not input_properties:
-            raise ValueError("Operation must have at least one input property.")
-
-        self._input_properties = input_properties
-
-        for input_property in self._input_properties:
-            input_property.append_parent_element(self)
-
     @property
     def output_property(self) -> Optional[Property]:
         """Returns the output property for this operation, if any.
@@ -90,15 +71,3 @@ class DefaultOperation(BaseImpl, Operation):
             Optional[Property]: The output property, or None if not set.
         """
         return self._output_property
-
-    @output_property.setter
-    def output_property(self, output_property: Optional[Property]) -> None:
-        """Sets the output property for this operation.
-
-        Args:
-            output_property (Optional[Property]): The output property to set.
-        """
-        self._output_property = output_property
-
-        if self._output_property:
-            self._output_property.append_parent_element(self)

@@ -68,11 +68,11 @@ class PropertyInstantiator(InstantiatorBase[Property]):
         Returns:
             Property: The created DefaultProperty instance.
         Raises:
-            ValueError: If the property node cannot be found.
+            ValueError: If the property node cannot be find.
         """
         property_node = self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.property))
         if not property_node:
-            raise ValueError(f"Could not found property for the node {element_node}")
+            raise ValueError(f"Could not find property for the node {element_node}")
 
         optional_node = self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.optional))
         not_in_payload_node = self._aspect_graph.value(

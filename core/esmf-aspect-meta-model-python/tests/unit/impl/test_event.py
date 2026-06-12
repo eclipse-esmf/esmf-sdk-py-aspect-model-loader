@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-import pytest
-
 from esmf_aspect_meta_model_python.impl import DefaultEvent
 
 
@@ -28,18 +26,3 @@ class TestEvent:
         result = event.parameters
 
         assert result == [self.property_mock]
-
-    def test_parameters_setter(self):
-        """Test parameters setter."""
-        event = DefaultEvent(self.meta_model_mock, [self.property_mock])
-        event.parameters = [self.property_mock, "one more property"]
-
-        assert event._parameters == [self.property_mock, "one more property"]
-
-    def test_parameters_setter_raise_error(self):
-        """Test exception when parameters is empty."""
-        event = DefaultEvent(self.meta_model_mock, [self.property_mock])
-        with pytest.raises(ValueError) as error:
-            event.parameters = []
-
-        assert str(error.value) == "Event must have at least one parameter."

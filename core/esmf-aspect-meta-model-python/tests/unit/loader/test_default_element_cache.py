@@ -13,44 +13,44 @@ class TestDeferredReference:
 
     def test_init(self):
         """Test DeferredReference initializes with correct attributes."""
-        parent_mock = MagicMock(name="parent")
-        parent_mock.__str__.return_value = "parent_object"
+        parent_obj_ref_mock = MagicMock(name="parent")
+        parent_obj_ref_mock.__str__.return_value = "parent_object"
         target_urn_mock = mock.MagicMock(name="target_urn")
         target_urn_mock.__str__.return_value = "urn:target"
-        result = DeferredReference(parent_mock, "attr", target_urn_mock)
+        result = DeferredReference(parent_obj_ref_mock, "attr", target_urn_mock)
 
-        assert result.parent_obj == "parent_object"
+        assert result.parent_obj_ref == "parent_object"
         assert result.attr_name == "attr"
         assert result.target_urn == "urn:target"
 
     def test_restore(self):
         """Test restore sets the attribute on the parent object from cache."""
-        parent_mock = MagicMock(name="parent")
-        parent_mock.__str__.return_value = "parent_object"
-        parent_mock.attr = None
+        parent_obj_ref_mock = MagicMock(name="parent")
+        parent_obj_ref_mock.__str__.return_value = "parent_object"
+        parent_obj_ref_mock.attr = None
         target_urn_mock = mock.MagicMock(name="target_urn")
         target_urn_mock.__str__.return_value = "urn:target"
         target_obj_mock = mock.MagicMock(name="target_object")
         cache = {
             "urn:target": target_obj_mock,
-            "parent_object": parent_mock,
+            "parent_object": parent_obj_ref_mock,
         }
-        deferred_reference = DeferredReference(parent_mock, "attr", "urn:target")
+        deferred_reference = DeferredReference(parent_obj_ref_mock, "attr", "urn:target")
         result = deferred_reference.restore(cache)
 
         assert result is None
-        assert parent_mock.attr is target_obj_mock
+        assert parent_obj_ref_mock.attr is target_obj_mock
 
     def test_restore_no_target_obj_raise_error(self):
         """Test restore raises ValueError if target object is missing in cache."""
-        parent_mock = MagicMock(name="parent")
-        parent_mock.__str__.return_value = "parent_object"
-        parent_mock.attr = None
+        parent_obj_ref_mock = MagicMock(name="parent")
+        parent_obj_ref_mock.__str__.return_value = "parent_object"
+        parent_obj_ref_mock.attr = None
         cache = {
             "urn:other_target": "some_obj",
-            "parent_object": parent_mock,
+            "parent_object": parent_obj_ref_mock,
         }
-        deferred_reference = DeferredReference(parent_mock, "attr", "urn:missing")
+        deferred_reference = DeferredReference(parent_obj_ref_mock, "attr", "urn:missing")
         with pytest.raises(ValueError) as exc:
             deferred_reference.restore(cache)
 
@@ -58,22 +58,21 @@ class TestDeferredReference:
 
     def test_restore_attr_already_set(self):
         """Test restore does nothing if attribute is already set on parent object."""
-        # Arrange
-        parent_mock = MagicMock(name="parent")
-        parent_mock.__str__.return_value = "parent_object"
-        parent_mock.attr = "another_target_obj"
+        parent_obj_ref_mock = MagicMock(name="parent")
+        parent_obj_ref_mock.__str__.return_value = "parent_object"
+        parent_obj_ref_mock.attr = "another_target_obj"
         target_urn_mock = mock.MagicMock(name="target_urn")
         target_urn_mock.__str__.return_value = "urn:target"
         target_obj_mock = mock.MagicMock(name="target_object")
         cache = {
             "urn:target": target_obj_mock,
-            "parent_object": parent_mock,
+            "parent_object": parent_obj_ref_mock,
         }
-        deferred_reference = DeferredReference(parent_mock, "attr", target_urn_mock)
+        deferred_reference = DeferredReference(parent_obj_ref_mock, "attr", target_urn_mock)
         result = deferred_reference.restore(cache)
 
         assert result is None
-        assert parent_mock.attr == "another_target_obj"
+        assert parent_obj_ref_mock.attr == "another_target_obj"
 
     @pytest.mark.parametrize(
         "ref1_args, ref2_args, expected",
@@ -93,10 +92,10 @@ class TestDeferredReference:
 
         def make_ref(args):
             if isinstance(args, tuple):
-                parent_mock = MagicMock()
-                parent_mock.__str__.return_value = args[0]
+                parent_obj_ref_mock = MagicMock()
+                parent_obj_ref_mock.__str__.return_value = args[0]
 
-                return DeferredReference(parent_mock, args[1], args[2])
+                return DeferredReference(parent_obj_ref_mock, args[1], args[2])
 
             return args
 

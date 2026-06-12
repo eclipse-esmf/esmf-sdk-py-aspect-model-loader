@@ -109,8 +109,8 @@ class ModelElementFactory:
     def create_element(
         self,
         element_node: Node,
-        parent_obj=None,
-        attr_name=None,
+        parent_obj: Optional[Node] = None,
+        attr_name: Optional[str] = None,
     ) -> Optional[Base]:
         """Create or retrieve a model element for the given node, handling cycles and deferring cyclic references.
 
@@ -124,9 +124,22 @@ class ModelElementFactory:
         """
         # Cycle detection: if node is in active path, defer reference restoration
         if self._cache.is_in_active_path(element_node):
-            if parent_obj is not None and attr_name is not None:
-                attr_name = self._samm.get_name(attr_name)
-                self._cache.add_deferred_reference(DeferredReference(parent_obj, attr_name, str(element_node)))
+            if parent_obj and attr_name:
+                resolver_attr_name = self._samm.get_name(attr_name)
+                if not resolver_attr_name:
+                    raise ValueError(
+                        f"Cannot resolve attribute name for {attr_name} in SAMM vocabulary. "
+                        f"Cannot defer reference for node {element_node}."
+                    )
+                else:
+                    self._cache.add_deferred_reference(
+                        DeferredReference(
+                            parent_obj,
+                            resolver_attr_name,
+                            str(element_node),
+                        )
+                    )
+
             else:
                 raise ValueError(
                     f"Cannot defer reference for node {element_node} without parent object and attribute name."

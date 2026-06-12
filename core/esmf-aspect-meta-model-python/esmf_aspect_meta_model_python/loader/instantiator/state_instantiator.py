@@ -40,6 +40,9 @@ class StateInstantiator(EnumerationInstantiator):
             State: The created State instance.
         """
         data_type = self._get_data_type(element_node)
+        if data_type is None:
+            raise ValueError(f"State {element_node} must have a data type.")
+
         meta_model_base_attributes = self._get_base_attributes(element_node)
         value_collection_node = self._aspect_graph.value(
             subject=element_node,

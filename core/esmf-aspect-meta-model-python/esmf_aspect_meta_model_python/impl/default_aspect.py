@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import List
+from typing import List, Tuple
 
 from esmf_aspect_meta_model_python.base.aspect import Aspect
 from esmf_aspect_meta_model_python.base.event import Event
@@ -25,7 +25,7 @@ class DefaultAspect(Aspect, BaseImpl):
     Represents an aspect with properties, operations, events, and a collection aspect flag.
     """
 
-    LIST_ATTR_NAMES: List[str] = BaseImpl.LIST_ATTR_NAMES + ["properties", "operations", "events"]
+    LIST_ATTR_NAMES: Tuple[str, ...] = BaseImpl.LIST_ATTR_NAMES + ("properties", "operations", "events")
 
     def __init__(
         self,

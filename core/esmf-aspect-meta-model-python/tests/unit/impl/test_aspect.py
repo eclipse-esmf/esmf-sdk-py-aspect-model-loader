@@ -36,17 +36,20 @@ class TestDefaultAspect:
     @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.BaseImpl.__init__")
     def test_set_parent_element_on_child_elements(self, _):
         """Test _set_parent_element_on_child_elements method."""
+        property_mock = mock.MagicMock(name="property")
+        operation_mock = mock.MagicMock(name="operation")
+        event_mock = mock.MagicMock(name="event")
         aspect = DefaultAspect(
             self.meta_model_mock,
-            [self.property_mock],
-            [self.operation_mock],
-            [self.event_mock],
+            [property_mock],
+            [operation_mock],
+            [event_mock],
             self.is_collection_aspect,
         )
 
-        self.property_mock.append_parent_element.assert_called_once_with(aspect)
-        self.operation_mock.append_parent_element.assert_called_once_with(aspect)
-        self.event_mock.append_parent_element.assert_called_once_with(aspect)
+        property_mock.append_parent_element.assert_called_once_with(aspect)
+        operation_mock.append_parent_element.assert_called_once_with(aspect)
+        event_mock.append_parent_element.assert_called_once_with(aspect)
 
     @mock.patch("esmf_aspect_meta_model_python.impl.default_aspect.BaseImpl.__init__")
     def test_operations(self, _):

@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import Any
+from typing import Any, Tuple
 
 from esmf_aspect_meta_model_python.base.value import Value
 from esmf_aspect_meta_model_python.impl.base_impl import BaseImpl
@@ -19,7 +19,7 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 class DefaultValue(BaseImpl, Value):
     """Default value class."""
 
-    SCALAR_ATTR_NAMES = BaseImpl.SCALAR_ATTR_NAMES + ["value"]
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = BaseImpl.SCALAR_ATTR_NAMES + ("value",)
 
     def __init__(
         self,

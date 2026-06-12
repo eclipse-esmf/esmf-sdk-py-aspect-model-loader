@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from esmf_aspect_meta_model_python.base.data_types.complex_type import ComplexType
 from esmf_aspect_meta_model_python.base.property import Property
@@ -24,8 +24,8 @@ class DefaultComplexType(BaseImpl, ComplexType):
     """
 
     _instances: Dict[str, ComplexType] = {}
-    SCALAR_ATTR_NAMES: List[str] = BaseImpl.SCALAR_ATTR_NAMES + ["extends"]
-    LIST_ATTR_NAMES: List[str] = BaseImpl.LIST_ATTR_NAMES + ["properties"]
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = BaseImpl.SCALAR_ATTR_NAMES + ("extends",)
+    LIST_ATTR_NAMES: Tuple[str, ...] = BaseImpl.LIST_ATTR_NAMES + ("properties",)
 
     def __init__(
         self,
@@ -43,8 +43,7 @@ class DefaultComplexType(BaseImpl, ComplexType):
         super().__init__(meta_model_base_attributes)
 
         for pro in properties:
-            if pro:
-                pro.append_parent_element(self)
+            pro.append_parent_element(self)
         self.__properties: List[Property] = properties
         self.__extends_urn: Optional[str] = extends
 
@@ -132,15 +131,3 @@ class DefaultComplexType(BaseImpl, ComplexType):
             List[Property]: The properties defined for this complex type.
         """
         return self.__properties
-
-    @properties.setter
-    def properties(self, properties: List[Property]) -> None:
-        """Sets the list of properties for this complex type.
-
-        Args:
-            properties (List[Property]): The new list of properties to set.
-        """
-        for pro in properties:
-            pro.append_parent_element(self)
-
-        self.__properties = properties
