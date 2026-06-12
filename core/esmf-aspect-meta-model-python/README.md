@@ -113,7 +113,9 @@ model_elements = samm_graph.load_model_elements()
 
 SAMMUnitsGraph is a class contains functions for accessing units of measurement.
 ```python 
-from esmf_aspect_meta_model_python.samm_meta_model import units
+from esmf_aspect_meta_model_python.samm_meta_model import SammUnitsGraph
+
+units = SammUnitsGraph()
 
 unit_name = "unit:volt"
 units.print_info(units.get_info(unit_name))

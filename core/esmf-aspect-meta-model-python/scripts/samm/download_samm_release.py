@@ -16,10 +16,16 @@ import zipfile
 import requests
 
 SAMM_VERSION_TO_DOWNLOAD = "2.2.0"
+_SAMM_MARKER_FILE = (
+    f"esmf_aspect_meta_model_python/samm_aspect_meta_model/samm/unit/{SAMM_VERSION_TO_DOWNLOAD}/units.ttl"
+)
 
 
 def main():
-    """Downloads the release .jar of the samm for the selected version and extracts the SAMM files"""
+    """Download the release .jar of the samm for the selected version and extract the SAMM files."""
+    if pathlib.Path(_SAMM_MARKER_FILE).exists():
+        print(f"SAMM {SAMM_VERSION_TO_DOWNLOAD} files already present, skipping download.")
+        return
     download_jar(SAMM_VERSION_TO_DOWNLOAD)
     extract_jar(SAMM_VERSION_TO_DOWNLOAD)
     print("current path: ", pathlib.Path().resolve())
