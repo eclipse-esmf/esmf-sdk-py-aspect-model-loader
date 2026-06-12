@@ -216,17 +216,16 @@ class TestSammCliIntegration:
             if isinstance(jsonld, dict):  # JSON-LD should have @context or @graph
                 assert "@context" in jsonld or "@graph" in jsonld
 
-    #  FIXME: https://github.com/eclipse-esmf/esmf-sdk/issues/802
-    # def test_to_aas(self, samm_cli, file_path, temp_output_dir):
-    #     """Test generating AAS submodel template."""
-    #     output_file_json = os.path.join(temp_output_dir, "aas.json")
-    #
-    #     samm_cli.to_aas(file_path, output=output_file_json, format="JSON")
-    #
-    #     assert os.path.exists(output_file_json)
-    #     with open(output_file_json, "r") as f:
-    #         aas_json = json.load(f)
-    #         assert isinstance(aas_json, (dict, list))
+    def test_to_aas(self, samm_cli, file_path, temp_output_dir):
+        """Test generating AAS submodel template."""
+        output_file_json = os.path.join(temp_output_dir, "aas.json")
+
+        samm_cli.to_aas(file_path, output=output_file_json, format="JSON")
+
+        assert os.path.exists(output_file_json)
+        with open(output_file_json, "r") as f:
+            aas_json = json.load(f)
+            assert isinstance(aas_json, (dict, list))
 
     def test_package_export_import(self, samm_cli, file_path, temp_output_dir):
         """Test exporting and importing a package."""
@@ -297,4 +296,4 @@ class TestSammCliErrorHandling:
 
         samm_cli.validate("/path/to/nonexistent/file.ttl")
 
-        assert capfd.readouterr()[1] == "File not found: /path/to/nonexistent/file.ttl\n"
+        assert capfd.readouterr()[1].rstrip() == "File not found: /path/to/nonexistent/file.ttl"

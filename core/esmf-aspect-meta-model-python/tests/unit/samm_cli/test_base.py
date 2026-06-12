@@ -9,6 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 """SammCli unit tests"""
+import platform
 import subprocess
 
 from unittest import mock
@@ -64,7 +65,10 @@ def test_get_client_path(_, path_mock, join_mock):
 
     assert result == "cli_path"
     path_mock.resolve.assert_called_once()
-    join_mock.assert_has_calls([mock.call("parent", "samm-cli"), mock.call("cli_path", "samm")])
+    cli_file = "samm"
+    if platform.system() == "Windows":
+        cli_file += ".exe"
+    join_mock.assert_has_calls([mock.call("parent", "samm-cli"), mock.call("cli_path", cli_file)])
 
 
 @mock.patch(f"{BASE_PATH}.download_samm_cli")
@@ -564,19 +568,18 @@ class TestSammCliFunctions:
             custom_column="col1 STRING",
         )
 
-    # FIXME: https://github.com/eclipse-esmf/esmf-sdk/issues/802
-    # def test_to_aas(self, call_function_mock, samm_cli):
-    #     result = samm_cli.to_aas("path_to_ttl_model", output="aas.aasx", format="aasx", aspect_data="data.json")
-    #
-    #     assert result is call_function_mock.return_value
-    #     call_function_mock.assert_called_once_with(
-    #         SAMMCLICommands.AAS_TO_ASPECT,
-    #         "path_to_ttl_model",
-    #         capture=False,
-    #         output="aas.aasx",
-    #         format="aasx",
-    #         aspect_data="data.json",
-    #     )
+    def test_to_aas(self, call_function_mock, samm_cli):
+        result = samm_cli.to_aas("path_to_ttl_model", output="aas.aasx", format="aasx", aspect_data="data.json")
+
+        assert result is call_function_mock.return_value
+        call_function_mock.assert_called_once_with(
+            SAMMCLICommands.TO_AAS,
+            "path_to_ttl_model",
+            capture=False,
+            output="aas.aasx",
+            format="aasx",
+            aspect_data="data.json",
+        )
 
     @pytest.mark.parametrize(
         "element,namespace,flags,expected_function_name",
