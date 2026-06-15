@@ -55,8 +55,8 @@ dev = [
 
 # Pin the uv version that may operate on this project so the lockfile cannot
 # silently drift between local development and CI. This must be kept in sync
-# with the `uv-version` pinned in the GitHub Actions workflows
-# (.github/workflows/*.yml). uv refuses to run if its version doesn't match.
+# with the `version` input of the setup-uv action pinned in the GitHub Actions
+# workflows (.github/workflows/*.yml). uv refuses to run if its version doesn't match.
 [tool.uv]
 required-version = "==0.11.21"
 
