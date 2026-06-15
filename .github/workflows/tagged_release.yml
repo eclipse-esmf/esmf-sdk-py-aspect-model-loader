@@ -116,6 +116,7 @@ jobs:
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
           uv-version: "0.11.19"
+          enable-cache: false # Disable caching to avoid cache poisoning attacks
 
       - name: Build esmf-aspect
         working-directory: ${{ env.WORKING_DIR }}
@@ -179,6 +180,7 @@ jobs:
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
           uv-version: "0.11.19"
+          enable-cache: false # Disable caching to avoid cache poisoning attacks
 
       # Use the standard bot identity for automated commits so they are clearly
       # distinguishable from human commits in git log
