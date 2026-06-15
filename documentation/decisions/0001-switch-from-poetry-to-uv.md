@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-06-10
 deciders: Lars Heppler
 consulted: ESMF SDK Python working group
