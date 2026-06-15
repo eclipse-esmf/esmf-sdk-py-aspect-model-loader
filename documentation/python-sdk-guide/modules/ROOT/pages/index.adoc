@@ -31,11 +31,11 @@ python --version
 ----
 
 * In order to include the packages a Python dependency manager is required; we recommend
-either https://pypi.org/project/pip/[pip] or https://python-poetry.org/[Python Poetry].
-The remainder of the guide assumes usage of Poetry.
+either https://pypi.org/project/pip/[pip] or https://docs.astral.sh/uv/[uv].
+The remainder of the guide assumes usage of uv.
 Please refer to the https://pip.pypa.io/en/stable/installation/[pip installation] or
-https://python-poetry.org/docs/#installation[Poetry installation guide].
-You can check your installed pip/Poetry version with
+https://docs.astral.sh/uv/getting-started/installation/[uv installation guide].
+You can check your installed pip/uv version with
 +
 [source,bash]
 ----
@@ -44,7 +44,7 @@ pip --version
 or
 [source,bash]
 ----
-poetry --version
+uv --version
 ----
 
 == Aspect Model Loader for Python
@@ -80,22 +80,22 @@ pip install esmf-aspect-model-loader=={esmf-sdk-py-aspect-model-loader-version}
 For more detailed information how to install a library with pip please read
 https://pip.pypa.io/en/stable/user_guide/#installing-packages[pip Installing Packages guide].
 
-=== Poetry
+=== uv
 
-To install the esmf-aspect-model-loader from PyPI with poetry dependency manager, you can use the following command:
+To install the esmf-aspect-model-loader with the uv dependency manager, you can use the following command:
 [source,bash]
 ----
-poetry add esmf-aspect-model-loader
+uv add esmf-aspect-model-loader
 ----
 
 You can specify the version of the package by adding the version number after the package name.
 For example, to install a specific version of the package, you can use the following command:
 [source,bash,subs=attributes+]
 ----
-poetry add esmf-aspect-model-loader=={esmf-sdk-py-aspect-model-loader-version}
+uv add esmf-aspect-model-loader=={esmf-sdk-py-aspect-model-loader-version}
 ----
 
-For more detailed information how to add a library via poetry please read https://python-poetry.org/docs/cli/#add[Poetry add guide].
+For more detailed information how to add a library via uv please read https://docs.astral.sh/uv/concepts/projects/dependencies/[uv dependencies guide].
 
 
 === Loading an Aspect Model
