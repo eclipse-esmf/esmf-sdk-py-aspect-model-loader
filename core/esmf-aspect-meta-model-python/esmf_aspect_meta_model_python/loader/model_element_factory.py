@@ -125,7 +125,10 @@ class ModelElementFactory:
         # Cycle detection: if node is in active path, defer reference restoration
         if self._cache.is_in_active_path(element_node):
             if parent_obj and attr_name:
-                resolver_attr_name = self._samm.get_name(attr_name)
+                # The SAMM predicate name is camelCase (e.g. "dataType"), but the corresponding
+                # Python attribute is snake_case (e.g. "data_type"). Convert it so the deferred
+                # reference targets the correct attribute / backing field on restoration.
+                resolver_attr_name = self._to_snake_case(self._samm.get_name(attr_name))
                 if not resolver_attr_name:
                     raise ValueError(
                         f"Cannot resolve attribute name for {attr_name} in SAMM vocabulary. "
@@ -160,6 +163,23 @@ class ModelElementFactory:
                 self._cache.remove_from_active_path(element_node)
 
         return instance
+
+    @staticmethod
+    def _to_snake_case(name: Optional[str]) -> Optional[str]:
+        """Converts a camelCase SAMM predicate name to a snake_case Python attribute name.
+
+        Example: "dataType" -> "data_type", "preferredNames" -> "preferred_names".
+
+        Args:
+            name (Optional[str]): The camelCase name to convert.
+
+        Returns:
+            Optional[str]: The snake_case name, or None if the input is None.
+        """
+        if name is None:
+            return None
+
+        return re.sub(r"(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])", r"_\g<0>", name).lower()
 
     def _get_element_type(self, element_node: Optional[Node]) -> str:
         """Gets the element type of a node and returns it.

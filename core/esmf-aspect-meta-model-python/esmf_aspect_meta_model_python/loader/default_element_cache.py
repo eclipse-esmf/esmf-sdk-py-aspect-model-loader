@@ -48,26 +48,39 @@ class DeferredReference:
         target_obj = cache.get(self.target_urn)
         parent_obj = cache.get(self.parent_obj_ref)
 
-        if target_obj is not None:
-            attr = getattr(parent_obj, self.attr_name, None)
-            if not attr:
-                if isinstance(attr, property) and getattr(attr, "fset", None) is None:
-                    # TODO: Clarify what to do in case if setter is missing
-                    try:
-                        setattr(parent_obj, "_" + self.attr_name, target_obj)
-                    except AttributeError:
-                        raise ValueError(
-                            f"Cannot set attribute {self.attr_name} on {parent_obj}. No setter or backing field found."
-                        )
-                else:
-                    if isinstance(attr, list):
-                        attr.append(target_obj)
-                    else:
-                        setattr(parent_obj, self.attr_name, target_obj)
-                        # Property attrname "example_value" "some value"
-
-        else:
+        if target_obj is None:
             raise ValueError(f"Cannot restore reference: No object found in cache with URN {self.target_urn}")
+
+        if parent_obj is None:
+            return
+
+        current_value = getattr(parent_obj, self.attr_name, None)
+
+        # If the attribute is a list, append the target (avoiding duplicates).
+        if isinstance(current_value, list):
+            if target_obj not in current_value:
+                current_value.append(target_obj)
+            return
+
+        # If the attribute is already set, there is nothing to restore.
+        if current_value:
+            return
+
+        # Inspect the class descriptor (not the instance value) to detect read-only properties.
+        # For a read-only property the value must be written to its backing field ("_<attr_name>").
+        class_attr = getattr(type(parent_obj), self.attr_name, None)
+        if isinstance(class_attr, property) and class_attr.fset is None:
+            try:
+                setattr(parent_obj, "_" + self.attr_name, target_obj)
+            except AttributeError:
+                raise ValueError(
+                    f"Cannot set attribute {self.attr_name} on {parent_obj}. No setter or backing field found."
+                )
+        else:
+            try:
+                setattr(parent_obj, self.attr_name, target_obj)
+            except AttributeError:
+                setattr(parent_obj, "_" + self.attr_name, target_obj)
 
     def __hash__(self):
         """Returns the hash value for the deferred reference."""
