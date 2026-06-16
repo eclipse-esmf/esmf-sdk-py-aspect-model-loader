@@ -9,7 +9,6 @@ on:
       - 'documentation/decisions/**'
 
 env:
-  POETRY_VERSION: "1.5.0"
   PYTHON_VERSION: "3.10"
 
 permissions:
@@ -21,8 +20,13 @@ concurrency: # Only run one workflow per branch at a time, and cancel any in-pro
 
 jobs:
   build:
-    name: Check if passes all requirements
-    runs-on: ubuntu-latest
+    name: Check if passes all requirements on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-15-intel]
 
     defaults:
       run:
@@ -39,20 +43,20 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@3765cf608f2d4a72178a9fc5b918668e542b89b1 # v4.0.0
+      - name: Install uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
-          poetry-version: ${{ env.POETRY_VERSION }}
+          version: "0.11.21"
 
       - name: Build esmf-aspect
         run: |
-          poetry install
-          poetry run download-samm-release
-          poetry run download-samm-cli
-          poetry build
+          uv sync
+          uv run download-samm-release
+          uv run download-samm-cli
+          uv build
 
       - name: Run tests
-        run: poetry run tox -e "py${PYTHON_VERSION//./}"
+        run: uv run tox -e "py${PYTHON_VERSION//./}"
 
       - name: Run code style checks
-        run: poetry run tox -e pep8
+        run: uv run tox -e pep8

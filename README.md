@@ -96,28 +96,28 @@ and new releases of aspect meta model loader may be crafted that are built on th
 
 ### Building
 
-The Python SDK is built using [python-poetry](https://python-poetry.org/). Each SDK component is a poetry package. In
+The Python SDK is built using [uv](https://docs.astral.sh/uv/). Each SDK component is a uv project. In
 order to e.g. build a package or run the tests for a package navigate to the packages root directory.
 
 *install dependencies*
 
-`poetry install`
+`uv sync`
 
 *build package*
 
-`poetry build`
+`uv build`
 
 *run all checks: tests and code style*
 
-`poetry run tox`
+`uv run tox`
 
 *run tests*
 
-`poetry run tox -e py310`
+`uv run tox -e py310`
 
 *run code style*
 
-`poetry run tox -e pep8`
+`uv run tox -e pep8`
 
 ### Contributors
 
@@ -135,11 +135,9 @@ introducing too many transitive dependencies downstream.
 
 | Name                  | License                              | Type                   |
 |-----------------------|--------------------------------------|------------------------|
-| python-poetry/poetry  | MIT License (MIT)                    | Dependency Management  |
+| astral-sh/uv          | Apache Software License (Apache 2.0) / MIT License (MIT) | Dependency Management  |
 | rdflib                | [LICENSE AGREEMENT FOR RDFLIB](https://github.com/RDFLib/rdflib/blob/master/LICENSE)     | Dependency             |
 | requests              | Apache Software License (Apache 2.0) | Dependency             |
-| tox                   | MIT License (MIT)                    | Dependency             |
-| zipfile37             | Python Software Foundation License   | Dependency             |
 | psf/black             | MIT License (MIT)                    | Development dependency |
 | nedbat/coverage       | Apache Software License (Apache 2.0) | Development dependency |
 | isort                 | MIT License (MIT)                    | Development dependency |
@@ -147,6 +145,7 @@ introducing too many transitive dependencies downstream.
 | pytest                | MIT License (MIT)                    | Development dependency |
 | pytest-dev/pytest-cov | MIT License (MIT)                    | Development dependency |
 | pytest-sugar          | BSD License (BSD)                    | Development dependency |
+| tox                   | MIT License (MIT)                    | Development dependency |
 | types-requests        | Apache Software License (Apache 2.0) | Development dependency |
 
 ### Documentation

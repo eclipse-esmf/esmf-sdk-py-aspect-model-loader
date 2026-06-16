@@ -169,6 +169,8 @@ class SammCli:
             - parameter-file, p: the path to a file including the parameter for the Aspect API endpoints.
                 For detailed description, please have a look at a SAMM CLI documentation (https://eclipse-esmf.github.io/esmf-developer-guide/tooling-guide/samm-cli.html#using-the-cli-to-create-a-json-openapi-specification)  # noqa: E501
             - semantic-version, sv: use the full semantic version from the Aspect Model as the version for the Aspect API
+            - read-api-path, rap: Set the path for the default endpoint (default: /api/vX, where X is the Aspect Model major version)
+            - query-api-path, qap: Set the path for the query endpoint (default: /query-api/vX, where X is the Aspect Model major version)
             - resource-path, r: the resource path for the Aspect API endpoints
                 For detailed description, please have a look at a SAMM CLI documentation (https://eclipse-esmf.github.io/esmf-developer-guide/tooling-guide/samm-cli.html#using-the-cli-to-create-a-json-openapi-specification)  # noqa: E501
             - include-query-api, q: include the path for the Query Aspect API Endpoint in the OpenAPI specification
@@ -177,7 +179,7 @@ class SammCli:
             - paging-offset-based, po: in case there is more than one paging possibility, it must be offset based paging
             - paging-time-based, pt: in case there is more than one paging possibility, it must be time based paging
             - language, l: the language from the model for which an OpenAPI specification should be generated (default: en)
-            custom-resolver: use an external resolver for the resolution of the model elements
+            - custom-resolver: use an external resolver for the resolution of the model elements
         """
         return self._call_function(SAMMCLICommands.TO_OPENAPI, path_to_model, *args, capture=capture, **kwargs)
 
@@ -333,18 +335,17 @@ class SammCli:
         """
         return self._call_function(SAMMCLICommands.TO_SQL, path_to_model, *args, capture=capture, **kwargs)
 
-    # FIXME: https://github.com/eclipse-esmf/esmf-sdk/issues/802
-    # def to_aas(self, path_to_model, *args, capture=False, **kwargs):
-    #     """Generate an Asset Administration Shell (AAS) submodel template from an Aspect Model.
-    #
-    #     param path_to_model: local path to the aspect model file (*.ttl)
-    #     possible arguments:
-    #         - output, o: output file path (default: stdout)
-    #         - format, f: output file format (XML, JSON, or AASX, default: XML)
-    #         - aspect_data, a: path to a JSON file containing aspect data corresponding to the Aspect Model
-    #         - custom_resolver: use an external resolver for the resolution of the model elements
-    #     """
-    #     return self._call_function(SAMMCLICommands.AAS_TO_ASPECT, path_to_model, *args, capture=capture, **kwargs)
+    def to_aas(self, path_to_model, *args, capture=False, **kwargs):
+        """Generate an Asset Administration Shell (AAS) submodel template from an Aspect Model.
+
+        param path_to_model: local path to the aspect model file (*.ttl)
+        possible arguments:
+            - output, o: output file path (default: stdout)
+            - format, f: output file format (XML, JSON, or AASX, default: XML)
+            - aspect_data, a: path to a JSON file containing aspect data corresponding to the Aspect Model
+            - custom_resolver: use an external resolver for the resolution of the model elements
+        """
+        return self._call_function(SAMMCLICommands.TO_AAS, path_to_model, *args, capture=capture, **kwargs)
 
     def edit_move(self, path_to_model, element, namespace=None, *args, capture=False, **kwargs):
         """Move a model element definition from its current place to another existing or

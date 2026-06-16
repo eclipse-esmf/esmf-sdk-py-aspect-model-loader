@@ -97,6 +97,3 @@ class SammUnitsGraph:
                         self.print_info(sub_value, tabs + 2)
             else:
                 print("\t" * tabs + f"{key}: {value}")
-
-
-units = SammUnitsGraph()

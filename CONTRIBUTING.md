@@ -144,7 +144,7 @@ E.g. software licensed under GPL, AGPL or, a similar strong copy-left license ca
 
 # Code Conventions
 
-The ESMF SDK Python Aspect Model Loader is written in Python using a poetry as dependency management and packaging. 
+The ESMF SDK Python Aspect Model Loader is written in Python using uv as dependency management and packaging. 
 Please have a look into our [Code Conventions](CONVENTIONS.md).
 
 ## Versioning
