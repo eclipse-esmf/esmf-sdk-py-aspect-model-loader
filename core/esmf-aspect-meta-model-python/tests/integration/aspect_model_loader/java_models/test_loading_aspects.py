@@ -13,7 +13,7 @@ from scripts.constants import TestModelConstants
 from scripts.download_test_models import download_test_models
 
 # before start tests, download latest aspect test models with the next command
-# poetry run download-test-models
+# uv run download-test-models
 
 
 def get_resources_folder_path() -> str:

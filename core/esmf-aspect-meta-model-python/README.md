@@ -18,28 +18,28 @@ implementation.
 Before getting started to use the `esmf-aspect-model-loader` library you need to apply some set up actions:
 
 Required
-- [Install poetry](#install-poetry)
+- [Install uv](#install-uv)
 - [Install project dependencies](#install-project-dependencies)
 - [Download SAMM files](#download-samm-files)
 
-### Install poetry
+### Install uv
 
-`Poetry` used as a dependency management for the `esmf-aspect-model-loader`. Follow the next [instruction](https://python-poetry.org/docs/#installation)
+`uv` is used as the dependency manager for the `esmf-aspect-model-loader`. Follow the next [instruction](https://docs.astral.sh/uv/getting-started/installation/)
  to install it.
 
-To check the poetry version run:
+To check the uv version run:
 ```console
-poetry --version
+uv --version
 ```
 
 ### Install project dependencies
 
-Poetry provides convenient functionality for working with dependencies in the project.
-To automatically download and install all the necessary libraries, just run one command:
+uv provides convenient functionality for working with dependencies in the project.
+To automatically create a virtual environment and install all the necessary libraries, just run one command:
 ```console
-poetry install
+uv sync
 ```
-It is required to run `poetry install` once in the esmf-aspect-model-loader module.
+It is required to run `uv sync` once in the esmf-aspect-model-loader module.
 
 ### Download SAMM files
 
@@ -52,7 +52,7 @@ This script downloads a release JAR-file from GitHub, extracts them for further 
 
 To run script, execute the next command.
 ```console
-poetry run download-samm-release
+uv run download-samm-release
 ```
 The version of the SAMM release is specified in the python script.
 
@@ -67,7 +67,7 @@ the API is called without a token. This may cause problems because unauthorized 
 
 Run the next command to download and start working with the Aspect Model Loader.
 ```console
-poetry run download-samm-branch
+uv run download-samm-branch
 ```
 Link to all branches: [SAMM Releases](https://github.com/eclipse-esmf/esmf-semantic-aspect-meta-model/branches)
 
@@ -113,7 +113,9 @@ model_elements = samm_graph.load_model_elements()
 
 SAMMUnitsGraph is a class contains functions for accessing units of measurement.
 ```python 
-from esmf_aspect_meta_model_python.samm_meta_model import units
+from esmf_aspect_meta_model_python.samm_meta_model import SammUnitsGraph
+
+units = SammUnitsGraph()
 
 unit_name = "unit:volt"
 units.print_info(units.get_info(unit_name))
@@ -183,7 +185,7 @@ Provided scripts:
  - download-samm-cli
  - download-test-models
 
-All scripts run like a poetry command. The poetry is available from the folder where [pyproject.toml](pyproject.toml) 
+All scripts run like a uv command. uv is available from the folder where [pyproject.toml](pyproject.toml) 
 is located.
 
 # Tests running
@@ -196,11 +198,11 @@ be running with the tox:
 
 ```console
 # run all checks use the next command
-poetry run tox
+uv run tox
 
 # run only pep8 checks
-poetry run tox -e pep8
+uv run tox -e pep8
 
 # run tests
-poetry run tox -e py310
+uv run tox -e py310
 ```

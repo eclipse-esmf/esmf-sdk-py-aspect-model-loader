@@ -48,12 +48,11 @@ def download_jar_file(jar_file_path: str):
 
 def extract_test_models(resources_folder: str, jar_file_path: str):
     """Unzip and extract test models."""
-    archive = ZipFile(jar_file_path)
-    for file_name in archive.namelist():
-        if file_name.startswith(Const.FOLDER_TO_EXTRACT):
-            archive.extract(file_name, resources_folder)
+    with ZipFile(jar_file_path) as archive:
+        for file_name in archive.namelist():
+            if file_name.startswith(Const.FOLDER_TO_EXTRACT):
+                archive.extract(file_name, resources_folder)
 
-    archive.close()
 
 
 def download_test_models(version: str = Const.JAVA_CLI_VERSION):
