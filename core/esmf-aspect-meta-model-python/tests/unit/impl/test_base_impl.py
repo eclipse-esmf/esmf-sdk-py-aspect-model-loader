@@ -309,9 +309,26 @@ class TestBaseImpl:
         with pytest.raises(ValueError) as error:
             base._validate_attribute("attr_name", attr_value, validating_attrs)
 
-        assert str(error.value) == (
-            f"BaseImpl is missing required attribute: attr_name. key: NoneType_{id(attr_value)}_attr_name: None"
-        )
+        assert str(error.value) == "BaseImpl is missing required attribute: attr_name."
+
+    def test_validate_attribute_discards_key_on_exception(self):
+        """The cycle-guard key must be discarded even when validation raises.
+
+        Regression test for the mutable-default-argument leak: a failed validation must not leave a
+        stale key behind that would silently skip the same check on a subsequent call.
+        """
+        base = BaseImpl(self.meta_model_mock)
+        base.REQUIRED_ATTRS = ("attr_name",)
+        validating_attrs: set = set()
+
+        with pytest.raises(ValueError):
+            base._validate_attribute("attr_name", None, validating_attrs)
+
+        assert validating_attrs == set()
+
+        # Because the key was discarded, a second invalid validation still raises.
+        with pytest.raises(ValueError):
+            base._validate_attribute("attr_name", None, validating_attrs)
 
     @mock.patch("esmf_aspect_meta_model_python.impl.base_impl.isinstance")
     def test_validate_attribute_already_validated(self, isinstance_mock):
@@ -368,3 +385,32 @@ class TestBaseImpl:
                 mock.call("list_attr", "list_value", set()),
             ]
         )
+
+    def test_validate_uses_fresh_set_each_call(self):
+        """Each top-level validate() call must use an independent cycle-guard set.
+
+        Regression test for the mutable-default-argument bug: a required-attribute failure must keep
+        raising on every subsequent call instead of being silently suppressed by leaked state.
+        """
+
+        class _RequiredChildImpl(BaseImpl):
+            SCALAR_ATTR_NAMES = BaseImpl.SCALAR_ATTR_NAMES + ("child",)
+            REQUIRED_ATTRS = ("child",)
+
+            def __init__(self, meta_model_base_attributes, child=None):
+                super().__init__(meta_model_base_attributes)
+                self._child = child
+
+            @property
+            def child(self):
+                return self._child
+
+        first = _RequiredChildImpl(get_meta_model_mock(), child=None)
+        second = _RequiredChildImpl(get_meta_model_mock(), child=None)
+
+        with pytest.raises(ValueError):
+            first.validate()
+
+        # Must still raise: state from the first call must not leak into the second.
+        with pytest.raises(ValueError):
+            second.validate()

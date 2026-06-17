@@ -55,10 +55,14 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
     def parent_elements(self, elements: list[Base]) -> None:
         """Sets the parent elements for this element.
 
+        Parent elements are normally built incrementally via ``append_parent_element``. By design this
+        setter only *replaces* an already-populated parent list; assigning before any parent has been
+        appended is intentionally ignored (the element keeps ``None`` until the first append). This
+        attribute is never a target of deferred cyclic reference restoration.
+
         Args:
             elements (list[Base]): The list of parent elements to set.
         """
-        # No-op on first call: _parent_elements might start as None and initialized with setter later.
         if self._parent_elements:
             self._parent_elements = elements
 
@@ -223,44 +227,53 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
 
         return message
 
-    def _validate_attribute(self, attr_name: str, attr_value: Any, validating_attrs: set[str]):
-        """Validates a single attribute for requiredness and recursive validation.
+    def _validate_attribute(self, attr_name: str, attr_value: Any, validating_attrs: set[str]) -> None:
+        """Validates a single attribute for requiredness and recurses into nested elements.
 
         Args:
             attr_name (str): The attribute name.
             attr_value (Any): The attribute value.
+            validating_attrs (set[str]): Keys of the attributes currently on the active validation
+                path. Used as a cycle guard so that self-referential models do not recurse forever.
 
         Raises:
             ValueError: If a required attribute is missing.
         """
-        key: str = ""
-
         if isinstance(attr_value, BaseImpl) and attr_value.urn:
             key = attr_value.urn
         else:
             key = f"{attr_value.__class__.__name__}_{id(attr_value)}_{attr_name}"
 
-        if key not in validating_attrs:
-            validating_attrs.add(key)
+        # Skip attributes already on the current validation path (breaks cycles).
+        if key in validating_attrs:
+            return
 
-            if attr_name in self.REQUIRED_ATTRS:
-                if not attr_value:
-                    raise ValueError(
-                        f"{self.__class__.__name__} is missing required attribute: {attr_name}."
-                        f" key: {key}: {attr_value}"
-                    )
+        validating_attrs.add(key)
+        try:
+            if attr_name in self.REQUIRED_ATTRS and not attr_value:
+                raise ValueError(f"{self.__class__.__name__} is missing required attribute: {attr_name}.")
 
             if attr_value and isinstance(attr_value, BaseImpl):
                 attr_value.validate(validating_attrs)
+        finally:
+            # Always discard the key, even if validation raised, so a shared/reused set never
+            # retains stale entries that would silently disable later validations.
+            validating_attrs.discard(key)
 
-            validating_attrs.remove(key)
-
-    def validate(self, validating_attrs: set[str] = set()) -> None:
+    def validate(self, validating_attrs: Optional[set[str]] = None) -> None:
         """Validates the element and its attributes recursively.
+
+        Args:
+            validating_attrs (Optional[set[str]]): Internal cycle-guard accumulator of attribute keys
+                currently on the validation path. A fresh set is created for each top-level call;
+                callers should normally not pass this argument.
 
         Raises:
             ValueError: If a required attribute is missing.
         """
+        if validating_attrs is None:
+            validating_attrs = set()
+
         for attr_name in self.SCALAR_ATTR_NAMES:
             attr_value = getattr(self, attr_name, None)
             self._validate_attribute(attr_name, attr_value, validating_attrs)

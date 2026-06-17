@@ -68,7 +68,7 @@ class PropertyInstantiator(InstantiatorBase[Property]):
         Returns:
             Property: The created DefaultProperty instance.
         Raises:
-            ValueError: If the property node cannot be find.
+            ValueError: If the property node cannot be found.
         """
         property_node = self._aspect_graph.value(subject=element_node, predicate=self._samm.get_urn(SAMM.property))
         if not property_node:
@@ -99,7 +99,7 @@ class PropertyInstantiator(InstantiatorBase[Property]):
         )
 
     def _create_property_with_extends(self, element_node: BNode) -> Property:
-        """Construct a DefaultPropertyWithExtends instance with all attributes eagerly resolved.
+        """Construct a DefaultProperty (extending another property) with all attributes eagerly resolved.
 
         Args:
             element_node (BNode): The blank RDF node representing the property with extends.

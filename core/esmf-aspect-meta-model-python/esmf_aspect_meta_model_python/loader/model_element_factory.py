@@ -10,6 +10,7 @@
 #   SPDX-License-Identifier: MPL-2.0
 
 import importlib
+import logging
 import re
 
 from typing import Dict, Optional, Tuple
@@ -25,6 +26,24 @@ from esmf_aspect_meta_model_python.loader.instantiator_base import InstantiatorB
 from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 from esmf_aspect_meta_model_python.vocabulary.unit import UNIT
+
+_logger = logging.getLogger(__name__)
+
+# Matches the boundary in a camelCase/PascalCase identifier where an underscore should be inserted
+# to convert it to snake_case (e.g. "dataType" -> "data_type", "AspectInstantiator" -> "aspect_instantiator").
+_CAMEL_TO_SNAKE_PATTERN = re.compile(r"(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])")
+
+
+def _camel_to_snake(name: str) -> str:
+    """Converts a camelCase/PascalCase identifier to snake_case.
+
+    Args:
+        name (str): The camelCase or PascalCase name to convert.
+
+    Returns:
+        str: The snake_case representation of ``name``.
+    """
+    return _CAMEL_TO_SNAKE_PATTERN.sub(r"_\g<0>", name).lower()
 
 
 class ModelElementFactory:
@@ -87,7 +106,7 @@ class ModelElementFactory:
             try:
                 instance = self.create_element(node)
             except Exception as error:
-                print(f"Could not translate the node {node} to a Python object. Error: {error}")
+                _logger.error("Could not translate the node %s to a Python object. Error: %s", node, error)
                 raise error
             else:
                 all_nodes.append(instance)
@@ -110,14 +129,15 @@ class ModelElementFactory:
         self,
         element_node: Node,
         parent_obj: Optional[Node] = None,
-        attr_name: Optional[str] = None,
+        attr_name: Optional[Node] = None,
     ) -> Optional[Base]:
         """Create or retrieve a model element for the given node, handling cycles and deferring cyclic references.
 
         Args:
             element_node (Node): Node in the aspect graph that represents the needed element.
-            parent_obj (optional): Parent object (for deferred reference, if cycle detected).
-            attr_name (optional): Attribute name on parent (for deferred reference, if cycle detected).
+            parent_obj (Optional[Node]): Parent node (for deferred reference, if a cycle is detected).
+            attr_name (Optional[Node]): SAMM predicate pointing from the parent to this element (for
+                deferred reference, if a cycle is detected).
 
         Returns:
             Optional[Base]: An instance of the element with all the child attributes, or None if deferred.
@@ -179,7 +199,7 @@ class ModelElementFactory:
         if name is None:
             return None
 
-        return re.sub(r"(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])", r"_\g<0>", name).lower()
+        return _camel_to_snake(name)
 
     def _get_element_type(self, element_node: Optional[Node]) -> str:
         """Gets the element type of a node and returns it.
@@ -246,7 +266,7 @@ class ModelElementFactory:
 
         # converts the class name (e.g. AspectInstantiator) to lowercase with
         # underscore (e.g. aspect_instantiator)
-        module_name = re.sub(r"(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])", r"_\g<0>", class_name).lower()
+        module_name = _camel_to_snake(class_name)
 
         return f"{instantiator.__name__}.{module_name}", class_name
 

@@ -231,7 +231,6 @@ class DefaultProperty(DefaultAbstractProperty, Property):
         Raises:
             ValueError: If the characteristic is not provided.
         """
-        # No-op on first call: _characteristic might start as None and initialized with setter later.
         if not characteristic:
             raise ValueError("Property must have a characteristic.")
 

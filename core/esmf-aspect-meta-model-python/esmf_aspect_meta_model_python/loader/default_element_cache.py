@@ -9,12 +9,16 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
+import logging
+
 from typing import Optional
 
 from rdflib import Node
 
 from esmf_aspect_meta_model_python.base.base import Base
 from esmf_aspect_meta_model_python.base.cache_strategy import CacheStrategy
+
+_logger = logging.getLogger(__name__)
 
 
 # Helper class for deferred/cyclic reference restoration
@@ -49,9 +53,20 @@ class DeferredReference:
         parent_obj = cache.get(self.parent_obj_ref)
 
         if target_obj is None:
-            raise ValueError(f"Cannot restore reference: No object found in cache with URN {self.target_urn}")
+            raise ValueError(
+                f"Cannot restore reference '{self.attr_name}' on parent '{self.parent_obj_ref}': "
+                f"no object found in cache with URN {self.target_urn}"
+            )
 
         if parent_obj is None:
+            # The parent was never instantiated (e.g. it belongs to an unused branch of the graph);
+            # there is nothing to restore the reference onto.
+            _logger.debug(
+                "Skipping deferred reference '%s' -> '%s': parent '%s' not found in cache.",
+                self.attr_name,
+                self.target_urn,
+                self.parent_obj_ref,
+            )
             return
 
         current_value = getattr(parent_obj, self.attr_name, None)
@@ -208,6 +223,6 @@ class DefaultElementCache(CacheStrategy):
             return
 
         if cached_element:
-            2
+            _logger.warning("Element with the name '%s' already exists. Overwriting existing element.", name)
 
         self._instance_cache[name] = model_element

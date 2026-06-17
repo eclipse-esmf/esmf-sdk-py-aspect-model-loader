@@ -54,7 +54,10 @@ class TestDeferredReference:
         with pytest.raises(ValueError) as exc:
             deferred_reference.restore(cache)
 
-        assert str(exc.value) == "Cannot restore reference: No object found in cache with URN urn:missing"
+        assert str(exc.value) == (
+            "Cannot restore reference 'attr' on parent 'parent_object': "
+            "no object found in cache with URN urn:missing"
+        )
 
     def test_restore_attr_already_set(self):
         """Test restore does nothing if attribute is already set on parent object."""
@@ -73,6 +76,50 @@ class TestDeferredReference:
 
         assert result is None
         assert parent_obj_ref_mock.attr == "another_target_obj"
+
+    def test_restore_read_only_property_writes_backing_field(self):
+        """Restore must write to the backing field of a read-only property (deferred-restore lands)."""
+
+        class _ReadOnlyHolder:
+            def __init__(self):
+                self._data_type = None
+
+            @property
+            def data_type(self):
+                return self._data_type
+
+        parent = _ReadOnlyHolder()
+        target = MagicMock(name="target")
+        cache = {"urn:target": target, "parent_object": parent}
+        deferred_reference = DeferredReference("parent_object", "data_type", "urn:target")
+        deferred_reference.restore(cache)
+
+        assert parent._data_type is target
+        assert parent.data_type is target
+
+    def test_restore_appends_to_list_attribute_without_duplicates(self):
+        """Restore must append the target to a list attribute and stay idempotent."""
+        existing = MagicMock(name="existing")
+        target = MagicMock(name="target")
+        parent = MagicMock(name="parent")
+        parent.properties = [existing]
+        cache = {"urn:target": target, "parent_object": parent}
+        deferred_reference = DeferredReference("parent_object", "properties", "urn:target")
+
+        deferred_reference.restore(cache)
+        assert parent.properties == [existing, target]
+
+        # Restoring again must not create a duplicate.
+        deferred_reference.restore(cache)
+        assert parent.properties == [existing, target]
+
+    def test_restore_skips_when_parent_missing(self):
+        """Restore returns None and does not raise when the parent is absent from the cache."""
+        target = MagicMock(name="target")
+        cache = {"urn:target": target}
+        deferred_reference = DeferredReference("missing_parent", "attr", "urn:target")
+
+        assert deferred_reference.restore(cache) is None
 
     @pytest.mark.parametrize(
         "ref1_args, ref2_args, expected",

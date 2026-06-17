@@ -82,8 +82,8 @@ class TestModelElementFactory:
         factory.create_element.assert_has_calls([mock.call("node_1"), mock.call("node_2")])
         factory._cache.restore_cycle_references.assert_called_once()
 
-    @mock.patch("esmf_aspect_meta_model_python.loader.model_element_factory.print")
-    def test_create_all_graph_elements_raise_error(self, print_mock):
+    @mock.patch("esmf_aspect_meta_model_python.loader.model_element_factory._logger")
+    def test_create_all_graph_elements_raise_error(self, logger_mock):
         """Test create_all_graph_elements raises error and does not call restore_cycle_references."""
         create_element_mock = mock.MagicMock(name="create_element")
         create_element_mock.side_effect = Exception("Creation error")
@@ -95,8 +95,10 @@ class TestModelElementFactory:
             factory.create_all_graph_elements([node_mock])
 
         assert str(error.value) == "Creation error"
-        print_mock.assert_called_once_with(
-            "Could not translate the node node_urn to a Python object. Error: Creation error"
+        logger_mock.error.assert_called_once_with(
+            "Could not translate the node %s to a Python object. Error: %s",
+            node_mock,
+            create_element_mock.side_effect,
         )
         create_element_mock.assert_called_once_with(node_mock)
 
@@ -383,14 +385,15 @@ class TestModelElementFactory:
         instantiator_class_mock.assert_called_once_with(factory)
         assert factory._instantiators["element_type"] == "instantiator_object"
 
-    @mock.patch("esmf_aspect_meta_model_python.loader.model_element_factory.re.sub")
-    def test_get_instantiator_path(self, sub_mock):
+    def test_get_instantiator_path(self):
         """Test get_instantiator_path formats the module path and class name correctly."""
-        sub_mock.return_value = "AspectInstantiator"
         factory = self._get_model_element_factory_instance()
         result = factory.get_instantiator_path("Aspect")
 
-        assert result == ("esmf_aspect_meta_model_python.loader.instantiator.aspectinstantiator", "AspectInstantiator")
+        assert result == (
+            "esmf_aspect_meta_model_python.loader.instantiator.aspect_instantiator",
+            "AspectInstantiator",
+        )
 
     def test_get_samm(self):
         """Test get_samm returns the SAMM vocabulary instance."""
