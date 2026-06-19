@@ -162,7 +162,7 @@ class TestDefaultElementCache:
         assert result is not None
         assert result._instance_cache == {}
         assert result._active_path == set()
-        assert result._cycle_reference_store == set()
+        assert result._cycle_reference_store == {}
 
     def test_add_to_active_path(self):
         """Test add_to_active_path adds a node to the active path set."""
@@ -196,33 +196,33 @@ class TestDefaultElementCache:
         result = cache.add_deferred_reference(deferred_ref)
 
         assert result is None
-        assert cache._cycle_reference_store == {deferred_ref}
+        assert cache._cycle_reference_store == {deferred_ref: None}
 
     def test_restore_cycle_references(self):
         """Test restore_cycle_references calls restore on all DeferredReferences in the store."""
         cache = DefaultElementCache()
         deferred_ref1 = MagicMock(spec=DeferredReference)
         deferred_ref2 = MagicMock(spec=DeferredReference)
-        cache._cycle_reference_store = [deferred_ref1, deferred_ref2]
+        cache._cycle_reference_store = {deferred_ref1: None, deferred_ref2: None}
         result = cache.restore_cycle_references()
 
         assert result is None
         deferred_ref1.restore.assert_called_once_with(cache)
         deferred_ref2.restore.assert_called_once_with(cache)
-        assert cache._cycle_reference_store == []
+        assert cache._cycle_reference_store == {}
 
     def test_reset(self):
         """Test reset clears all caches and sets in DefaultElementCache."""
         cache = DefaultElementCache()
         cache._instance_cache = {"a": MagicMock()}
         cache._active_path = {"node"}
-        cache._cycle_reference_store = [MagicMock()]
+        cache._cycle_reference_store = {MagicMock(): None}
         result = cache.reset()
 
         assert result is None
         assert cache._instance_cache == {}
         assert cache._active_path == set()
-        assert cache._cycle_reference_store == []
+        assert cache._cycle_reference_store == {}
 
     def test_get(self):
         """Test get returns the cached object by URN or None if not found."""
