@@ -10,24 +10,32 @@
 #   SPDX-License-Identifier: MPL-2.0
 
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 
 from esmf_aspect_meta_model_python.base.characteristics.characteristic import Characteristic
 
 
 class StructuredValue(Characteristic, ABC):
-    """Structured Value interface class.
+    """Interface for a structured value characteristic.
 
-    Descries a property with a string-like data type where the string-value has a specific defined structure which
-    can be deconstructed with a regular expression.
+    Describes a property with a string-like data type where the value has a specific defined structure that can be
+    deconstructed with a regular expression.
     """
 
     @property
     @abstractmethod
-    def deconstruction_rule(self) -> str:
-        """Deconstruction rule."""
+    def deconstruction_rule(self) -> Optional[str]:
+        """Returns the deconstruction rule for the structured value.
+
+        Returns:
+            Optional[str]: The deconstruction rule as a string, or None if not set.
+        """
 
     @property
     @abstractmethod
     def elements(self) -> List:
-        """Elements."""
+        """Returns the elements that make up the structured value.
+
+        Returns:
+            List: The list of elements that make up the structured value.
+        """

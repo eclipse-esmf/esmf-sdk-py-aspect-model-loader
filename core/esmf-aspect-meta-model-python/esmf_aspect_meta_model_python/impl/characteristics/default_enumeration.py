@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import List
+from typing import List, Tuple
 
 from esmf_aspect_meta_model_python.base.characteristics.enumeration import Enumeration
 from esmf_aspect_meta_model_python.base.data_types.data_type import DataType
@@ -18,9 +18,13 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 
 
 class DefaultEnumeration(DefaultCharacteristic, Enumeration):
-    """Default Enumeration class."""
+    """Default implementation of an enumeration characteristic.
 
-    LIST_ATTR_NAMES = DefaultCharacteristic.LIST_ATTR_NAMES + ["values"]
+    Represents an enumeration with a set of possible values and an optional data type.
+    """
+
+    LIST_ATTR_NAMES: Tuple[str, ...] = DefaultCharacteristic.LIST_ATTR_NAMES + ("values",)
+    REQUIRED_ATTRS: Tuple[str, ...] = DefaultCharacteristic.REQUIRED_ATTRS + ("values",)
 
     def __init__(
         self,
@@ -28,10 +32,22 @@ class DefaultEnumeration(DefaultCharacteristic, Enumeration):
         data_type: DataType,
         values: List,
     ):
+        """Initializes the DefaultEnumeration.
+
+        Args:
+            meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
+            data_type (DataType): The data type for this enumeration.
+            values (List): The list of possible values for the enumeration.
+        """
         super().__init__(meta_model_base_attributes, data_type)
+
         self._values = values
 
     @property
     def values(self) -> List:
-        """Values."""
+        """Returns the list of possible values for the enumeration.
+
+        Returns:
+            List: The list of enumeration values.
+        """
         return self._values

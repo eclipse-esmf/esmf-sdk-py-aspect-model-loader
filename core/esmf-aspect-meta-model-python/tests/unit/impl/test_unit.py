@@ -37,16 +37,17 @@ class TestDefaultUnit:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.default_operation.super")
     def test_set_parent_element_on_child_elements_mock(self, _):
+        quantity_kinds_mock = mock.MagicMock(name="quantity_kinds")
         unit = DefaultUnit(
             self.meta_model_mock,
             self.symbol,
             self.code,
             self.reference_unit,
             self.conversion_factor,
-            {self.quantity_kinds_mock},
+            {quantity_kinds_mock},
         )
 
-        self.quantity_kinds_mock.append_parent_element.assert_called_once_with(unit)
+        quantity_kinds_mock.append_parent_element.assert_called_once_with(unit)
 
     @mock.patch("esmf_aspect_meta_model_python.impl.default_operation.super")
     def test_symbol(self, _):

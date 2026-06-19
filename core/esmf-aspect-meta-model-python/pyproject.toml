@@ -1,6 +1,6 @@
 [project]
 name = "esmf-aspect-model-loader"
-version = "2.2.0"
+version = "2.3.0"
 description = "Load Aspect Models based on the Semantic Aspect Meta Model"
 authors = [
     { name = "Eclipse Semantic Modeling Framework" },
@@ -9,6 +9,7 @@ authors = [
     { name = "Georg Schmidt-Dumont", email = "Georg.Schmidt-Dumont@de.bosch.com" },
     { name = "Nico Makowe" },
     { name = "Aghyad Farrouh" },
+    { name = "Lars Heppler", email = "Lars.Heppler@de.bosch.com" },
 ]
 license = "MPL-2.0"
 readme = "README.md"

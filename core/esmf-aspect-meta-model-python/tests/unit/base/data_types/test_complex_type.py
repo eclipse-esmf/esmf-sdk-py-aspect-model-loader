@@ -44,7 +44,13 @@ class TestComplexType:
     """ComplexType interface test suite."""
 
     def test_is_abstract_entity(self):
-        abstract_entity = ComplexTypeInterface()
-        result = abstract_entity.is_abstract_entity
+        complex_type = ComplexTypeInterface()
+        result = complex_type.is_abstract_entity
+
+        assert result is False
+
+    def test_is_scalar(self):
+        complex_type = ComplexTypeInterface()
+        result = complex_type.is_scalar
 
         assert result is False

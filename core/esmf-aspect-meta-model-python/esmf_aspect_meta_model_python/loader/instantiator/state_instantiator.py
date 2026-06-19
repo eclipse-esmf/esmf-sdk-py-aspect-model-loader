@@ -17,7 +17,6 @@ from rdflib.term import Node
 
 from esmf_aspect_meta_model_python.base.characteristics.state import State
 from esmf_aspect_meta_model_python.impl.characteristics.default_state import DefaultState
-from esmf_aspect_meta_model_python.loader.instantiator.constants import DATA_TYPE_ERROR_MSG
 from esmf_aspect_meta_model_python.loader.instantiator.enumeration_instantiator import EnumerationInstantiator
 from esmf_aspect_meta_model_python.loader.rdf_helper import RdfHelper
 from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
@@ -25,10 +24,24 @@ from esmf_aspect_meta_model_python.vocabulary.sammc import SAMMC
 
 
 class StateInstantiator(EnumerationInstantiator):
+    """Instantiates State elements from RDF nodes.
+
+    This class provides logic to create State instances, extract values, and handle both simple and complex
+    state types from RDF graphs.
+    """
+
     def _create_instance(self, element_node: Node) -> State:
+        """Creates a State instance from the given RDF node.
+
+        Args:
+            element_node (Node): The RDF node representing the state.
+
+        Returns:
+            State: The created State instance.
+        """
         data_type = self._get_data_type(element_node)
         if data_type is None:
-            raise TypeError(DATA_TYPE_ERROR_MSG)
+            raise ValueError(f"State {element_node} must have a data type.")
 
         meta_model_base_attributes = self._get_base_attributes(element_node)
         value_collection_node = self._aspect_graph.value(
@@ -36,8 +49,7 @@ class StateInstantiator(EnumerationInstantiator):
             predicate=self._sammc.get_urn(SAMMC.values),
         )
         value_nodes = RdfHelper.get_rdf_list_values(value_collection_node, self._aspect_graph)
-        values = [self.__to_state_node_value(value_node) for value_node in value_nodes]
-
+        values = [self.__to_state_node_value(value_node) for value_node in value_nodes if value_node]
         defaultValue = self._aspect_graph.value(
             subject=element_node,
             predicate=self._sammc.get_urn(SAMMC.default_value),
@@ -47,13 +59,18 @@ class StateInstantiator(EnumerationInstantiator):
         return DefaultState(meta_model_base_attributes, data_type, values, default)
 
     def __to_state_node_value(self, value_node: Optional[Node]) -> Dict:
-        """
-        This method instantiates one possible value of a state.
-        :param value_node:  Node of the Graph that represents one state value.
-        The Argument can either be a Literal or a URIRef.
-        - If value_node is a Literal it will represent e.g. a string or an integer value
-        - If value_node is a URIRef it will represent a value of a ComplexType
-        :return: the one generated value of the state
+        """Instantiates one possible value of a state from the given RDF node.
+
+        Args:
+            value_node (Optional[Node]): Node of the graph that represents one state value. Can be a Literal or URIRef.
+                - If value_node is a Literal, it represents a simple value (e.g., string or integer).
+                - If value_node is a URIRef, it represents a value of a ComplexType.
+
+        Returns:
+            Dict: The generated value of the state.
+
+        Raises:
+            TypeError: If the node type is not allowed for state values.
         """
         if isinstance(value_node, rdflib.Literal):
             # value represents a simple data type
@@ -83,6 +100,6 @@ class StateInstantiator(EnumerationInstantiator):
         else:
             # illegal node type for state value (e.g., Blank Node)
             raise TypeError(
-                f"Every value of an state must either be a Literal (string, int, etc.) or "
+                f"Every value of a state must either be a Literal (string, int, etc.) or "
                 f"a URI reference to a ComplexType. Values of type {type(value_node).__name__} are not allowed"
             )

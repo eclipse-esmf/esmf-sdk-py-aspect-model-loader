@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import List
+from typing import List, Tuple
 
 from esmf_aspect_meta_model_python.base.characteristics.characteristic import Characteristic
 from esmf_aspect_meta_model_python.base.characteristics.trait import Trait
@@ -19,10 +19,14 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 
 
 class DefaultTrait(DefaultCharacteristic, Trait):
-    """Default Trait class."""
+    """Default implementation of a trait characteristic.
 
-    SCALAR_ATTR_NAMES = DefaultCharacteristic.SCALAR_ATTR_NAMES + ["base_characteristic"]
-    LIST_ATTR_NAMES = DefaultCharacteristic.LIST_ATTR_NAMES + ["constraints"]
+    Represents a trait with a base characteristic and a list of constraints.
+    """
+
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = DefaultCharacteristic.SCALAR_ATTR_NAMES + ("base_characteristic",)
+    LIST_ATTR_NAMES: Tuple[str, ...] = DefaultCharacteristic.LIST_ATTR_NAMES + ("constraints",)
+    REQUIRED_ATTRS: Tuple[str, ...] = DefaultCharacteristic.REQUIRED_ATTRS + ("base_characteristic", "constraints")
 
     def __init__(
         self,
@@ -30,23 +34,33 @@ class DefaultTrait(DefaultCharacteristic, Trait):
         base_characteristic: Characteristic,
         constraints: List[Constraint],
     ):
-        if base_characteristic is None:
-            raise AttributeError(f"No base characteristic given for the trait {meta_model_base_attributes.urn}")
+        """Initializes the DefaultTrait.
 
-        if not constraints:
-            raise AttributeError(f"No constraints given for the trait {meta_model_base_attributes.urn}")
+        Args:
+            meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
+            base_characteristic (Characteristic): The base characteristic for the trait.
+            constraints (List[Constraint]): The list of constraints for the trait.
+        """
+        super().__init__(meta_model_base_attributes, base_characteristic.data_type if base_characteristic else None)
 
-        super().__init__(meta_model_base_attributes, base_characteristic.data_type)
-
+        self._trait_urn = meta_model_base_attributes.urn
         self._base_characteristic: Characteristic = base_characteristic
         self._constraints: List[Constraint] = constraints
 
     @property
     def base_characteristic(self) -> Characteristic:
-        """Base characteristic."""
+        """Returns the base characteristic for the trait.
+
+        Returns:
+            Characteristic: The base characteristic, or None if not set.
+        """
         return self._base_characteristic
 
     @property
     def constraints(self) -> List[Constraint]:
-        """Constraints."""
+        """Returns the list of constraints for the trait.
+
+        Returns:
+            List[Constraint]: The list of constraints.
+        """
         return self._constraints

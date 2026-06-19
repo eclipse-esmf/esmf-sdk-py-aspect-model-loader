@@ -11,7 +11,7 @@
 
 import abc
 
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from esmf_aspect_meta_model_python.base.base import Base
 from esmf_aspect_meta_model_python.base.is_described import IsDescribed
@@ -19,12 +19,21 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 
 
 class BaseImpl(Base, metaclass=abc.ABCMeta):
-    """Base Implemented class."""
+    """Base implementation class for meta model elements.
 
-    SCALAR_ATTR_NAMES = ["meta_model_version", "urn", "preferred_names", "descriptions"]
-    LIST_ATTR_NAMES = ["see"]
+    Provides common attribute management, string representation, and validation logic for meta model elements.
+    """
+
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = ("meta_model_version", "urn", "preferred_names", "descriptions")
+    LIST_ATTR_NAMES: Tuple[str, ...] = ("see",)
+    REQUIRED_ATTRS: Tuple[str, ...] = tuple()  # To be defined in subclasses if they have required attributes.
 
     def __init__(self, meta_model_base_attributes: MetaModelBaseAttributes):
+        """Initializes the base implementation with meta model attributes.
+
+        Args:
+            meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
+        """
         self._meta_model_version = meta_model_base_attributes.meta_model_version
         self._urn = meta_model_base_attributes.urn
         self._name = meta_model_base_attributes.name
@@ -35,16 +44,34 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
 
     @property
     def parent_elements(self) -> Optional[list[Base]]:
-        """Parent elements."""
+        """Returns the parent elements of this element, if any.
+
+        Returns:
+            Optional[list[Base]]: The list of parent elements, or None if not set.
+        """
         return self._parent_elements
 
     @parent_elements.setter
     def parent_elements(self, elements: list[Base]) -> None:
+        """Sets the parent elements for this element.
+
+        Parent elements are normally built incrementally via ``append_parent_element``. By design this
+        setter only *replaces* an already-populated parent list; assigning before any parent has been
+        appended is intentionally ignored (the element keeps ``None`` until the first append). This
+        attribute is never a target of deferred cyclic reference restoration.
+
+        Args:
+            elements (list[Base]): The list of parent elements to set.
+        """
         if self._parent_elements:
             self._parent_elements = elements
 
     def append_parent_element(self, element: Base) -> None:
-        """Extend parent_elements list."""
+        """Appends a parent element to the parent_elements list.
+
+        Args:
+            element (Base): The parent element to append.
+        """
         if self._parent_elements:
             self._parent_elements.append(element)
             return
@@ -52,36 +79,64 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
 
     @property
     def meta_model_version(self) -> str:
-        """Meta model version."""
+        """Returns the meta model version string.
+
+        Returns:
+            str: The meta model version.
+        """
         return self._meta_model_version
 
     @property
     def preferred_names(self) -> Dict[str, str]:
-        """Preferred names."""
+        """Returns the preferred names dictionary.
+
+        Returns:
+            Dict[str, str]: The preferred names for this element.
+        """
         return self._preferred_names
 
     @property
     def descriptions(self) -> Dict[str, str]:
-        """Descriptions."""
+        """Returns the descriptions dictionary.
+
+        Returns:
+            Dict[str, str]: The descriptions for this element.
+        """
         return self._descriptions
 
     @property
     def see(self) -> List[str]:
-        """See."""
+        """Returns the list of related elements (see also).
+
+        Returns:
+            List[str]: The list of related element identifiers.
+        """
         return self._see
 
     @property
     def urn(self) -> Optional[str]:
-        """URN."""
+        """Returns the Uniform Resource Name (URN) for this element.
+
+        Returns:
+            Optional[str]: The URN, or None if not set.
+        """
         return self._urn
 
     @property
     def name(self) -> str:
-        """Name."""
+        """Returns the name of this element.
+
+        Returns:
+            str: The name of the element.
+        """
         return self._name
 
     def _get_base_message(self):
-        """Get base string message."""
+        """Returns the base string message for this element.
+
+        Returns:
+            str: The base string message.
+        """
         message = self.__class__.__name__
         message = message.replace("Default", "")
         message = f"({message}){self.name}"
@@ -90,7 +145,15 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
 
     @staticmethod
     def _prepare_attr_message(name, value):
-        """Prepare a message with scalar attribute value."""
+        """Prepares a message with a scalar attribute value.
+
+        Args:
+            name (str): The attribute name.
+            value (Any): The attribute value.
+
+        Returns:
+            str: The formatted message for the attribute.
+        """
         message = f"{name}: "
         if isinstance(value, dict):
             for k, v in value.items():
@@ -105,7 +168,11 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
         return message
 
     def _get_scalar_attr_info(self):
-        """Get info about all scalar attributes."""
+        """Returns info about all scalar attributes for this element.
+
+        Returns:
+            str: The formatted scalar attribute information.
+        """
         message = ""
         for attr_name in self.SCALAR_ATTR_NAMES:
             attr_value = getattr(self, attr_name, None)
@@ -116,7 +183,15 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
 
     @staticmethod
     def _prepare_list_attr_message(name, value):
-        """Prepare a message for the list data type attribute value."""
+        """Prepares a message for a list data type attribute value.
+
+        Args:
+            name (str): The attribute name.
+            value (list): The list of attribute values.
+
+        Returns:
+            str: The formatted message for the list attribute.
+        """
         message = f"{name}:"
         for elem in value:
             if isinstance(elem, IsDescribed):
@@ -127,7 +202,11 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
         return message
 
     def _get_list_attr_info(self):
-        """Get info about all list data type attributes."""
+        """Returns info about all list data type attributes for this element.
+
+        Returns:
+            str: The formatted list attribute information.
+        """
         message = ""
         for attr_name in self.LIST_ATTR_NAMES:
             attr_value = getattr(self, attr_name, [])
@@ -137,9 +216,69 @@ class BaseImpl(Base, metaclass=abc.ABCMeta):
         return message
 
     def __str__(self):
-        """String representation."""
+        """Returns the string representation of this element.
+
+        Returns:
+            str: The string representation.
+        """
         message = self._get_base_message()
         message += self._get_scalar_attr_info()
         message += self._get_list_attr_info()
 
         return message
+
+    def _validate_attribute(self, attr_name: str, attr_value: Any, validating_attrs: set[str]) -> None:
+        """Validates a single attribute for requiredness and recurses into nested elements.
+
+        Args:
+            attr_name (str): The attribute name.
+            attr_value (Any): The attribute value.
+            validating_attrs (set[str]): Keys of the attributes currently on the active validation
+                path. Used as a cycle guard so that self-referential models do not recurse forever.
+
+        Raises:
+            ValueError: If a required attribute is missing.
+        """
+        if isinstance(attr_value, BaseImpl) and attr_value.urn:
+            key = attr_value.urn
+        else:
+            key = f"{attr_value.__class__.__name__}_{id(attr_value)}_{attr_name}"
+
+        # Skip attributes already on the current validation path (breaks cycles).
+        if key in validating_attrs:
+            return
+
+        validating_attrs.add(key)
+        try:
+            if attr_name in self.REQUIRED_ATTRS and not attr_value:
+                raise ValueError(f"{self.__class__.__name__} is missing required attribute: {attr_name}.")
+
+            if attr_value and isinstance(attr_value, BaseImpl):
+                attr_value.validate(validating_attrs)
+        finally:
+            # Always discard the key, even if validation raised, so a shared/reused set never
+            # retains stale entries that would silently disable later validations.
+            validating_attrs.discard(key)
+
+    def validate(self, validating_attrs: Optional[set[str]] = None) -> None:
+        """Validates the element and its attributes recursively.
+
+        Args:
+            validating_attrs (Optional[set[str]]): Internal cycle-guard accumulator of attribute keys
+                currently on the validation path. A fresh set is created for each top-level call;
+                callers should normally not pass this argument.
+
+        Raises:
+            ValueError: If a required attribute is missing.
+        """
+        if validating_attrs is None:
+            validating_attrs = set()
+
+        for attr_name in self.SCALAR_ATTR_NAMES:
+            attr_value = getattr(self, attr_name, None)
+            self._validate_attribute(attr_name, attr_value, validating_attrs)
+
+        for attr_name in self.LIST_ATTR_NAMES:
+            attr_list = getattr(self, attr_name, [])
+            for attr_value in attr_list:
+                self._validate_attribute(attr_name, attr_value, validating_attrs)

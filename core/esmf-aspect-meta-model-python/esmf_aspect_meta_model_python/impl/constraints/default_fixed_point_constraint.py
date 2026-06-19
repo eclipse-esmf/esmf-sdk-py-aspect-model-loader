@@ -9,15 +9,24 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
+from typing import Tuple
+
 from esmf_aspect_meta_model_python.base.constraints.fixed_point_constraint import FixedPointConstraint
 from esmf_aspect_meta_model_python.impl.constraints.default_constraint import DefaultConstraint
 from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import MetaModelBaseAttributes
 
 
 class DefaultFixedPointConstraint(DefaultConstraint, FixedPointConstraint):
-    """Default Fixed Point Constraint class."""
+    """Default implementation of a fixed point constraint.
 
-    SCALAR_ATTR_NAMES = DefaultConstraint.SCALAR_ATTR_NAMES + ["scale", "integer"]
+    Represents a fixed point constraint with required scale and integer values.
+    """
+
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = DefaultConstraint.SCALAR_ATTR_NAMES + (
+        "scale",
+        "integer",
+    )
+    REQUIRED_ATTRS: Tuple[str, ...] = DefaultConstraint.REQUIRED_ATTRS + ("scale", "integer")
 
     def __init__(
         self,
@@ -25,16 +34,31 @@ class DefaultFixedPointConstraint(DefaultConstraint, FixedPointConstraint):
         scale: int,
         integer: int,
     ):
+        """Initializes the DefaultFixedPointConstraint.
+
+        Args:
+            meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
+            scale (int): The scale value for the constraint.
+            integer (int): The integer value for the constraint.
+        """
         super().__init__(meta_model_base_attributes)
         self._scale = scale
         self._integer = integer
 
     @property
     def scale(self) -> int:
-        """Scale."""
+        """Returns the scale value for the fixed point constraint.
+
+        Returns:
+            int: The scale value, or None if not set.
+        """
         return self._scale
 
     @property
     def integer(self) -> int:
-        """Integer."""
+        """Returns the integer value for the fixed point constraint.
+
+        Returns:
+            int: The integer value, or None if not set.
+        """
         return self._integer

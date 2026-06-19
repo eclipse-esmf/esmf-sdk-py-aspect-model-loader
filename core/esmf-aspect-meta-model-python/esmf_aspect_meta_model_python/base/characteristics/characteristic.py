@@ -8,7 +8,9 @@
 #  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #
 #   SPDX-License-Identifier: MPL-2.0
+
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from esmf_aspect_meta_model_python.base.base import Base
 from esmf_aspect_meta_model_python.base.data_types.data_type import DataType
@@ -18,11 +20,15 @@ class Characteristic(Base, ABC):
     """Characteristic interface class.
 
     Specifies a property by describing its data type.
-    Multiple classes inherit from Characteristic which describe the property in a more specific way
-    (e.g. Enumeration or Collection).
+    Multiple classes inherit from Characteristic to describe the property in a more specific way
+    (e.g., Enumeration or Collection).
     """
 
     @property
     @abstractmethod
-    def data_type(self) -> DataType:
-        """Data type."""
+    def data_type(self) -> Optional[DataType]:
+        """Returns the data type of the characteristic.
+
+        Returns:
+            Optional[DataType]: The data type of the characteristic, or None if not set.
+        """

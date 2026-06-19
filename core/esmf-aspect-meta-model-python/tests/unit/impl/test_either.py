@@ -14,16 +14,20 @@ class TestDefaultEither:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.BaseImpl.__init__")
     def test_init(self, super_mock):
-        result = DefaultEither(self.meta_model_mock, self.left_mock, self.right_mock)
+        """Test DefaultEither initialization."""
+        left_mock = mock.MagicMock(name="left")
+        right_mock = mock.MagicMock(name="right")
+        result = DefaultEither(self.meta_model_mock, left_mock, right_mock)
 
         super_mock.assert_called_once_with(self.meta_model_mock)
-        self.left_mock.append_parent_element.assert_called_once_with(result)
-        assert result._left == self.left_mock
-        self.right_mock.append_parent_element.assert_called_once_with(result)
-        assert result._right == self.right_mock
+        left_mock.append_parent_element.assert_called_once_with(result)
+        assert result._left == left_mock
+        right_mock.append_parent_element.assert_called_once_with(result)
+        assert result._right == right_mock
 
     @mock.patch("esmf_aspect_meta_model_python.impl.BaseImpl.__init__")
     def test_left(self, _):
+        """Test left property getter."""
         characteristic = DefaultEither(self.meta_model_mock, self.left_mock, self.right_mock)
         result = characteristic.left
 
@@ -31,6 +35,7 @@ class TestDefaultEither:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.BaseImpl.__init__")
     def test_right(self, _):
+        """Test right property getter."""
         characteristic = DefaultEither(self.meta_model_mock, self.left_mock, self.right_mock)
         result = characteristic.right
 

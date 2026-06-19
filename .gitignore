@@ -64,6 +64,9 @@ dmypy.json
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 
+# VSCode
+.vscode/
+
 # SAMM
 core/esmf-aspect-meta-model-python/esmf_aspect_meta_model_python/samm_aspect_meta_model/samm/
 core/esmf-aspect-meta-model-python/esmf_aspect_meta_model_python/samm_cli/samm-cli/

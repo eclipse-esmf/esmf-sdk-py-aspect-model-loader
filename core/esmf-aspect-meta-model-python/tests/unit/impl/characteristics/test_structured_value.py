@@ -37,7 +37,10 @@ class TestDefaultStructuredValue:
     )
     def test_elements(self, _):
         characteristic = DefaultStructuredValue(
-            self.meta_model_mock, self.data_type_mock, "deconstruction_rule", ["element"]
+            self.meta_model_mock,
+            self.data_type_mock,
+            "deconstruction_rule",
+            ["element"],
         )
         result = characteristic.elements
 

@@ -14,6 +14,7 @@ class TestDefaultFixedPointConstraint:
         "esmf_aspect_meta_model_python.impl.constraints.default_fixed_point_constraint.DefaultConstraint.__init__"
     )
     def test_init(self, super_mock):
+        """Test DefaultFixedPointConstraint initialization."""
         result = DefaultFixedPointConstraint(self.meta_model_mock, 0, 1)
 
         super_mock.assert_called_once_with(self.meta_model_mock)
@@ -24,6 +25,7 @@ class TestDefaultFixedPointConstraint:
         "esmf_aspect_meta_model_python.impl.constraints.default_fixed_point_constraint.DefaultConstraint.__init__"
     )
     def test_value(self, _):
+        """Test scale getter."""
         fixed_point_constraint = DefaultFixedPointConstraint(self.meta_model_mock, 0, 1)
         result = fixed_point_constraint.scale
 
@@ -33,6 +35,7 @@ class TestDefaultFixedPointConstraint:
         "esmf_aspect_meta_model_python.impl.constraints.default_fixed_point_constraint.DefaultConstraint.__init__"
     )
     def test_integer(self, _):
+        """Test integer getter."""
         fixed_point_constraint = DefaultFixedPointConstraint(self.meta_model_mock, 0, 1)
         result = fixed_point_constraint.integer
 

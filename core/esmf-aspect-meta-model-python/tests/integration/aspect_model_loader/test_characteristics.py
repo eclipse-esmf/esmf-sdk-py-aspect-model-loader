@@ -31,6 +31,7 @@ RESOURCE_PATH = getcwd() / Path(
 
 
 def test_loading_aspect_with_collection():
+    """Test loading an aspect with a collection characteristic."""
     file_path = RESOURCE_PATH / "AspectWithCollection.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -63,6 +64,7 @@ def test_loading_aspect_with_collection():
 
 
 def test_loading_aspect_with_set():
+    """Test loading an aspect with a set characteristic."""
     file_path = RESOURCE_PATH / "AspectWithSet.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -72,6 +74,7 @@ def test_loading_aspect_with_set():
 
 
 def test_loading_aspect_with_sorted_set():
+    """Test loading an aspect with a sorted set characteristic."""
     file_path = RESOURCE_PATH / "AspectWithSortedSet.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -81,6 +84,7 @@ def test_loading_aspect_with_sorted_set():
 
 
 def test_loading_aspect_with_list():
+    """Test loading an aspect with a list characteristic."""
     file_path = RESOURCE_PATH / "AspectWithList.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -90,6 +94,7 @@ def test_loading_aspect_with_list():
 
 
 def test_loading_aspect_with_collection_with_element_characteristic():
+    """Test loading a collection with an element characteristic."""
     file_path = RESOURCE_PATH / "AspectWithCollectionWithElementCharacteristic.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -111,6 +116,7 @@ def test_loading_aspect_with_collection_with_element_characteristic():
 
 
 def test_loading_aspect_with_simple_enum():
+    """Test loading an aspect with a simple enumeration characteristic."""
     file_path = RESOURCE_PATH / "AspectWithSimpleEnum.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -129,6 +135,7 @@ def test_loading_aspect_with_simple_enum():
 
 
 def test_loading_aspect_with_simple_state():
+    """Test loading an aspect with a simple state characteristic."""
     print(RESOURCE_PATH)
     file_path = RESOURCE_PATH / "AspectWithState.ttl"
     samm_graph = SAMMGraph()
@@ -150,6 +157,7 @@ def test_loading_aspect_with_simple_state():
 
 
 def test_loading_aspect_with_quantifiable():
+    """Test loading an aspect with a quantifiable characteristic."""
     file_path = RESOURCE_PATH / "AspectWithQuantifiableAndUnit.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -174,6 +182,7 @@ def test_loading_aspect_with_quantifiable():
 
 
 def test_loading_aspect_with_duration():
+    """Test loading an aspect with a duration characteristic."""
     file_path = RESOURCE_PATH / "AspectWithDuration.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -188,6 +197,7 @@ def test_loading_aspect_with_duration():
 
 
 def test_loading_aspect_with_measurement():
+    """Test loading an aspect with a measurement characteristic."""
     file_path = RESOURCE_PATH / "AspectWithMeasurement.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -202,6 +212,7 @@ def test_loading_aspect_with_measurement():
 
 
 def test_loading_aspect_with_structured_value():
+    """Test loading an aspect with a structured value characteristic."""
     file_path = RESOURCE_PATH / "AspectWithStructuredValue.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -229,6 +240,7 @@ def test_loading_aspect_with_structured_value():
 
 
 def test_loading_aspect_with_code():
+    """Test loading an aspect with a code characteristic."""
     file_path = RESOURCE_PATH / "AspectWithCode.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)
@@ -241,6 +253,7 @@ def test_loading_aspect_with_code():
 
 
 def test_loading_aspect_with_blank_node() -> None:
+    """Test loading an aspect with a blank node characteristic."""
     file_path = RESOURCE_PATH / "AspectWithBlankNode.ttl"
     samm_graph = SAMMGraph()
     samm_graph.parse(file_path)

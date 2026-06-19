@@ -12,6 +12,7 @@ class TestDefaultLocaleConstraint:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.constraints.default_locale_constraint.DefaultConstraint.__init__")
     def test_init(self, super_mock):
+        """Test DefaultLocaleConstraint initialization."""
         result = DefaultLocaleConstraint(self.meta_model_mock, "locale_code")
 
         super_mock.assert_called_once_with(self.meta_model_mock)
@@ -19,6 +20,7 @@ class TestDefaultLocaleConstraint:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.constraints.default_locale_constraint.DefaultConstraint.__init__")
     def test_locale_code(self, _):
+        """Test locale_code getter."""
         locale_constraint = DefaultLocaleConstraint(self.meta_model_mock, "locale_code")
         result = locale_constraint.locale_code
 

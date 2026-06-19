@@ -10,6 +10,7 @@
 #   SPDX-License-Identifier: MPL-2.0
 
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from esmf_aspect_meta_model_python.base.base import Base
 from esmf_aspect_meta_model_python.base.characteristics.characteristic import Characteristic
@@ -23,10 +24,18 @@ class Either(Base, ABC):
 
     @property
     @abstractmethod
-    def left(self) -> Characteristic:
-        """Left."""
+    def left(self) -> Optional[Characteristic]:
+        """Returns the left characteristic for the Either property.
+
+        Returns:
+            Optional[Characteristic]: The left characteristic, or None if not set.
+        """
 
     @property
     @abstractmethod
-    def right(self) -> Characteristic:
-        """Right."""
+    def right(self) -> Optional[Characteristic]:
+        """Returns the right characteristic for the Either property.
+
+        Returns:
+            Optional[Characteristic]: The right characteristic, or None if not set.
+        """

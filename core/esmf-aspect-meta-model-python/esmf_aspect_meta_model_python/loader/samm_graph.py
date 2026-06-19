@@ -8,6 +8,7 @@
 #  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #
 #   SPDX-License-Identifier: MPL-2.0
+
 from pathlib import Path
 from typing import List, Optional, Union
 
@@ -29,9 +30,13 @@ from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class SAMMGraph:
-    """Class representing the SAMM graph and its operations."""
+    """Represents the SAMM graph and provides operations for parsing and model instantiation.
+
+    This class manages the RDF and SAMM graphs, handles parsing, and provides methods to load and query aspect models.
+    """
 
     def __init__(self):
+        """Initializes the SAMMGraph with default graphs, cache, and version information."""
         self.rdf_graph = AdaptiveGraph()
         self.samm_graph = Graph()
         self._cache = DefaultElementCache()
@@ -43,20 +48,20 @@ class SAMMGraph:
         self._reader = None
 
     def __str__(self) -> str:
-        """Object string representation."""
+        """Returns a string representation of the SAMMGraph object."""
         return f"SAMMGraph v{self.samm_version}"
 
     def __repr__(self) -> str:
-        """Object representation."""
+        """Returns a detailed representation of the SAMMGraph object."""
         return (
             f"<SAMMGraph identifier={id(self)} (<class 'esmf_aspect_meta_model_python.loader.samm_graph.SAMMGraph'>)>"
         )
 
     def _get_rdf_graph(self, input_data: Union[str, Path], input_type: Optional[str] = None):
-        """Read the RDF graph from the given input data.
+        """Reads the RDF graph from the given input data.
 
-        This method initializes the `InputHandler` with the provided input data and type,
-        retrieves the reader, and reads the RDF graph into `self.rdf_graph`.
+        This method initializes the InputHandler with the provided input data and type, retrieves the reader,
+        and reads the RDF graph into self.rdf_graph.
 
         Args:
             input_data (Union[str, Path]): The input data to read the RDF graph from. This can be a file path or a str.
@@ -69,26 +74,21 @@ class SAMMGraph:
         self.rdf_graph = self._reader.read(input_data)
 
     def _get_samm(self):
-        """Initialize the SAMM object with the current SAMM version."""
+        """Initializes the SAMM object with the current SAMM version."""
         self._samm = SAMM(self.samm_version)
 
     def _get_samm_graph(self):
-        """Parse SAMM graph base data.
-
-        This method uses the AspectMetaModelResolver to populate samm_graph with info about SAMM elements
-        based on the current SAMM version.
-        """
+        """Parses SAMM graph base data and populates samm_graph with SAMM elements for the current version."""
         AspectMetaModelResolver().parse(self.samm_graph, self.samm_version)
 
     def parse(self, input_data: Union[str, Path], input_type: Optional[str] = None):
-        """Parse the RDF graph and initialize SAMM elements.
+        """Parses the RDF graph and initializes SAMM elements.
 
         This method reads the RDF graph from the given input data, retrieves and sets the SAMM version,
         initializes the SAMM object, and populates the SAMM graph with base data.
 
         Args:
-            input_data (Union[str, Path]): The input data to read the RDF graph from.
-                This can be a file path or a string.
+            input_data (Union[str, Path]): The input data to read the RDF graph from (file path or string).
             input_type (Optional[str]): The type of the input data. If not provided, the type will be inferred.
 
         Returns:
@@ -103,12 +103,12 @@ class SAMMGraph:
     def get_aspect_urn(self) -> Node:
         """Retrieves the URN pointing to the main aspect node of the RDF graph.
 
-        This method searches the RDF graph for the node with predicate RDF.type and object a SAMM Aspect,
-        The URN (Uniform Resource Name) of this node is then returned. This method assumes
-        that the graph contains exactly one main aspect node.
+        This method searches the RDF graph for the node with predicate RDF.type and object a SAMM Aspect.
+        The URN (Uniform Resource Name) of this node is then returned. This method assumes that the graph contains
+        exactly one main aspect node.
 
         Returns:
-            URIRef: reference to the Aspect node.
+            Node: Reference to the Aspect node.
         """
         for subject in self.rdf_graph.subjects(predicate=RDF.type, object=self._samm.get_urn(self._samm.Aspect)):
             aspect_urn = subject
@@ -119,18 +119,18 @@ class SAMMGraph:
         return aspect_urn
 
     def _get_node_from_graph(self, node: Node) -> List[Node]:
-        """Retrieve nodes from the RDF graph that match the given node type.
+        """Retrieves nodes from the RDF graph that match the given node type.
 
         Args:
             node (Node): The RDF node type to search for in the graph.
 
         Returns:
-            List[Optional[Node]]: A list of nodes from the RDF graph that match the given node type.
+            List[Node]: A list of nodes from the RDF graph that match the given node type.
         """
         return [subject for subject in self.rdf_graph.subjects(predicate=RDF.type, object=node) if subject]
 
     def get_all_model_elements(self) -> List[Node]:
-        """Retrieve all SAMM elements from the RDF graph.
+        """Retrieves all SAMM elements from the RDF graph.
 
         Returns:
             List[Node]: A list of nodes representing all model elements in the RDF graph.
@@ -148,27 +148,14 @@ class SAMMGraph:
         return model_elements
 
     def load_aspect_model(self) -> Aspect:
-        """Creates a python object(s) to represent the Aspect model graph.
+        """Creates Python objects to represent the Aspect model graph.
 
-        This function takes an RDF graph and a URN for an Aspect node and converts it into
-        a set of structured and connected Python objects that represents the Aspect model graph. The output is a
-        list of Python objects derived from the RDF graph centered around the specified Aspect node.
-
-        Args:
-            rdf_graph (RDFGraph): The RDF graph from which to create the model.
-            aspect_urn (str): The URN identifier for the main Aspect node in the RDF graph.
+        This function takes an RDF graph and a URN for an Aspect node and converts it into a set of structured and
+        connected Python objects that represent the Aspect model graph. The output is a list of Python objects derived
+        from the RDF graph centered around the specified Aspect node.
 
         Returns:
-            list: A list of Python objects that represent the Aspect elements of the Aspect model graph.
-
-        Examples:
-            # Assuming 'graph' is a predefined RDFGraph object and 'aspect_urn' is defined:
-            aspect_model = create_aspect_model_graph(graph, "urn:example:aspectNode")
-            print(aspect_model)  # This prints the list of Python objects.
-
-        Notes:
-            It's crucial that the aspect_urn corresponds to a valid Aspect node within the RDF graph;
-            otherwise, the function may not perform as expected.
+            Aspect: The Aspect object representing the Aspect model graph.
         """
         if not self.aspect:
             aspect_urn = self.get_aspect_urn()
@@ -178,16 +165,16 @@ class SAMMGraph:
             self._validate_samm_namespace_version(graph)
 
             model_element_factory = ModelElementFactory(self.samm_version, graph, self._cache)
-            self.aspect = model_element_factory.create_element(aspect_urn)
+            self.aspect = model_element_factory.create_aspect(aspect_urn)
+            self.aspect.validate()
 
         return self.aspect
 
     def _validate_samm_namespace_version(self, graph: AdaptiveGraph) -> None:
-        """
-        Validate that the SAMM version in the graph's namespace matches the detected SAMM version.
+        """Validates that the SAMM version in the graph's namespace matches the detected SAMM version.
 
         Args:
-            graph: The RDF graph whose namespaces are to be validated.
+            graph (AdaptiveGraph): The RDF graph whose namespaces are to be validated.
 
         Raises:
             ValueError: If the SAMM version in the graph's namespace does not match the detected SAMM version.
@@ -200,14 +187,15 @@ class SAMMGraph:
                 )
 
     def _get_aspect_from_elements(self):
-        """Geta and save the Aspect element from the model elements."""
+        """Gets and saves the Aspect element from the model elements."""
         if self.model_elements:
             for element in self.model_elements:
                 if isinstance(element, Aspect):
                     self.aspect = element
+                    break
 
     def load_model_elements(self) -> list[BaseImpl]:
-        """Creates a python object(s) to represent the Aspect model graph."""
+        """Creates Python objects to represent all model elements in the Aspect model graph."""
         if self.model_elements is None:
             model_elements = self.get_all_model_elements()
             graph = self.rdf_graph + self.samm_graph
@@ -215,33 +203,45 @@ class SAMMGraph:
 
             model_element_factory = ModelElementFactory(self.samm_version, graph, self._cache)
             self.model_elements = model_element_factory.create_all_graph_elements(model_elements)
+            for element in self.model_elements:
+                element.validate()
+
             self._get_aspect_from_elements()
 
         return self.model_elements
 
     def find_by_name(self, element_name: str) -> list[Base]:
-        """Find a specific model element by name, and returns the found elements
+        """Finds model elements by name and returns the found elements.
 
-        :param element_name: name or pyload of element
-        :return: list of found elements
+        Args:
+            element_name (str): Name or payload of the element.
+
+        Returns:
+            list[Base]: List of found elements.
         """
         return self._cache.get_by_name(element_name)
 
     def find_by_urn(self, urn: str) -> Optional[Base]:
-        """Find a specific model element, and returns it or undefined.
+        """Finds a specific model element by URN and returns it or None.
 
-        :param urn: urn of the model element
-        :return: found element or None
+        Args:
+            urn (str): URN of the model element.
+
+        Returns:
+            Optional[Base]: Found element or None.
         """
         return self._cache.get_by_urn(urn)
 
     def determine_access_path(self, base_element_name: str) -> list[list[str]]:
-        """Determine the access path.
+        """Determines all access paths for a given element name.
 
-        Search for the element in cache first then call "determine_element_access_path" for every found element
+        Finds elements by name in the cache and computes all possible access paths for each found element.
 
-        :param base_element_name: name of element
-        :return: list of paths found to access the respective value.
+        Args:
+            base_element_name (str): Name of the element to search for.
+
+        Returns:
+            list[list[str]]: List of paths found to access the respective value.
         """
         paths: list[list[str]] = []
         base_element_list = self.find_by_name(base_element_name)
@@ -251,10 +251,15 @@ class SAMMGraph:
         return paths
 
     def determine_element_access_path(self, base_element: Base) -> list[list[str]]:
-        """Determine the path to access the respective value in the Aspect JSON object.
+        """Determines the access path(s) for a given model element.
 
-        :param base_element: element for determine the path
-        :return: list of paths found to access the respective value.
+        Computes the path(s) to access the respective value in the Aspect JSON object for the provided element.
+
+        Args:
+            base_element (Base): The element for which to determine the path.
+
+        Returns:
+            list[list[str]]: List of paths found to access the respective value.
         """
         path: list[list[str]] = []
         if isinstance(base_element, Property):
@@ -266,10 +271,16 @@ class SAMMGraph:
         return self.__determine_access_path(base_element, path)
 
     def __determine_access_path(self, base_element: Base, path: list[list[str]]) -> list[list[str]]:
-        """Determine access path.
+        """Recursively determines all access paths for a model element.
 
-        :param base_element: element for determine the path
-        :return: list of paths found to access the respective value.
+        Traverses parent elements to build all possible access paths to the given element.
+
+        Args:
+            base_element (Base): The element for which to determine the path.
+            path (list[list[str]]): The current path(s) being constructed.
+
+        Returns:
+            list[list[str]]: List of paths found to access the respective value.
         """
         if base_element is None or base_element.parent_elements is None or len(base_element.parent_elements) == 0:
             return path

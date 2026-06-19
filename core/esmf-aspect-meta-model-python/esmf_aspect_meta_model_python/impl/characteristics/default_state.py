@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from esmf_aspect_meta_model_python.base.characteristics.state import State
 from esmf_aspect_meta_model_python.base.data_types.data_type import DataType
@@ -18,9 +18,12 @@ from esmf_aspect_meta_model_python.loader.meta_model_base_attributes import Meta
 
 
 class DefaultState(DefaultEnumeration, State):
-    """Default State class."""
+    """Default implementation of a state characteristic.
 
-    SCALAR_ATTR_NAMES = DefaultEnumeration.SCALAR_ATTR_NAMES + ["default_value"]
+    Represents a state with a set of possible values, a default value, and an optional data type.
+    """
+
+    SCALAR_ATTR_NAMES: Tuple[str, ...] = DefaultEnumeration.SCALAR_ATTR_NAMES + ("default_value",)
 
     def __init__(
         self,
@@ -29,10 +32,23 @@ class DefaultState(DefaultEnumeration, State):
         values: List,
         default_value: Any,
     ):
+        """Initializes the DefaultState.
+
+        Args:
+            meta_model_base_attributes (MetaModelBaseAttributes): The base attributes for the meta model element.
+            data_type (DataType): The data type for this state.
+            values (List): The list of possible values for the state.
+            default_value (Any): The default value for the state.
+        """
         super().__init__(meta_model_base_attributes, data_type, values)
+
         self._default_value = default_value
 
     @property
     def default_value(self):
-        """Default value."""
+        """Returns the default value for the state.
+
+        Returns:
+            Any: The default value.
+        """
         return self._default_value

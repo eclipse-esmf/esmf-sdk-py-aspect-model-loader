@@ -10,6 +10,7 @@
 #   SPDX-License-Identifier: MPL-2.0
 
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from esmf_aspect_meta_model_python.base.constraints.constraint import Constraint
 
@@ -17,9 +18,14 @@ from esmf_aspect_meta_model_python.base.constraints.constraint import Constraint
 class RegularExpressionConstraint(Constraint, ABC):
     """Regular Expression Constraint interface class.
 
-    Restricts a string value to a regular expression as defined by XQuery 1.0 and XPath 2.0 Functions and Operators."""
+    Restricts a string value to a regular expression as defined by XQuery 1.0 and XPath 2.0 Functions and Operators.
+    """
 
     @property
     @abstractmethod
-    def value(self) -> str:
-        """Value."""
+    def value(self) -> Optional[str]:
+        """Returns the regular expression value for the constraint.
+
+        Returns:
+            Optional[str]: The regular expression as a string, or None if not set.
+        """

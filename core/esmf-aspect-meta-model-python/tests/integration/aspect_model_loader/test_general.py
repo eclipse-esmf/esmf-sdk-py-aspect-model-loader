@@ -63,7 +63,7 @@ def test_aspect():
         "Describes a Property which contains plain text. This is intended exclusively for human readable strings, "
         "not for identifiers, measurement values, etc."
     )
-    assert characteristic.parent_elements[0].urn == "urn:samm:org.eclipse.esmf.test.general:2.2.0#testPropertyTwo"
+    assert characteristic.parent_elements[1].urn == "urn:samm:org.eclipse.esmf.test.general:2.2.0#testPropertyTwo"
 
     data_type = characteristic.data_type
     assert data_type.is_scalar is True

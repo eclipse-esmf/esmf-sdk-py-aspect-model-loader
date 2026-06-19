@@ -17,6 +17,7 @@ class TestDefaultOperation:
     )
     @mock.patch("esmf_aspect_meta_model_python.impl.default_operation.BaseImpl.__init__")
     def test_init(self, super_mock, set_parent_element_on_child_elements_mock):
+        """Test __init__ method."""
         result = DefaultOperation(self.meta_model_mock, [self.input_property_mock], self.output_property_mock)
 
         super_mock.assert_called_once_with(self.meta_model_mock)
@@ -26,13 +27,17 @@ class TestDefaultOperation:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.default_operation.BaseImpl.__init__")
     def test_set_parent_element_on_child_elements(self, _):
-        operation = DefaultOperation(self.meta_model_mock, [self.input_property_mock], self.output_property_mock)
+        """Test _set_parent_element_on_child_elements method."""
+        input_property_mock = mock.MagicMock(name="input_property")
+        output_property_mock = mock.MagicMock(name="output_property")
+        operation = DefaultOperation(self.meta_model_mock, [input_property_mock], output_property_mock)
 
-        self.input_property_mock.append_parent_element.assert_called_once_with(operation)
-        self.output_property_mock.append_parent_element.assert_called_once_with(operation)
+        input_property_mock.append_parent_element.assert_called_once_with(operation)
+        output_property_mock.append_parent_element.assert_called_once_with(operation)
 
     @mock.patch("esmf_aspect_meta_model_python.impl.default_operation.BaseImpl.__init__")
     def test_input_properties(self, _):
+        """Test input_properties property."""
         operation = DefaultOperation(self.meta_model_mock, [self.input_property_mock], self.output_property_mock)
         result = operation.input_properties
 
@@ -40,6 +45,7 @@ class TestDefaultOperation:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.default_operation.BaseImpl.__init__")
     def test_output_property(self, _):
+        """Test output_property property."""
         operation = DefaultOperation(self.meta_model_mock, [self.input_property_mock], self.output_property_mock)
         result = operation.output_property
 

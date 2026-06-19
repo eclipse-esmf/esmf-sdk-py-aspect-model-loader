@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-import pytest
-
 from esmf_aspect_meta_model_python.impl import DefaultCharacteristic
 
 
@@ -16,6 +14,7 @@ class TestDefaultCharacteristic:
     @mock.patch("esmf_aspect_meta_model_python.impl.characteristics.default_characteristic.isinstance")
     @mock.patch("esmf_aspect_meta_model_python.impl.characteristics.default_characteristic.BaseImpl.__init__")
     def test_init(self, super_mock, isinstance_mock):
+        """Test DefaultCharacteristic initialization."""
         isinstance_mock.return_value = True
         result = DefaultCharacteristic(self.meta_model_mock, self.data_type_mock)
 
@@ -23,14 +22,9 @@ class TestDefaultCharacteristic:
         assert result._data_type == self.data_type_mock
         self.data_type_mock.append_parent_element.assert_called_once_with(result)
 
-    def test_init_raise_exception(self):
-        with pytest.raises(ValueError) as error:
-            DefaultCharacteristic(self.meta_model_mock, None)
-
-        assert str(error.value) == "Attribute 'data_type' is required for Characteristic class."
-
     @mock.patch("esmf_aspect_meta_model_python.impl.characteristics.default_characteristic.BaseImpl.__init__")
     def test_data_type(self, _):
+        """Test data_type getter."""
         characteristic = DefaultCharacteristic(self.meta_model_mock, self.data_type_mock)
         result = characteristic.data_type
 

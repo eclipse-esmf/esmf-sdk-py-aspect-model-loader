@@ -13,6 +13,7 @@ class TestDefaultEnumeration:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.characteristics.default_enumeration.DefaultCharacteristic.__init__")
     def test_init(self, super_mock):
+        """Test DefaultEnumeration initialization."""
         result = DefaultEnumeration(self.meta_model_mock, self.data_type_mock, ["value"])
 
         super_mock.assert_called_once_with(self.meta_model_mock, self.data_type_mock)
@@ -22,6 +23,7 @@ class TestDefaultEnumeration:
         "esmf_aspect_meta_model_python.impl.characteristics.default_characteristic.DefaultCharacteristic.__init__"
     )
     def test_values(self, _):
+        """Test values getter."""
         characteristic = DefaultEnumeration(self.meta_model_mock, self.data_type_mock, ["value"])
         result = characteristic.values
 

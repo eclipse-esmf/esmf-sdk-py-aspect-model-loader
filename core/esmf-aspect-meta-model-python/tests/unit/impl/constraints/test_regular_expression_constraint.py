@@ -17,6 +17,7 @@ class TestDefaultRegularExpressionConstraint:
         "DefaultConstraint.__init__"
     )
     def test_init(self, super_mock):
+        """Test DefaultRegularExpressionConstraint initialization."""
         result = DefaultRegularExpressionConstraint(self.meta_model_mock, "value")
 
         super_mock.assert_called_once_with(self.meta_model_mock)
@@ -27,6 +28,7 @@ class TestDefaultRegularExpressionConstraint:
         "DefaultConstraint.__init__"
     )
     def test_value(self, _):
+        """Test value getter."""
         regular_expression_constraint = DefaultRegularExpressionConstraint(self.meta_model_mock, "value")
         result = regular_expression_constraint.value
 

@@ -21,54 +21,64 @@ from esmf_aspect_meta_model_python.vocabulary.samm import SAMM
 
 
 class ComplexTypeInstantiator(InstantiatorBase[T], metaclass=abc.ABCMeta):
-    """Abstract base class for the instantiators of Entity and AbstractEntity.
-    Implements helper methods for both instantiators and holds a shared
-    list of currently instantiating Entities.
+    """Abstract base class for instantiators of Entity and AbstractEntity.
+
+    This class provides helper methods for instantiating both Entity and AbstractEntity types and maintains a shared
+    list of currently instantiating entities to support cycle detection and proper instantiation order.
+
+    Attributes:
+        _instantiating_now (List[rdflib.URIRef]): Shared list of entities currently being instantiated.
     """
 
     _instantiating_now: List[rdflib.URIRef] = []
 
     def get_extended_element(self, entity_subject: rdflib.URIRef) -> Optional[str]:
-        """
-        gets the urn of the extends element and instantiates it if it
-        has not been instantiated yet.
+        """Returns the URN of the element extended by the given entity, instantiating it if needed.
+
         Args:
-            entity_subject: node of the extending element
+            entity_subject (rdflib.URIRef): Node of the extending element.
 
         Returns:
-            urn of the extended element
+            Optional[str]: URN of the extended element, or None if not found.
         """
         extended_element_node = self._aspect_graph.value(
             subject=entity_subject,
             predicate=self._samm.get_urn(SAMM.extends),
         )
+
         if extended_element_node is None:
             return None
+
         if extended_element_node not in self._instantiating_now:
-            self._model_element_factory.create_element(extended_element_node)
+            self._model_element_factory.create_element(
+                extended_element_node, entity_subject, attr_name=self._samm.get_urn(SAMM.extends)
+            )
+
         return RdfHelper.to_python(extended_element_node)
 
     def get_extending_elements(self, entity_subject: rdflib.URIRef) -> List[str]:
-        """
-        returns a list of urns of entities which extend the given entity.
-        If an extending element has not been instantiated yet, instantiate it.
+        """Returns URNs of entities that extend the given entity, instantiating them if needed.
 
-        This is relevant when an Entity is not connected to the aspect directly
-        but extends an AbstractEntity which is connected to the aspect.
+        This is relevant when an Entity is not connected to the aspect directly but extends an AbstractEntity
+        which is connected to the aspect.
 
         Args:
-            entity_subject: node of the extended element
+            entity_subject (rdflib.URIRef): Node of the extended element.
 
         Returns:
-            list of urns of the extended element
+            List[str]: List of URNs of the extending entities.
         """
         elements: List[str] = []
         all_element_subjects = self._aspect_graph.subjects(
             predicate=self._samm.get_urn(SAMM.extends),
             object=entity_subject,
         )
+
         for element_subject in all_element_subjects:
             if element_subject not in self._instantiating_now:
-                self._model_element_factory.create_element(element_subject)
+                self._model_element_factory.create_element(
+                    element_subject, entity_subject, attr_name=self._samm.get_urn(SAMM.extends)
+                )
             elements.append(RdfHelper.to_python(element_subject))
+
         return elements

@@ -12,6 +12,7 @@ class TestDefaultEncodingConstraint:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.constraints.default_encoding_constraint.DefaultConstraint.__init__")
     def test_init(self, super_mock):
+        """Test DefaultEncodingConstraint initialization."""
         result = DefaultEncodingConstraint(self.meta_model_mock, "value")
 
         super_mock.assert_called_once_with(self.meta_model_mock)
@@ -19,7 +20,9 @@ class TestDefaultEncodingConstraint:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.constraints.default_encoding_constraint.DefaultConstraint.__init__")
     def test_value(self, _):
+        """Test value getter."""
         encoding_constraint = DefaultEncodingConstraint(self.meta_model_mock, "value")
         result = encoding_constraint.value
 
         assert result == "value"
+        assert encoding_constraint._value == "value"

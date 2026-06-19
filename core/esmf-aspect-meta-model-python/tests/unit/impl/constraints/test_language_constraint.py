@@ -12,6 +12,7 @@ class TestDefaultLanguageConstraint:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.constraints.default_language_constraint.DefaultConstraint.__init__")
     def test_init(self, super_mock):
+        """Test DefaultLanguageConstraint initialization."""
         result = DefaultLanguageConstraint(self.meta_model_mock, "language_code")
 
         super_mock.assert_called_once_with(self.meta_model_mock)
@@ -19,6 +20,7 @@ class TestDefaultLanguageConstraint:
 
     @mock.patch("esmf_aspect_meta_model_python.impl.constraints.default_language_constraint.DefaultConstraint.__init__")
     def test_language_code(self, _):
+        """Test language_code getter."""
         language_constraint = DefaultLanguageConstraint(self.meta_model_mock, "language_code")
         result = language_constraint.language_code
 

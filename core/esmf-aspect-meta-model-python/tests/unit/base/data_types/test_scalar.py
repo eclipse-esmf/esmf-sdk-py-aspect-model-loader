@@ -20,7 +20,13 @@ class ScalarInterface(Scalar):
 class TestScalar:
     """Scalar interface test suite."""
 
-    def test_resp(self):
+    def test_is_scalar(self):
+        scalar = ScalarInterface("urn")
+        result = scalar.is_scalar
+
+        assert result is True
+
+    def test_repr(self):
         scalar = ScalarInterface("urn")
         result = repr(scalar)
 
