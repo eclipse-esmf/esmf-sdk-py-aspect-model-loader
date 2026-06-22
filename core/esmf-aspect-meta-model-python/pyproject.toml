@@ -5,8 +5,10 @@ description = "Load Aspect Models based on the Semantic Aspect Meta Model"
 authors = [
     { name = "Eclipse Semantic Modeling Framework" },
     { name = "Hanna Shalamitskaya", email = "external.Hanna.Shalamitskaya@de.bosch.com" },
+    { name = "Oleksandr Muzyka", email = "external.Oleksandr.Muzyka@bosch.com" },
     { name = "Andreas Textor", email = "Andreas.Textor@de.bosch.com" },
     { name = "Georg Schmidt-Dumont", email = "Georg.Schmidt-Dumont@de.bosch.com" },
+    { name = "Michele Santoro", email = "michele.santoro@de.bosch.com" },
     { name = "Nico Makowe" },
     { name = "Aghyad Farrouh" },
     { name = "Lars Heppler", email = "Lars.Heppler@de.bosch.com" },
@@ -28,7 +30,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://projects.eclipse.org/projects/dt.esmf"
-Repository = "https://github.com/bci-oss/esmf-sdk-py-aspect-model-loader"
+Repository = "https://github.com/eclipse-esmf/esmf-sdk-py-aspect-model-loader"
 Documentation = "https://eclipse-esmf.github.io/python-sdk-guide/index.html"
 
 [project.scripts]

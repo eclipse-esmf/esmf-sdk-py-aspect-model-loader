@@ -6,53 +6,35 @@ The classes in here are derived from the base folder.
 
 Every Model Class in Default Implementation of the SAMM Aspect Meta Model 
 is derived from the DefaultBase class. 
-It consists of the following attributes:
-```
-BASE ATTRIBUTES
-├── meta_model_version
-├── urn
-├── name
-├── preferred_names
-├── descriptions
-└── see
-```
-An aspect has the following hierarchy:
-```
-Schmematic object structure of an aspect
+The base attributes (referred to as **BASE ATTRIBUTES** below) are:
 
-aspect
-├── BASE ATTRIBUTES
-├── is_collection_aspect
-├── properties
-│   ├──[0]
-│   │   ├── BASE ATTRIBUTES
-│   │   ├── characteristic
-│   │   │   ├── BASE ATTRIBUTES
-│   │   │   ├── data_type
-│   │   │   └── ...
-│   │   ├── example_value
-│   │   ├── optional
-│   │   └── not_in_payload
-│   ├──[1]
-│   │   └── ...
-│   └── ...
-├── operations
-│   ├──[0]   
-│   │   ├── BASE ATTRIBUTES
-│   │   ├── input_properties
-│   │   │   └── ...
-│   │   └── output_properties
-│   │       └── ...
-│   ├──[1]
-│   │   └── ...
-│   └── ...
-└── events
-    ├──[0]   
-    │   ├── BASE ATTRIBUTES
-    ├──[1]
-    │   └── ...
-    └── ...
-```
+- `meta_model_version`
+- `urn`
+- `name`
+- `preferred_names`
+- `descriptions`
+- `see`
+
+An aspect has the following schematic object structure:
+
+- `aspect`
+  - *BASE ATTRIBUTES*
+  - `is_collection_aspect`
+  - `properties` (list), each:
+    - *BASE ATTRIBUTES*
+    - `characteristic`
+      - *BASE ATTRIBUTES*
+      - `data_type`
+      - ...
+    - `example_value`
+    - `optional`
+    - `not_in_payload`
+  - `operations` (list), each:
+    - *BASE ATTRIBUTES*
+    - `input_properties` (list)
+    - `output_properties` (list)
+  - `events` (list), each:
+    - *BASE ATTRIBUTES*
 
 # Property
 An instance of type `Property` has exactly one characteristic and additionally
@@ -72,7 +54,8 @@ characteristic.
 `Collection` is a subclass of `Characteristic`. At the same time it is the base class for
 other collection elements like `List` and `SortedSet`.
 
-A collection has a 
+A collection optionally has an `element_characteristic` that describes the characteristic of the
+elements it contains.
 
 ## Trait
 An instance of `Trait` wraps one instance of `Characteristic` 
@@ -86,41 +69,31 @@ with the given constraints.
 Note that the class `Trait` is a subclass of `Characteristic` to avoid confusion.
 
 The hierarchy of the `Trait` looks like this:
-```
-Schematic object Structure of a Trait
 
-Trait
-├── BASE ATTRIBUTES
-├── constraints
-│   ├──[0]
-│   │   ├── BASE ATTRIBUTES
-│   │   └── ...
-│   ├──[1]
-│   │   └── ...
-│   └── ...
-└── base_characteristic
-```
+- `Trait`
+  - *BASE ATTRIBUTES*
+  - `constraints` (list), each:
+    - *BASE ATTRIBUTES*
+  - `base_characteristic`
+
 ### Example
 If the characteristic is a `Scalar`
 that should only have values between 1 and 10 then the
 hierarchy of the `Trait` could look like this:
-```
-Example structure of a Trait
 
-Trait
-├── BASE ATTRIBUTES
-├── constraints
-│   └──[0]: RangeConstraint
-│       ├── BASE ATTRIBUTES
-│       ├── min_value = 1
-│       └── max_value = 10
-└── base_characteristic: Characteristic
-    └── data_type: Scalar
-        └── urn = xsd:Integer
-```
+- `Trait`
+  - *BASE ATTRIBUTES*
+  - `constraints` (list):
+    - `[0]` `RangeConstraint`
+      - *BASE ATTRIBUTES*
+      - `min_value = 1`
+      - `max_value = 10`
+  - `base_characteristic`: `Characteristic`
+    - `data_type`: `Scalar`
+      - `urn = xsd:Integer`
 
 # DataType
-A DataType represents some value. It can be represened by a simple `Scalar` or by
+A DataType represents some value. It can be represented by a simple `Scalar` or by
 a `ComplexType`. Complex types can either be of type `Entity` or `AbstractEntity`.
 
 `Entities` and `AbstractEntities` have a number of properties and can extend other entities.

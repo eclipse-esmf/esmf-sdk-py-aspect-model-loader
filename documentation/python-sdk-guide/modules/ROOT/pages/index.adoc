@@ -53,7 +53,7 @@ uv --version
 
 Aspect Models are stored as RDF Graphs in `.ttl` (RDF Turtle) files.
 The Aspect Model Loader for Python offers a SAMMGraph class that provides two main methods: `load_aspect_model` and `load_model_elements`.
-Theese methods allows to read a Turtle file and parses the Aspect Model and return either a root Aspect node or a list of all elements from the Aspect Model.
+These methods allow you to read a Turtle file, parse the Aspect Model and return either a root Aspect node or a list of all elements from the Aspect Model.
 The Aspect has references to all of its children (e.g., Properties and Operations).
 
 === Installation
@@ -72,10 +72,12 @@ pip install esmf-aspect-model-loader
 
 You can specify the version of the package by adding the version number after the package name.
 For example, to install a specific version of the package, you can use the following command:
-[source,bash,subs=attributes+]
+[source,bash]
 ----
-pip install esmf-aspect-model-loader=={esmf-sdk-py-aspect-model-loader-version}
+pip install esmf-aspect-model-loader==<version>
 ----
+Replace `<version>` with the desired release; the available versions are listed on
+https://pypi.org/project/esmf-aspect-model-loader/[PyPI].
 
 For more detailed information how to install a library with pip please read
 https://pip.pypa.io/en/stable/user_guide/#installing-packages[pip Installing Packages guide].
@@ -90,10 +92,12 @@ uv add esmf-aspect-model-loader
 
 You can specify the version of the package by adding the version number after the package name.
 For example, to install a specific version of the package, you can use the following command:
-[source,bash,subs=attributes+]
+[source,bash]
 ----
-uv add esmf-aspect-model-loader=={esmf-sdk-py-aspect-model-loader-version}
+uv add esmf-aspect-model-loader==<version>
 ----
+Replace `<version>` with the desired release; the available versions are listed on
+https://pypi.org/project/esmf-aspect-model-loader/[PyPI].
 
 For more detailed information how to add a library via uv please read https://docs.astral.sh/uv/concepts/projects/dependencies/[uv dependencies guide].
 
@@ -137,7 +141,7 @@ Both, relative paths and absolute paths are allowed.
 
 === Traversing the Aspect Model
 
-The attributes of an Aspect can be accessed with like this:
+The attributes of an Aspect can be accessed like this:
 
 [source,python]
 ----
@@ -153,10 +157,10 @@ operations = aspect.operations
 events = aspect.events
 ----
 
-=== Implementation of the OpenAPI specification
+=== Consuming an Aspect via its JSON payload
 
-The Aspect Models Editor provides easy ways to generate an example for an interface via Export JSON functions.
-Based on its structure, you can prepare either a server to send data, or a client to receive via the API.
+The Aspect Model Editor can export an example JSON payload for an Aspect via its _Export JSON_ function.
+For the Movement Aspect the payload looks as follows:
 
 [source,json]
 ----
@@ -172,66 +176,25 @@ Based on its structure, you can prepare either a server to send data, or a clien
 }
 ----
 
-==== A simple example of the server
-[source,python]
-----
-import random
-
-
-def generate_random_float():
-    """Generate a random float value."""
-    return round(random.random(), random.randint(0, 5))
-
-def send_movement_value():
-    """A simple snippet to generate Movement data."""
-    traffic_lights = ["green", "yellow", "red"]
-    movement = {
-        "isMoving": "true" if random.randint(0, 1) else "false",
-        "position": {
-            "altitude": generate_random_float(),
-            "latitude": generate_random_float(),
-            "longitude": generate_random_float()
-        },
-        "speed": generate_random_float(),
-        "speedLimitWarning": traffic_lights[random.randint(0, len(traffic_lights) - 1)]
-    }
-
-    return movement
-----
-
-==== Consumer Example
-[source,python]
-----
-import json
-import requests
-
-def get_movement(url, method="get"):
-    """Get a movement."""
-    response = requests.request(method, url)
-
-    if response.status_code != 200:
-        raise Exception(response.text)
-    else:
-        movement = json.loads(response.text)
-
-        return movement
-----
-
-==== Example of the class for Movement Aspect Model
+The example below shows how to load the Aspect Model with the Aspect Model Loader and expose the
+payload values through a small wrapper class.
 
 [source,python]
 ----
 import json
 import requests
 
-from esmf_aspect_meta_model_python.loader.aspect_loader import AspectLoader
+from esmf_aspect_meta_model_python import SAMMGraph
 
-loader = AspectLoader()
 
 class MovementAspect:
     def __init__(self, path_to_turtle_file):
         self._ttl_file_path = path_to_turtle_file
-        self._aspect = loader.load_aspect_model(self._ttl_file_path)
+
+        # Parse the Turtle file and load the Aspect model.
+        samm_graph = SAMMGraph()
+        samm_graph.parse(self._ttl_file_path)
+        self._aspect = samm_graph.load_aspect_model()
         self._movement = None
 
         self.name = None
