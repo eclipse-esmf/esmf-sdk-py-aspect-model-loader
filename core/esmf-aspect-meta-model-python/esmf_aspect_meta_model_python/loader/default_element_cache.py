@@ -141,7 +141,9 @@ class DefaultElementCache(CacheStrategy):
         """Initialize the instance cache, active path, and cycle reference store."""
         self._instance_cache: dict[str, Base] = {}
         self._active_path: set = set()
-        self._cycle_reference_store: set[DeferredReference] = set()
+        # Dict keys keep insertion order (guaranteed since Python 3.7) and deduplicate
+        # via DeferredReference.__hash__/__eq__, giving deterministic restoration order.
+        self._cycle_reference_store: dict[DeferredReference, None] = {}
 
     def add_to_active_path(self, node):
         """Add a node to the active path (for cycle detection during recursion)."""
@@ -157,13 +159,13 @@ class DefaultElementCache(CacheStrategy):
 
     def add_deferred_reference(self, deferred_ref: DeferredReference):
         """Add a DeferredReference to the cycle reference store for later restoration, only if not already present."""
-        self._cycle_reference_store.add(deferred_ref)
+        self._cycle_reference_store[deferred_ref] = None
 
     def restore_cycle_references(self):
         """Restore all deferred cyclic references after object creation.
 
-        Iterates over the cycle reference store and sets the appropriate attributes on parent objects
-        to reference the now-created target objects.
+        Iterates over the cycle reference store in insertion order and sets the appropriate attributes on parent
+        objects to reference the now-created target objects.
         """
         for record in self._cycle_reference_store:
             record.restore(self)
