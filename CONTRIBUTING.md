@@ -28,13 +28,17 @@ Records](https://adr.github.io/madr/) in [documentation/decisions/](documentatio
 
 We follow the [Git branching guidance](https://docs.microsoft.com/en-us/azure/devops/repos/git/git-branching-guidance?view=azure-devops).
 
-More specifically the repository has the following branches:
+More specifically the repository uses the following branches:
 
-| name of branch                           | description                                                                                                                                                                                                                                                           |
-|------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `main`                                   | Contains the latest state of the repository                                                                                                                                                                                                                           |
-| `v{version_number}-RC{rc_number}`        | A state on which the working group agreed on as a release candidate but which is missing the approval by the OMP.                                                                                                                                                     |
-| `v{version_number}`                      | A release of the respective version which is approved by the working group and the OMP.                                                                                                                                                                               |
+| name of branch                     | description                                                                                                                                    |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `main`                             | Contains the latest state of the repository.                                                                                                   |
+| `<major>.<minor>.x` (e.g. `2.3.x`) | Maintenance branch for a released minor version. It is created automatically by the release workflow; patch releases are cut from this branch. |
+| `<issue-number>-<feature-name>`    | A feature branch (developed in a fork) that references an issue and targets `main` via a pull request. See [Pull Requests](#pull-requests).    |
+
+Released versions are marked with annotated git tags of the form `v<major>.<minor>.<patch>`
+(e.g. `v2.3.0`); pre-releases use a suffix (e.g. `v2.3.0-M1`). See
+[Version Syntax for Specific Environments](#version-syntax-for-specific-environments).
 
 ## Issues
 
@@ -115,19 +119,17 @@ end. Also, all contributions must have the same license as the source. The heade
 following template:
 
 ```
-/*
- * Copyright (c) {YEAR} {NAME OF COMPANY X} 
- * Copyright (c) {YEAR} {NAME OF COMPANY Y} 
- *
- * See the AUTHORS file(s) distributed with this work for additional
- * information regarding authorship.
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * SPDX-License-Identifier: MPL-2.0
- */
+#  Copyright (c) {YEAR} {NAME OF COMPANY X}
+#  Copyright (c) {YEAR} {NAME OF COMPANY Y}
+#
+#  See the AUTHORS file(s) distributed with this work for additional
+#  information regarding authorship.
+#
+#  This Source Code Form is subject to the terms of the Mozilla Public
+#  License, v. 2.0. If a copy of the MPL was not distributed with this
+#  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+#  SPDX-License-Identifier: MPL-2.0
 ```
 
 When using the template, one must replace "{NAME OF COMPANY X}" with the name of the involved
@@ -185,7 +187,7 @@ vX.Y.Z-[pre-release-identifier]
 
 Examples:
 
-v1.0.0-RC1, v1.0.0
+v2.3.0-M1, v2.3.0
 
 # Resources
 

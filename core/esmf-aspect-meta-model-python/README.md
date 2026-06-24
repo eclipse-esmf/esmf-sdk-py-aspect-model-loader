@@ -196,6 +196,19 @@ be running with the tox:
 - pep8: static code checks (PEP8 style) with MyPy and Black
 - py310: unit and integration tests
 
+### tox-uv plugin
+
+`tox` is integrated with `uv` through the [`tox-uv`](https://github.com/tox-dev/tox-uv) plugin. Both `tox` and 
+`tox-uv` are declared as `dev` dependencies in [pyproject.toml](pyproject.toml), so a single `uv sync` installs 
+everything required - no separate installation step is needed.
+
+The two environments use the plugin differently (see [tox.ini](tox.ini)):
+- `pep8` uses the `uv-venv-lock-runner` provided by `tox-uv`, which provisions the environment directly from the 
+  pinned `uv.lock` and installs the `dev` dependency group. This guarantees the linters run with the exact, locked 
+  versions.
+- `py310` uses the default runner and explicitly runs `uv sync` and `uv run download-samm-release` in its 
+  `commands_pre` to prepare dependencies and the SAMM meta model files before executing the test suite.
+
 ```console
 # run all checks use the next command
 uv run tox

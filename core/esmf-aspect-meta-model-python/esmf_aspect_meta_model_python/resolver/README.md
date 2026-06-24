@@ -11,18 +11,18 @@ The meta model elements are defined in the `samm-aspect-meta-model` folder which
     samm:properties (myProperty) ;
 
 :myProperty a samm:Property ;
-    samm:charactersitic myCharacteristic .
+    samm:characteristic myCharacteristic .
 
 ...
 ```
 
 # Resolvers
 
-When the `AspectLoader` loads an aspect model from a `turtle.ttl`, it generates an RDF graph.
+When the `SAMMGraph` loads an aspect model from a `turtle.ttl`, it generates an RDF graph.
 This graph only contains the nodes defined in the `turtle.ttl` and not the nodes neither from the SAMM turtles 
 nor model namespace links.
 
-Afterwords, the `AspectLoader` can load the aspect model.
+Afterwards, the `SAMMGraph` can load the aspect model.
 
 The task of the `Resolver(s)` is to:
 - load the nodes from the SAMM turtles into the rdf graph;
@@ -46,7 +46,7 @@ Meta model resolver is an interface for the classes to load a SAMM definition fi
 
 ### Namespace resolver 
 
-This resolver is implemented a logic for loading model spreaded across several files (in one namespace) and namespaces.
+This resolver implements the logic for loading a model spread across several files (in one namespace) and namespaces.
 
 | *Class name*            | *Interface*           | Note            |
 |-------------------------|-----------------------|-----------------|

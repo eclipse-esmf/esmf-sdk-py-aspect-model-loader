@@ -4,7 +4,7 @@ of an aspects by a turtle file.
 
 The instantiator folder contains a number of instantiators that handle the instantiation of model elements.
 Each instantiator is responsible for exactly one type of model element.
-Additionally, there are the classes `AspectLoader`, `Instantiator`, `ModelElementFactory` and `MetaModelBaseAttributes`.
+Additionally, there are the classes `SAMMGraph`, `Instantiator`, `ModelElementFactory` and `MetaModelBaseAttributes`.
 
 # MetaModelBaseAttributes
 A wrapper class that holds all attributes of the class `DefaultBase`. It is used as
@@ -22,12 +22,13 @@ BaseAttributes
 An instance of `MetaModelBaseAttributes` is created with the static method `MetaModelBaseAttributes.from_meta_model_element(element_node)` 
 which extracts the attributes from a given node of the aspect graph.
 
-# AspectLoader
-The AspectLoader is the entry point for the instantiation.
-To instantiate a turtle call the static method `AspectLoader.load_aspect_model(file_path)` 
-where `file_path` is the path to the .ttl-file.
+# SAMMGraph
+The `SAMMGraph` is the entry point for the instantiation.
+First parse a Turtle file with `samm_graph.parse(file_path)` (where `file_path` is the path to the
+`.ttl` file), then call `samm_graph.load_aspect_model()` to instantiate the root Aspect, or
+`samm_graph.load_model_elements()` to instantiate all elements of the graph.
 
-The AspectLoader creates an instance of the ModelElementFactory which
+The `SAMMGraph` creates an instance of the `ModelElementFactory` which
 then creates an aspect instance with all of its children.
 
 # Abstract _Instantiator[T]_

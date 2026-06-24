@@ -4,47 +4,66 @@ It can be seen as a contract that establishes a fixed structure and inheritance 
 The classes should not be instantiated because they are abstract which is similar to interfaces in Java.
 
 # Inheritance hierarchy
-```
-HasUrn
-├───────────────────────────────────────────────── DataType
-└── IsDescribed                                    ├── Scalar
-    └── Base                    HasProperties      │
-        ├── StructureElement <──┘                  │
-        │   ├── Aspect                             │
-        │   └── ComplexType <──────────────────────┘
-        │       ├── AbstractEntity
-        │       └── Entity
-        ├── Characteristic
-        │   ├── Code
-        │   ├── Collection
-        │   │   ├── List
-        │   │   ├── Set
-        │   │   └── SortedSet
-        │   │       └── TimeSeries
-        │   ├── Either
-        │   ├── Enumeration
-        │   │   └── State
-        │   ├── SingleEntity
-        │   ├── StructuredValue
-        │   ├── Quantifiable
-        │   │   ├── Duration
-        │   │   └── Measurement
-        │   └── Trait
-        ├── Constraint
-        │   ├── EncodingConstraint
-        │   ├── FixedPointConstraint
-        │   ├── LanguageConstraint
-        │   ├── LengthConstraint
-        │   ├── LocaleConstraint
-        │   ├── RangeConstraint
-        │   └── RegularExpressionConstraint
-        ├── Namespace
-        ├── Event
-        ├── Operation
-        ├── Property
-        ├── QuantityKind
-        ├── Unit
-        └── Value
 
-BoundDefiniton
+The diagram below shows the inheritance hierarchy of the base (interface) classes. `HasUrn`,
+`IsDescribed` and `HasProperties` are abstract base classes; `StructureElement` and `ComplexType`
+use multiple inheritance.
+
+```mermaid
+classDiagram
+    HasUrn <|-- IsDescribed
+    HasUrn <|-- DataType
+    IsDescribed <|-- Base
+
+    Base <|-- StructureElement
+    HasProperties <|-- StructureElement
+    StructureElement <|-- Aspect
+    StructureElement <|-- ComplexType
+    DataType <|-- ComplexType
+    DataType <|-- Scalar
+    ComplexType <|-- AbstractEntity
+    ComplexType <|-- Entity
+
+    Base <|-- Characteristic
+    Characteristic <|-- Code
+    Characteristic <|-- Collection
+    Collection <|-- List
+    Collection <|-- Set
+    Collection <|-- SortedSet
+    SortedSet <|-- TimeSeries
+    Characteristic <|-- Enumeration
+    Enumeration <|-- State
+    Characteristic <|-- SingleEntity
+    Characteristic <|-- StructuredValue
+    Characteristic <|-- Quantifiable
+    Quantifiable <|-- Duration
+    Quantifiable <|-- Measurement
+    Characteristic <|-- Trait
+
+    Base <|-- Either
+    Base <|-- Constraint
+    Constraint <|-- EncodingConstraint
+    Constraint <|-- FixedPointConstraint
+    Constraint <|-- LanguageConstraint
+    Constraint <|-- LengthConstraint
+    Constraint <|-- LocaleConstraint
+    Constraint <|-- RangeConstraint
+    Constraint <|-- RegularExpressionConstraint
+
+    Base <|-- Namespace
+    Base <|-- Event
+    Base <|-- Operation
+    Base <|-- AbstractProperty
+    AbstractProperty <|-- Property
+    Base <|-- QuantityKind
+    Base <|-- Unit
+    QuantityKind <|-- Unit
+    Base <|-- Value
+
+    class HasUrn { <<abstract>> }
+    class IsDescribed { <<abstract>> }
+    class HasProperties { <<abstract>> }
 ```
+
+> Note: `BoundDefinition` is a standalone `enum.Enum` (the upper/lower boundary rule for a
+> `RangeConstraint`) and is therefore not part of the class hierarchy above.

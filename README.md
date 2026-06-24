@@ -10,7 +10,6 @@
     - [esmf-aspect-meta-model-python](#esmf-aspect-meta-model-python)
 - [Version Handling](#version-handling)
     - [SAMM Versioning](#samm-versioning)
-    - [API Versioning](#api-versioning)
 - [About](#about)
     - [Building](#building)
     - [Contributors](#contributors)
@@ -70,16 +69,17 @@ generated source code artifacts. Any form of source code generator will use the 
 
 ## Version Handling
 
-The aspect meta model loader work with the SAMM versions specified in the [download_samm_release.py](core/esmf-aspect-meta-model-python/esmf_aspect_meta_model_python//samm_aspect_meta_model/download_samm_release.py). 
+The aspect meta model loader work with the SAMM versions specified in the [download_samm_release.py](core/esmf-aspect-meta-model-python/scripts/samm/download_samm_release.py). 
 This version will be used for deployment.
 
 As SAMM evolves over time, the Aspect Meta Model Loader should also adapt and evolve accordingly.
 Due to this fact it is important to understand the versioning concept that is applied to the SAMM,
 APIs and SDK components that are derived from them.
 
-In case of a prerelease there will be a postfix added and it will be released under Github.
-The way to access the artifact is described
-in [Github-Installing a package](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#installing-a-package)
+In case of a prerelease a PEP 440 suffix is added to the version (e.g. `2.3.0rc1`) and the package is
+published to PyPI as a pre-release. Install a specific (pre-)release with
+`pip install esmf-aspect-model-loader==<version>` or `uv add esmf-aspect-model-loader==<version>`.
+Released artifacts are also attached to the corresponding [GitHub release](https://github.com/eclipse-esmf/esmf-sdk-py-aspect-model-loader/releases).
 
 ### SAMM Versioning
 
@@ -121,7 +121,7 @@ order to e.g. build a package or run the tests for a package navigate to the pac
 
 ### Contributors
 
-... and you? Feel free to add [yourself](AUTHORS.md) to this list when issuing your PR!
+... and you? Feel free to add yourself to the [`authors` list in `pyproject.toml`](core/esmf-aspect-meta-model-python/pyproject.toml) when issuing your PR!
 
 ### Contribution Guidelines
 
@@ -146,6 +146,7 @@ introducing too many transitive dependencies downstream.
 | pytest-dev/pytest-cov | MIT License (MIT)                    | Development dependency |
 | pytest-sugar          | BSD License (BSD)                    | Development dependency |
 | tox                   | MIT License (MIT)                    | Development dependency |
+| tox-uv                | MIT License (MIT)                    | Development dependency |
 | types-requests        | Apache Software License (Apache 2.0) | Development dependency |
 
 ### Documentation

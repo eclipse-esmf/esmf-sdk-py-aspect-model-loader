@@ -19,7 +19,10 @@ The libraries black, flake8 and isort are also used so that the code can be chec
 ## Documentation
 
 ### Developer Documentation
-Developer documentation is put into a README.md placed in the project root. This should contain documentation like:
+Developer documentation is provided in `README.md` files: a top-level `README.md` gives an overview of
+the repository, and each component has its own `README.md` (for example the
+`core/esmf-aspect-meta-model-python` module and its subpackages such as `base`, `impl`, `loader` and
+`resolver`). This documentation should cover topics like:
 * Checking out the source code and getting it to run/build
 * Mandatory (external system) dependencies and how to set them up (e.g. databases)
 * Configuration options and how to apply them

@@ -1,13 +1,7 @@
 # Authors
 
-The following people have contributed to this repository:
+The authoritative list of authors and contributors is maintained as the
+[`[project].authors`](core/esmf-aspect-meta-model-python/pyproject.toml) field in
+`pyproject.toml`, which serves as the single source of truth.
 
-* [Hanna Shalamitskaya](https://github.com/Hanna-Shalamitskaya-EPAM), external.Hanna.Shalamitskaya@de.bosch.com
-* [Oleksandr Muzyka](https://github.com/o-muzyka), external.Oleksandr.Muzyka@bosch.com
-* [Andreas Textor](https://github.com/atextor), Robert Bosch GmbH, andreas.textor@de.bosch.com
-* Georg Schmidt-Dumont, Robert Bosch GmbH, georg.schmidt-dumont@de.bosch.com
-* [Michele Santoro](https://github.com/michelu89), Robert Bosch GmbH, michele.santoro@de.bosch.com
-* Nico Makowe
-* Aghyad Farrouh
-
-Please add yourself to this list, if you contribute to the content.
+If you contribute to this repository, please add yourself there.
