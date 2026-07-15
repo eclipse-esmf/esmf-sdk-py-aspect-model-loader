@@ -1,6 +1,6 @@
 [project]
 name = "esmf-aspect-model-loader"
-version = "2.3.0.dev0"
+version = "2.3.0"
 description = "Load Aspect Models based on the Semantic Aspect Meta Model"
 authors = [
     { name = "Eclipse Semantic Modeling Framework" },
