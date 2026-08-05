@@ -476,6 +476,14 @@ class TestSammCliFunctions:
             SAMMCLICommands.TO_JSON, "path_to_ttl_model", "flag", capture=False, arg_key="value"
         )
 
+    def test_to_parquet(self, call_function_mock, samm_cli):
+        result = samm_cli.to_parquet("path_to_ttl_model", "flag", arg_key="value")
+
+        assert result is call_function_mock.return_value
+        call_function_mock.assert_called_once_with(
+            SAMMCLICommands.TO_PARQUET, "path_to_ttl_model", "flag", capture=False, arg_key="value"
+        )
+
     def test_to_html(self, call_function_mock, samm_cli):
         result = samm_cli.to_html("path_to_ttl_model", "flag", arg_key="value")
 

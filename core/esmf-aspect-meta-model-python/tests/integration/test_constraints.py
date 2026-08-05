@@ -15,20 +15,20 @@ import pytest
 
 from esmf_aspect_meta_model_python import SAMMGraph
 
-RESOURCE_PATH = Path("tests_invalid/resources")
+RESOURCE_PATH = Path("tests/integration/resources/org.eclipse.esmf.samm.test/1.0.0")
 
 
 def test_trait_missing_base_characteristic():
     file_path = RESOURCE_PATH / "trait_missing_base_characteristic.ttl"
     samm_graph = SAMMGraph()
-    samm_graph.parse(file_path)
-    with pytest.raises(ValueError):
+    with pytest.raises(RuntimeError):
+        samm_graph.parse(file_path)
         samm_graph.load_aspect_model()
 
 
 def test_trait_missing_constraint():
     file_path = RESOURCE_PATH / "trait_missing_constraint.ttl"
     samm_graph = SAMMGraph()
-    samm_graph.parse(file_path)
-    with pytest.raises(ValueError):
+    with pytest.raises(RuntimeError):
+        samm_graph.parse(file_path)
         samm_graph.load_aspect_model()

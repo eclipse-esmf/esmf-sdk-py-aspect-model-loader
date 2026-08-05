@@ -141,6 +141,7 @@ introducing too many transitive dependencies downstream.
 | psf/black             | MIT License (MIT)                    | Development dependency |
 | nedbat/coverage       | Apache Software License (Apache 2.0) | Development dependency |
 | isort                 | MIT License (MIT)                    | Development dependency |
+| polars                | MIT License (MIT)                    | Development dependency |
 | python/mypy           | MIT License (MIT)                    | Development dependency |
 | pytest                | MIT License (MIT)                    | Development dependency |
 | pytest-dev/pytest-cov | MIT License (MIT)                    | Development dependency |

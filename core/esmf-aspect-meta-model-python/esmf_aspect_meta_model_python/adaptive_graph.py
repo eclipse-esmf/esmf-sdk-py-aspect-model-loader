@@ -14,26 +14,37 @@ from esmf_aspect_meta_model_python.samm_cli import SammCli
 class AdaptiveGraph(Graph):  # TODO: avoid double parsing when an upgrade is not performed
     """An RDF graph that can adaptively upgrade SAMM files using the SAMM CLI."""
 
-    _samm_cli = SammCli()
+    _samm_cli = None  # Initialize as None
 
     def __init__(self, samm_version: str = SAMM_VERSION, *args, **kwargs) -> None:
+        """Initialize the graph with a target SAMM version used to detect and trigger upgrades."""
         super().__init__(*args, **kwargs)
 
         self._samm_version = samm_version
 
+    @classmethod
+    def _get_samm_cli(cls) -> SammCli:
+        """Get or create the SammCli instance (lazy initialization)."""
+        if cls._samm_cli is None:
+            cls._samm_cli = SammCli()
+
+        return cls._samm_cli
+
     def _upgrade_ttl_file(self, file_path: pathlib.Path) -> str:
         """Run SAMM CLI prettyprint to upgrade a TTL file to the latest version."""
         try:
-            return self._samm_cli.prettyprint(str(file_path), capture=True)
+            return self._get_samm_cli().prettyprint(str(file_path), capture=True)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"SAMM CLI failed for {file_path}:\n{e.stdout}\n{e.stderr}") from e
 
     def _upgrade_source(self, source_path: pathlib.Path) -> str:
+        """Log a mismatch warning for a file source and delegate to _upgrade_ttl_file."""
         print(f"[INFO] SAMM version mismatch detected in {source_path}. Upgrading...")
 
         return self._upgrade_ttl_file(source_path)
 
     def _upgrade_data(self, data: str | bytes) -> str:
+        """Write inline data to a temp TTL file, upgrade it via SAMM CLI, then delete the temp file."""
         print(  # TODO: improve logging
             f"[INFO] SAMM version mismatch detected in provided data (target v{self._samm_version}) Upgrading..."
         )

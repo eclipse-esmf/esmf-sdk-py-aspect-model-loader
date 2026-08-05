@@ -204,6 +204,16 @@ class SammCli:
         """
         return self._call_function(SAMMCLICommands.TO_JSON, path_to_model, *args, capture=capture, **kwargs)
 
+    def to_parquet(self, path_to_model, *args, capture=False, **kwargs):
+        """Generate example Parquet payload data for an Aspect Model.
+
+        param path_to_model: local path to the aspect model file (*.ttl)
+        possible arguments:
+            - output, -o: output file path (default: stdout)
+            - custom-resolver: use an external resolver for the resolution of the model elements
+        """
+        return self._call_function(SAMMCLICommands.TO_PARQUET, path_to_model, *args, capture=capture, **kwargs)
+
     def to_html(self, path_to_model, *args, capture=False, **kwargs):
         """Generate HTML documentation for an Aspect Model.
 

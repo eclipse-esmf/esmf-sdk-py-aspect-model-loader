@@ -33,6 +33,7 @@ class SAMMCLICommands:
     TO_OPENAPI = "to openapi"
     TO_SCHEMA = "to schema"
     TO_JSON = "to json"
+    TO_PARQUET = "to parquet"
     TO_HTML = "to html"
     TO_PNG = "to png"
     TO_SVG = "to svg"
