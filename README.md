@@ -113,7 +113,7 @@ order to e.g. build a package or run the tests for a package navigate to the pac
 
 *run tests*
 
-`uv run tox -e py310`
+`uv run tox -e py311`
 
 *run code style*
 

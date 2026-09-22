@@ -194,7 +194,7 @@ is located.
 `tox` is used for the tests automation purpose. There are two environments with different purposes and tests can 
 be running with the tox:
 - pep8: static code checks (PEP8 style) with MyPy and Black
-- py310: unit and integration tests
+- py311, py312, py313 and py314: unit and integration tests
 
 ### tox-uv plugin
 
@@ -206,16 +206,19 @@ The two environments use the plugin differently (see [tox.ini](tox.ini)):
 - `pep8` uses the `uv-venv-lock-runner` provided by `tox-uv`, which provisions the environment directly from the 
   pinned `uv.lock` and installs the `dev` dependency group. This guarantees the linters run with the exact, locked 
   versions.
-- `py310` uses the default runner and explicitly runs `uv sync` and `uv run download-samm-release` in its 
+- `py311` uses the default runner and explicitly runs `uv sync` and `uv run download-samm-release` in its
   `commands_pre` to prepare dependencies and the SAMM meta model files before executing the test suite.
 
 ```console
 # run all checks use the next command
 uv run tox
 
+# run all checks in parallel use the next command
+uv run tox run-parallel
+
 # run only pep8 checks
 uv run tox -e pep8
 
 # run tests
-uv run tox -e py310
+uv run tox -e py311
 ```

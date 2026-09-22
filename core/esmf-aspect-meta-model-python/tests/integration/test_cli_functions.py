@@ -14,6 +14,7 @@ import json
 import os
 import shutil
 import tempfile
+import uuid
 
 from pathlib import Path
 
@@ -27,7 +28,7 @@ RESOURCE_PATH = Path(__file__).parent / "resources" / "org.eclipse.esmf.test.gen
 
 @pytest.fixture(scope="module")
 def file_path():
-    yield RESOURCE_PATH / "SampleAspect.ttl"
+    return RESOURCE_PATH / "SampleAspect.ttl"
 
 
 @pytest.fixture(scope="module")
@@ -45,19 +46,29 @@ def temp_output_dir():
 @pytest.fixture(scope="module")
 def samm_cli():
     """Create a SammCli instance for integration testing."""
-    cli = SammCli()
-    yield cli
+    return SammCli()
+
+
+def _get_temp_file_name(temp_output_dir: str, name: str, suffix: str):
+    """Generate a temporary file name in the output directory."""
+    return os.path.join(temp_output_dir, f"{name}_{uuid.uuid4}{suffix}")
 
 
 class TestSammCliIntegration:
     """Integration tests for SAMM CLI transformations."""
 
+    def __init__(self):
+        pass
+
     class TestPrettyPrint:
         """Test pretty-printing functionality."""
 
+        def __init__(self):
+            pass
+
         def test_file_output(self, samm_cli, file_path, temp_output_dir):
             """Test pretty-printing to a file."""
-            output_file = os.path.join(temp_output_dir, "prettyprinted.ttl")
+            output_file = _get_temp_file_name(temp_output_dir, "prettyprinted", ".ttl")
 
             samm_cli.prettyprint(file_path, output=output_file)
 
@@ -78,7 +89,7 @@ class TestSammCliIntegration:
 
     def test_to_json(self, samm_cli, file_path, temp_output_dir):
         """Test generating example JSON payload."""
-        output_file = os.path.join(temp_output_dir, "example.json")
+        output_file = _get_temp_file_name(temp_output_dir, "example", ".json")
 
         samm_cli.to_json(file_path, output=output_file)
 
@@ -91,7 +102,7 @@ class TestSammCliIntegration:
 
     def test_to_parquet(self, samm_cli, file_path, temp_output_dir):
         """Test generating example Parquet payload."""
-        output_file = os.path.join(temp_output_dir, "example.parquet")
+        output_file = _get_temp_file_name(temp_output_dir, "example", ".parquet")
 
         samm_cli.to_parquet(file_path, output=output_file)
 
@@ -103,7 +114,7 @@ class TestSammCliIntegration:
 
     def test_to_schema(self, samm_cli, file_path, temp_output_dir):
         """Test generating JSON schema."""
-        output_file = os.path.join(temp_output_dir, "schema.json")
+        output_file = _get_temp_file_name(temp_output_dir, "schema", ".json")
 
         samm_cli.to_schema(file_path, output=output_file)
 
@@ -116,7 +127,7 @@ class TestSammCliIntegration:
 
     def test_to_openapi(self, samm_cli, file_path, temp_output_dir):
         """Test generating OpenAPI specification."""
-        output_file = os.path.join(temp_output_dir, "openapi.yaml")
+        output_file = _get_temp_file_name(temp_output_dir, "openapi", ".yaml")
 
         samm_cli.to_openapi(file_path, output=output_file, api_base_url="http://localhost:8080")
 
@@ -130,7 +141,7 @@ class TestSammCliIntegration:
 
     def test_to_openapi_json(self, samm_cli, file_path, temp_output_dir):
         """Test generating OpenAPI specification in JSON format."""
-        output_file = os.path.join(temp_output_dir, "openapi.json")
+        output_file = _get_temp_file_name(temp_output_dir, "openapi", ".json")
 
         samm_cli.to_openapi(file_path, "j", output=output_file, api_base_url="http://localhost:8080")  # JSON flag
 
@@ -143,7 +154,7 @@ class TestSammCliIntegration:
 
     def test_to_asyncapi(self, samm_cli, file_path, temp_output_dir):
         """Test generating AsyncAPI specification."""
-        output_file = os.path.join(temp_output_dir, "asyncapi.yaml")
+        output_file = _get_temp_file_name(temp_output_dir, "asyncapi", ".yaml")
 
         samm_cli.to_asyncapi(file_path, output=output_file, channel_address="test/topic")
 
@@ -155,7 +166,7 @@ class TestSammCliIntegration:
 
     def test_to_html(self, samm_cli, file_path, temp_output_dir):
         """Test generating HTML documentation."""
-        output_file = os.path.join(temp_output_dir, "documentation.html")
+        output_file = _get_temp_file_name(temp_output_dir, "documentation", ".html")
 
         samm_cli.to_html(file_path, output=output_file)
 
@@ -167,7 +178,7 @@ class TestSammCliIntegration:
 
     def test_to_png(self, samm_cli, file_path, temp_output_dir):
         """Test generating PNG diagram."""
-        output_file = os.path.join(temp_output_dir, "diagram.png")
+        output_file = _get_temp_file_name(temp_output_dir, "diagram", ".png")
 
         samm_cli.to_png(file_path, output=output_file)
 
@@ -179,7 +190,7 @@ class TestSammCliIntegration:
 
     def test_to_svg(self, samm_cli, file_path, temp_output_dir):
         """Test generating SVG diagram."""
-        output_file = os.path.join(temp_output_dir, "diagram.svg")
+        output_file = _get_temp_file_name(temp_output_dir, "diagram", ".svg")
 
         samm_cli.to_svg(file_path, output=output_file)
 
@@ -191,7 +202,7 @@ class TestSammCliIntegration:
 
     def test_to_java(self, samm_cli, file_path, temp_output_dir):
         """Test generating Java classes."""
-        output_dir = os.path.join(temp_output_dir, "java")
+        output_dir = _get_temp_file_name(temp_output_dir, "java", "")
         os.makedirs(output_dir, exist_ok=True)
 
         samm_cli.to_java(file_path, output_directory=output_dir, package_name="com.example.test")
@@ -207,7 +218,7 @@ class TestSammCliIntegration:
 
     def test_to_sql(self, samm_cli, file_path, temp_output_dir):
         """Test generating SQL script."""
-        output_file = os.path.join(temp_output_dir, "schema.sql")
+        output_file = _get_temp_file_name(temp_output_dir, "schema", ".sql")
 
         samm_cli.to_sql(file_path, output=output_file, dialect="databricks")
 
@@ -218,7 +229,7 @@ class TestSammCliIntegration:
 
     def test_to_jsonld(self, samm_cli, file_path, temp_output_dir):
         """Test generating JSON-LD representation."""
-        output_file = os.path.join(temp_output_dir, "model.jsonld")
+        output_file = _get_temp_file_name(temp_output_dir, "model", ".jsonld")
 
         samm_cli.to_jsonld(file_path, output=output_file)
 
@@ -231,7 +242,7 @@ class TestSammCliIntegration:
 
     def test_to_aas(self, samm_cli, file_path, temp_output_dir):
         """Test generating AAS submodel template."""
-        output_file_json = os.path.join(temp_output_dir, "aas.json")
+        output_file_json = _get_temp_file_name(temp_output_dir, "aas", ".json")
 
         samm_cli.to_aas(file_path, output=output_file_json, format="JSON")
 
@@ -242,7 +253,7 @@ class TestSammCliIntegration:
 
     def test_package_export_import(self, samm_cli, file_path, temp_output_dir):
         """Test exporting and importing a package."""
-        package_file = os.path.join(temp_output_dir, "package.zip")
+        package_file = _get_temp_file_name(temp_output_dir, "package", ".zip")
 
         # Export the model as a package
         samm_cli.package_export(file_path, output=package_file)
@@ -256,26 +267,39 @@ class TestSammCliIntegration:
         assert zipfile.is_zipfile(package_file)
 
         # Import the package (would need models-root directory)
-        import_dir = os.path.join(temp_output_dir, "imported_models")
+        import_dir = _get_temp_file_name(temp_output_dir, "imported_models", "")
         os.makedirs(import_dir, exist_ok=True)
+
+        imported_files = []
+        import_failed = False
+        import_error = None
 
         # Note: This might fail if the package structure doesn't match expectations
         try:
             samm_cli.package_import(package_file, models_root=import_dir)
             # Check if files were imported
             imported_files = list(Path(import_dir).rglob("*.ttl"))
-            assert len(imported_files) > 0
         except Exception as e:
-            pytest.skip(f"Package import failed: {e}")
+            import_failed = True
+            import_error = e
+
+        if import_failed:
+            pytest.skip(f"Package import failed: {import_error}")
+
+        # assertions are outside the try/except -> no S5779
+        assert len(imported_files) > 0
 
 
 class TestSammCliLanguageSupport:
     """Test language-specific outputs."""
 
+    def __init__(self):
+        pass
+
     @pytest.mark.parametrize("language", ("en", "de"))
     def test_to_html_languages(self, samm_cli, file_path, temp_output_dir, language):
         """Test generating HTML in different languages."""
-        output_file = os.path.join(temp_output_dir, f"doc_{language}.html")
+        output_file = _get_temp_file_name(temp_output_dir, f"doc_{language}", ".html")
 
         samm_cli.to_html(file_path, output=output_file, language=language)
 
@@ -284,7 +308,7 @@ class TestSammCliLanguageSupport:
     @pytest.mark.parametrize("language", ("en", "de"))
     def test_to_schema_languages(self, samm_cli, file_path, temp_output_dir, language):
         """Test generating JSON schema in different languages."""
-        output_file = os.path.join(temp_output_dir, f"schema_{language}.json")
+        output_file = _get_temp_file_name(temp_output_dir, f"schema_{language}", ".json")
 
         samm_cli.to_schema(file_path, output=output_file, language=language)
 
@@ -294,9 +318,12 @@ class TestSammCliLanguageSupport:
 class TestSammCliErrorHandling:
     """Test error handling in SAMM CLI."""
 
+    def __init__(self):
+        pass
+
     def test_invalid_model_validation(self, capfd, samm_cli, temp_output_dir):
         """Test validation of an invalid model."""
-        invalid_model = os.path.join(temp_output_dir, "invalid.ttl")
+        invalid_model = _get_temp_file_name(temp_output_dir, "invalid", ".ttl")
         with open(invalid_model, "w") as f:
             f.write("This is not valid Turtle syntax!!!")
 

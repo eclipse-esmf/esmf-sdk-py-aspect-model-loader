@@ -9,7 +9,7 @@
 #
 #   SPDX-License-Identifier: MPL-2.0
 
-from os.path import exists, join
+from os.path import exists, isabs, join
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -72,7 +72,7 @@ class LocalFileResolver(ResolverInterface):
             urn, namespace_id, namespace_specific_str, version = namespace_info
 
             if urn == "urn" and namespace_id == SAMM_NAMESPACE_PREFIX:
-                if namespace_specific_str == SAMM_ORG_IDENTIFIER:
+                if namespace_specific_str == SAMM_ORG_IDENTIFIER or isabs(namespace_specific_str):
                     namespace_specific_str = None
                     version = None
                 else:

@@ -36,7 +36,7 @@ concurrency: # Prevent concurrent releases from interfering with each other
 env:
   RELEASE_VERSION: ${{ github.event.inputs.release_version }}
   NEXT_DEVELOPMENT_VERSION: ${{ github.event.inputs.next_development_version }}
-  PYTHON_VERSION: "3.10"
+  PYTHON_VERSION: "3.11"
   WORKING_DIR: core/esmf-aspect-meta-model-python
   PYPI_PACKAGE_NAME: "esmf-aspect-model-loader"
 

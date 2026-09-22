@@ -15,12 +15,15 @@ authors = [
 ]
 license = "MPL-2.0"
 readme = "README.md"
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.11,<4.0"
 keywords = ["samm", "esmf", "digital twin", "idta", "model loader", "semantic api", "semantics", "aspect"]
 classifiers = [
     "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 # Pinned to exact versions (no ranges) to harden against supply-chain attacks.
 dependencies = [
