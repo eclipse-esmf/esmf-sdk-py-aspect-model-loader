@@ -424,7 +424,7 @@ jobs:
           fi
 
           git commit \
-            -m "Release version ${RELEASE_VERSION}" \
+            -m "release: version ${RELEASE_VERSION}" \
             -m "Automated release by GitHub Actions" \
             -m "Workflow run: ${WORKFLOW_URL}"
 
@@ -498,36 +498,21 @@ jobs:
           git push origin "${tag_version}"
           echo "✅ Tag ${tag_version} created and pushed"
 
-      - name: Create changelog
-        id: changelog
-        uses: requarks/changelog-action@b78a3354a01f4a1affb484b9264b506a815c46b1 # v1.10.3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: v${{ env.RELEASE_VERSION }}
-          includeInvalidCommits: true  # Include all commits
-        continue-on-error: true  # Don't fail the workflow
-
-      # Build the release body from the changelog; fall back to a link to the
-      # commit history when no conventional-commit entries are found
+      # Header for the release body. The change list itself is appended by
+      # GitHub via 'generate_release_notes' below, which derives it from the
+      # merged pull requests of this release - not from the git log. Commit
+      # messages address contributors, changelogs address users (see
+      # CONTRIBUTING.md, "Commit Messages").
       - name: Prepare release body
         id: release_body
-        env:
-          CHANGELOG: ${{ steps.changelog.outputs.changes }}
-          CHANGELOG_STATUS: ${{ steps.changelog.outcome }}
         run: |
           {
             echo "body<<RELEASE_BODY_EOF"
-            
-            if [[ "${CHANGELOG_STATUS}" == "success" && -n "${CHANGELOG}" && "${CHANGELOG}" != "null" ]]; then
-              echo "${CHANGELOG}"
-            else
-              echo "## What's Changed"
-              echo ""
-              echo "Release version ${RELEASE_VERSION}"
-              echo ""
-              echo "**Full Changelog**: https://github.com/${{ github.repository }}/commits/v${RELEASE_VERSION}"
-            fi
-            
+
+            echo "Release version ${RELEASE_VERSION}"
+            echo ""
+            echo "**Full commit history**: https://github.com/${{ github.repository }}/commits/v${RELEASE_VERSION}"
+
             echo "RELEASE_BODY_EOF"
           } >> "${GITHUB_OUTPUT}"
 
@@ -538,6 +523,7 @@ jobs:
           name: "Release version ${{ env.RELEASE_VERSION }}"
           tag_name: v${{ env.RELEASE_VERSION }}
           body: ${{ steps.release_body.outputs.body }}
+          generate_release_notes: true # Append the PR-derived change list to the body
           prerelease: ${{ contains(env.RELEASE_VERSION, '-') }}
           files: |
             ${{ env.WORKING_DIR }}/dist/*
@@ -671,7 +657,7 @@ jobs:
 
       - name: Bump version on a dedicated branch
         run: |
-          bump_branch="chore/bump-dev-version-after-${RELEASE_VERSION}"
+          bump_branch="release/bump-dev-version-after-${RELEASE_VERSION}"
           echo "BUMP_BRANCH=${bump_branch}" >> "${GITHUB_ENV}"
 
           git checkout -b "${bump_branch}"
@@ -685,7 +671,7 @@ jobs:
           fi
 
           git commit \
-            -m "Bump development version to ${NEXT_VERSION}" \
+            -m "release: bump development version to ${NEXT_VERSION}" \
             -m "Automated post-release bump after ${RELEASE_VERSION} by GitHub Actions"
 
           git push -u origin "${bump_branch}"
@@ -699,6 +685,6 @@ jobs:
           gh pr create \
             --base main \
             --head "${BUMP_BRANCH}" \
-            --title "chore: bump development version to ${NEXT_VERSION}" \
+            --title "release: bump development version to ${NEXT_VERSION}" \
             --body "$(printf 'Automated post-release bump after releasing \x60%s\x60.\n\nThis updates the version on \x60main\x60 to \x60%s\x60 so the next release passes the version-increment check.\n\nWorkflow run: %s' "${RELEASE_VERSION}" "${NEXT_VERSION}" "${WORKFLOW_URL}")"
           echo "✅ Pull request opened to bump main to ${NEXT_VERSION}"

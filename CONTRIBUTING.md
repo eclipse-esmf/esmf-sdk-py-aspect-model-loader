@@ -105,6 +105,51 @@ https://www.eclipse.org/projects/handbook/#resources-commit
 
 ## Commit Messages
 
+We adhere to [Scoped Commits](https://scopedcommits.com/) for commit messages. The scope - the
+subsystem, area or module a change touches - is the most valuable piece of information when scanning
+the Git history, so it comes first.
+
+A commit message should follow this structure:
+
+```text
+<scope>: <description>
+
+[optional body]
+
+[optional trailer(s)]
+```
+
+- **`<scope>`**: the subsystem, area or module that the commit touches, e.g. `loader`, `resolver`,
+  `samm-cli`, `vocabulary`, `tests`, `ci`, `docs`.
+- **`<description>`**: a short, imperative summary of the change.
+- **body**: detailed information about what changed and why.
+- **trailers**: additional metadata, e.g. `Closes: #123`.
+
+Examples:
+
+```text
+resolver: resolve namespaces from the local file system
+
+loader: support SAMM 2.2.0 characteristics
+
+ci: fix changelog creation
+```
+
+Some guidance on choosing scopes:
+
+- If a commit spans several areas, either use a more general scope that covers them all or list the
+  scopes separated by a comma (e.g. `loader,resolver: ...`).
+- If a commit touches the whole tree, use a scope such as `treewide`.
+- Reverts, merges and other special commits may be formatted however Git or GitHub produces them; a
+  scope is not required for them.
+- If none of the above fits, drop the scope and simply write a good description.
+
+The issue reference can be placed in parentheses after the scope (e.g. `loader (#123): ...`) or in a
+trailer (see [Pull Requests](#pull-requests) for the GitHub keywords that link a `PR` to an `Issue`).
+
+Note that the release changelog is not generated from the Git log - commit logs address
+contributors, changelogs address users. Please keep the two concerns separate.
+
 Separate the subject from the body with a blank line because the subject line is shown in the Git
 history and should summarize the commit body. Use the body to explain what and why with less focus
 on the details of the how. This [blog post](https://chris.beams.io/posts/git-commit/#seven-rules)
