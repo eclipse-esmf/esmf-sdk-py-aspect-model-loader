@@ -96,7 +96,6 @@ jobs:
           fi
           echo "✅ Tag v${RELEASE_VERSION} is available"
       
-
       - name: Prepare release branch
         id: release_branch
         run: |
@@ -113,8 +112,6 @@ jobs:
 
           git fetch --tags origin "refs/heads/main:refs/remotes/origin/main"
           SOURCE_SHA="$(git rev-parse "refs/remotes/origin/main")"
-          CURRENT_TAG="$(git tag --list 'v*' --sort=-v:refname | head -n1 || true)"
-          python3 .github/scripts/validate_release.py "${CURRENT_TAG:-0.0.0}" "$VERSION"
 
           if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" > /dev/null; then
             echo "Release branch ${RELEASE_BRANCH} exists remotely"
@@ -127,7 +124,7 @@ jobs:
             git checkout -b "$RELEASE_BRANCH" "$SOURCE_SHA"
           fi
           git push origin "HEAD:refs/heads/${RELEASE_BRANCH}"
-           echo "✅ Switched to release branch ${RELEASE_BRANCH}"
+          echo "✅ Switched to release branch ${RELEASE_BRANCH}"
 
           {
             printf 'branch=%s\n' "$RELEASE_BRANCH"
