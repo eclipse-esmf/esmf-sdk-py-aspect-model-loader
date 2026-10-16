@@ -104,31 +104,29 @@ jobs:
             echo "Unable to derive a release branch from $RELEASE_VERSION" >&2
             exit 1
           }
-          branch_name="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.x"
-          echo "RELEASE_BRANCH=${branch_name}" >> "${GITHUB_ENV}"
-          echo "release_branch_name=${branch_name}" >> "${GITHUB_OUTPUT}"
-          echo "✅ Release branch name: ${branch_name}"
+          RELEASE_BRANCH="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.x"
+          echo "✅ Release branch name: ${RELEASE_BRANCH}"
 
           git fetch --tags origin "refs/heads/main:refs/remotes/origin/main"
           SOURCE_SHA="$(git rev-parse "refs/remotes/origin/main")"
 
-          if c > /dev/null; then
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" > /dev/null; then
             echo "Release branch ${RELEASE_BRANCH} exists remotely"
             
             git fetch --no-tags origin "refs/heads/${RELEASE_BRANCH}:refs/remotes/origin/${RELEASE_BRANCH}"
             git checkout -B "$RELEASE_BRANCH" "origin/${RELEASE_BRANCH}"
-            git merge --no-ff --no-edit main
+            git merge --no-ff --no-edit "$SOURCE_SHA"
           else
             echo "Creating new release branch ${RELEASE_BRANCH}"
-            git checkout -b "$RELEASE_BRANCH" main
+            git checkout -b "$RELEASE_BRANCH" "$SOURCE_SHA"
           fi
           git push origin "HEAD:refs/heads/${RELEASE_BRANCH}"
           echo "✅ Switched to release branch ${RELEASE_BRANCH}"
 
-          {
-            printf 'branch=%s\n' "$RELEASE_BRANCH"
-            printf 'sha=%s\n' "$(git rev-parse HEAD)"
-          } >> "$GITHUB_OUTPUT"
+          printf 'release_branch_name=%s\n' "$RELEASE_BRANCH" >> "$GITHUB_OUTPUT"
 
       - name: Capture prepared release commit SHA
         id: prepared_sha
@@ -150,7 +148,7 @@ jobs:
 
     outputs:
       validated_sha: ${{ steps.get_sha.outputs.sha }}
-      release_branch_name: ${{ steps.release_branch.outputs.release_branch_name }}
+      release_branch_name: ${{ needs.prepare-release-branch.outputs.release_branch_name }}
 
     defaults:
       run:
@@ -193,6 +191,21 @@ jobs:
           ref: ${{ needs.prepare-release-branch.outputs.release_branch_name }}
           persist-credentials: false
           fetch-depth: 0
+
+      - name: Verify prepared checkout
+        run: |
+          : "${RELEASE_BRANCH_NAME:?Missing release branch name}"
+          : "${PREPARED_SHA:?Missing prepared SHA}"
+
+          if [[ "$(git branch --show-current)" != "$RELEASE_BRANCH_NAME" ]]; then
+            echo "::error::Checkout does not match prepared release branch ${RELEASE_BRANCH_NAME}"
+            exit 1
+          fi
+
+          if [[ "$(git rev-parse HEAD)" != "$PREPARED_SHA" ]]; then
+            echo "::error::Release branch changed after preparation; expected ${PREPARED_SHA}"
+            exit 1
+          fi
       
       # Version check moved AFTER branch checkout to compare against the correct branch's version
       - name: Get current version from release branch
@@ -307,8 +320,7 @@ jobs:
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
           version: "0.11.21"
-          enable-cache: true
-          cache-dependency-glob: ${{ env.WORKING_DIR }}/uv.lock
+          enable-cache: false # Disable caching to avoid cache poisoning attacks
 
       # Use the standard bot identity for automated commits so they are clearly
       # distinguishable from human commits in git log
@@ -335,7 +347,7 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
         run: |
           uv version --no-sync "${RELEASE_VERSION}"
-          uv lock
+          uv sync --locked
           actual="$(uv version | awk '{print $2}')"
           if [[ "${actual}" != "${RELEASE_VERSION}" ]]; then
             echo "::error::Version mismatch: expected ${RELEASE_VERSION}, got ${actual}"
@@ -368,6 +380,7 @@ jobs:
       - name: Build package
         working-directory: ${{ env.WORKING_DIR }}
         run: |
+          uv sync
           uv run download-samm-release
           uv build
           echo "✅ Package built successfully"
@@ -496,7 +509,7 @@ jobs:
           echo "| Version | \`${RELEASE_VERSION}\` |" >> "${GITHUB_STEP_SUMMARY}"
           echo "| Tag | \`v${RELEASE_VERSION}\` |" >> "${GITHUB_STEP_SUMMARY}"
           echo "| Branch | \`${RELEASE_BRANCH_NAME}\` |" >> "${GITHUB_STEP_SUMMARY}"
-          echo "| Commit | [\`${VALIDATED_SHA:0:7}\`](${GH_SERVER}/${GH_REPO}/commit/${VALIDATED_SHA}) |" >> "${GITHUB_STEP_SUMMARY}"
+          echo "| Validated source commit | [\`${VALIDATED_SHA:0:7}\`](${GH_SERVER}/${GH_REPO}/commit/${VALIDATED_SHA}) |" >> "${GITHUB_STEP_SUMMARY}"
           echo "| Pre-release | ${IS_PRERELEASE} |" >> "${GITHUB_STEP_SUMMARY}"
           echo "" >> "${GITHUB_STEP_SUMMARY}"
           echo "### Build Info" >> "${GITHUB_STEP_SUMMARY}"
@@ -611,7 +624,7 @@ jobs:
 
           (cd "${{ env.WORKING_DIR }}" && uv version "${NEXT_VERSION}")
 
-          git add "${{ env.WORKING_DIR }}/pyproject.toml"
+          git add "${{ env.WORKING_DIR }}/pyproject.toml" "${{ env.WORKING_DIR }}/uv.lock"
           if git diff --cached --quiet; then
             echo "::error::No changes to commit - main may already be at ${NEXT_VERSION}"
             exit 1
