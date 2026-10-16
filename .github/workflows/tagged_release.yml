@@ -36,7 +36,6 @@ concurrency: # Prevent concurrent releases from interfering with each other
   group: release-${{ github.workflow }}
   cancel-in-progress: false
 
-
 env:
   RELEASE_VERSION: ${{ github.event.inputs.release_version }}
   NEXT_DEVELOPMENT_VERSION: ${{ github.event.inputs.next_development_version }}
@@ -113,15 +112,15 @@ jobs:
           git fetch --tags origin "refs/heads/main:refs/remotes/origin/main"
           SOURCE_SHA="$(git rev-parse "refs/remotes/origin/main")"
 
-          if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" > /dev/null; then
+          if c > /dev/null; then
             echo "Release branch ${RELEASE_BRANCH} exists remotely"
             
             git fetch --no-tags origin "refs/heads/${RELEASE_BRANCH}:refs/remotes/origin/${RELEASE_BRANCH}"
             git checkout -B "$RELEASE_BRANCH" "origin/${RELEASE_BRANCH}"
-            git merge --no-ff --no-edit "$SOURCE_SHA"
+            git merge --no-ff --no-edit main
           else
             echo "Creating new release branch ${RELEASE_BRANCH}"
-            git checkout -b "$RELEASE_BRANCH" "$SOURCE_SHA"
+            git checkout -b "$RELEASE_BRANCH" main
           fi
           git push origin "HEAD:refs/heads/${RELEASE_BRANCH}"
           echo "✅ Switched to release branch ${RELEASE_BRANCH}"
@@ -343,7 +342,7 @@ jobs:
             exit 1
           fi
           echo "✅ uv version set to: ${actual}"
-      
+
       # Stage changes locally but don't push yet - allows rollback if publish fails
       - name: Stage version changes
         env:
