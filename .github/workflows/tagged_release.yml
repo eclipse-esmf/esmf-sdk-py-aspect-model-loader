@@ -36,6 +36,7 @@ concurrency: # Prevent concurrent releases from interfering with each other
   group: release-${{ github.workflow }}
   cancel-in-progress: false
 
+
 env:
   RELEASE_VERSION: ${{ github.event.inputs.release_version }}
   NEXT_DEVELOPMENT_VERSION: ${{ github.event.inputs.next_development_version }}
@@ -53,6 +54,7 @@ jobs:
   prepare-release-branch:
     name: Prepare release branch
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     permissions:
       contents: write # Required to create and push the release branch when it does not exist
@@ -94,88 +96,43 @@ jobs:
           fi
           echo "✅ Tag v${RELEASE_VERSION} is available"
       
-      - name: Save latest main commit SHA
-        run: |
-          LAST_MAIN_COMMIT_SHA="$(git rev-parse HEAD)"
-          echo "LAST_MAIN_COMMIT_SHA=${LAST_MAIN_COMMIT_SHA}" >> "${GITHUB_ENV}"
-          echo "✅ LAST_MAIN_COMMIT_SHA=${LAST_MAIN_COMMIT_SHA}"
-      
-      # Derive the release branch name by replacing the PATCH segment with 'x'
-      # e.g. 1.2.3 → 1.2.x, 2.0.0-M1 → 2.0.x
-      - name: Determine release branch
-        id: release_branch
-        run: |
-          branch_name="${RELEASE_VERSION%.*}.x"
-          echo "RELEASE_BRANCH_NAME=${branch_name}" >> "${GITHUB_ENV}"
-          echo "release_branch_name=${branch_name}" >> "${GITHUB_OUTPUT}"
-          echo "✅ Release branch name: ${branch_name}"
 
       - name: Prepare release branch
+        id: release_branch
         run: |
           # Note: fetch-depth: 0 already fetched all refs during checkout
 
-          : "${RELEASE_BRANCH_NAME:?Missing RELEASE_BRANCH_NAME after release branch detection}"
-          : "${LAST_MAIN_COMMIT_SHA:?Missing LAST_MAIN_COMMIT_SHA after main checkout}"
-          
-          if git show-ref --quiet "refs/remotes/origin/${RELEASE_BRANCH_NAME}"; then
-            echo "Release branch ${RELEASE_BRANCH_NAME} exists remotely"
-            
-            remote_sha=$(git rev-parse "origin/${RELEASE_BRANCH_NAME}")
-            
-            # Case 1: Remote matches the last main commit SHA - ideal case
-            if [[ "${remote_sha}" == "${LAST_MAIN_COMMIT_SHA}" ]]; then
-              echo "✅ Remote branch HEAD matches last main commit"
-              git checkout -B "${RELEASE_BRANCH_NAME}" --track "origin/${RELEASE_BRANCH_NAME}"
-            
-            # Case 2: Remote is ancestor of the last main commit SHA - branch can be fast-forwarded
-            elif git merge-base --is-ancestor "${remote_sha}" "${LAST_MAIN_COMMIT_SHA}"; then
-              echo "Remote branch (${remote_sha:0:7}) is behind the last main commit (${LAST_MAIN_COMMIT_SHA:0:7})"
-              echo "Creating local branch at the last main commit..."
-              git checkout -b "${RELEASE_BRANCH_NAME}" "${LAST_MAIN_COMMIT_SHA}"
-              git branch --set-upstream-to="origin/${RELEASE_BRANCH_NAME}"
-              git push origin "HEAD:${RELEASE_BRANCH_NAME}"
-              echo "✅ Release branch fast-forwarded to last main commit"
-            
-            # Case 3: Last main commit SHA is ancestor of remote - branch moved forward after validation
-            elif git merge-base --is-ancestor "${LAST_MAIN_COMMIT_SHA}" "${remote_sha}"; then
-              echo "::error::Release branch has new commits since the last main commit"
-              echo "::error::  Last main commit: ${LAST_MAIN_COMMIT_SHA}"
-              echo "::error::  Remote HEAD:      ${remote_sha}"
-              echo "::error::"
-              echo "::error::Another commit was pushed to the release branch between validation and release."
-              echo "::error::Re-run the workflow to validate the latest branch state."
-              exit 1
-            
-            # Case 4: Diverged histories - manual intervention required (last main commit vs remote)
-            else
-              echo "::error::Release branch has diverged from the last main commit"
-              echo "::error::  Last main commit: ${LAST_MAIN_COMMIT_SHA}"
-              echo "::error::  Remote HEAD:      ${remote_sha}"
-              echo "::error::  Merge base:       $(git merge-base "${LAST_MAIN_COMMIT_SHA}" "${remote_sha}" || echo 'none')"
-              echo "::error::"
-              echo "::error::The release branch and last main commit have diverged."
-              echo "::error::Manual intervention required to resolve."
-              exit 1
-            fi
-          else
-            echo "Creating new release branch ${RELEASE_BRANCH_NAME}"
-            git checkout -b "${RELEASE_BRANCH_NAME}" "${LAST_MAIN_COMMIT_SHA}"
-            git push -u origin "${RELEASE_BRANCH_NAME}"
-            echo "✅ New branch created and pushed"
-          fi
-
-          : "${LAST_MAIN_COMMIT_SHA:?Missing LAST_MAIN_COMMIT_SHA before final verification}"
-          
-          # Final verification - ensure HEAD is at the last main commit SHA
-          current_sha=$(git rev-parse HEAD)
-          if [[ "${current_sha}" != "${LAST_MAIN_COMMIT_SHA}" ]]; then
-            echo "::error::Unexpected state - HEAD (${current_sha}) differs from the last main commit SHA (${LAST_MAIN_COMMIT_SHA})"
+          [[ "$RELEASE_VERSION" =~ ^([0-9]+)\.([0-9]+)\. ]] || {
+            echo "Unable to derive a release branch from $RELEASE_VERSION" >&2
             exit 1
+          }
+          branch_name="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.x"
+          echo "RELEASE_BRANCH=${branch_name}" >> "${GITHUB_ENV}"
+          echo "release_branch_name=${branch_name}" >> "${GITHUB_OUTPUT}"
+          echo "✅ Release branch name: ${branch_name}"
+
+          git fetch --tags origin "refs/heads/main:refs/remotes/origin/main"
+          SOURCE_SHA="$(git rev-parse "refs/remotes/origin/main")"
+          CURRENT_TAG="$(git tag --list 'v*' --sort=-v:refname | head -n1 || true)"
+          python3 .github/scripts/validate_release.py "${CURRENT_TAG:-0.0.0}" "$VERSION"
+
+          if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" > /dev/null; then
+            echo "Release branch ${RELEASE_BRANCH} exists remotely"
+            
+            git fetch --no-tags origin "refs/heads/${RELEASE_BRANCH}:refs/remotes/origin/${RELEASE_BRANCH}"
+            git checkout -B "$RELEASE_BRANCH" "origin/${RELEASE_BRANCH}"
+            git merge --no-ff --no-edit "$SOURCE_SHA"
+          else
+            echo "Creating new release branch ${RELEASE_BRANCH}"
+            git checkout -b "$RELEASE_BRANCH" "$SOURCE_SHA"
           fi
-          
-          echo ""
-          echo "✅ On release branch: ${RELEASE_BRANCH_NAME}"
-          echo "   Commit: ${LAST_MAIN_COMMIT_SHA:0:7} ($(git log -1 --format='%s' HEAD))"
+          git push origin "HEAD:refs/heads/${RELEASE_BRANCH}"
+           echo "✅ Switched to release branch ${RELEASE_BRANCH}"
+
+          {
+            printf 'branch=%s\n' "$RELEASE_BRANCH"
+            printf 'sha=%s\n' "$(git rev-parse HEAD)"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Capture prepared release commit SHA
         id: prepared_sha
@@ -240,27 +197,6 @@ jobs:
           ref: ${{ needs.prepare-release-branch.outputs.release_branch_name }}
           persist-credentials: false
           fetch-depth: 0
-
-      - name: Verify prepared branch checkout
-        id: release_branch
-        run: |
-          : "${RELEASE_BRANCH_NAME:?Missing RELEASE_BRANCH_NAME from prepare-release-branch output}"
-          : "${PREPARED_SHA:?Missing PREPARED_SHA from prepare-release-branch output}"
-
-          current_branch="$(git branch --show-current)"
-          if [[ "${current_branch}" != "${RELEASE_BRANCH_NAME}" ]]; then
-            echo "::error::Expected current branch ${RELEASE_BRANCH_NAME}, got ${current_branch:-detached HEAD}"
-            exit 1
-          fi
-
-          current_sha="$(git rev-parse HEAD)"
-          if [[ "${current_sha}" != "${PREPARED_SHA}" ]]; then
-            echo "::error::Prepared branch HEAD mismatch: expected ${PREPARED_SHA}, got ${current_sha}"
-            exit 1
-          fi
-
-          echo "release_branch_name=${RELEASE_BRANCH_NAME}" >> "${GITHUB_OUTPUT}"
-          echo "✅ Prepared release branch checkout verified: ${current_branch} at ${current_sha}"
       
       # Version check moved AFTER branch checkout to compare against the correct branch's version
       - name: Get current version from release branch
@@ -375,7 +311,8 @@ jobs:
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
           version: "0.11.21"
-          enable-cache: false # Disable caching to avoid cache poisoning attacks
+          enable-cache: true
+          cache-dependency-glob: ${{ env.WORKING_DIR }}/uv.lock
 
       # Use the standard bot identity for automated commits so they are clearly
       # distinguishable from human commits in git log
@@ -401,21 +338,22 @@ jobs:
       - name: Set esmf-aspect package version
         working-directory: ${{ env.WORKING_DIR }}
         run: |
-          uv version "${RELEASE_VERSION}"
+          uv version --no-sync "${RELEASE_VERSION}"
+          uv lock
           actual="$(uv version | awk '{print $2}')"
           if [[ "${actual}" != "${RELEASE_VERSION}" ]]; then
             echo "::error::Version mismatch: expected ${RELEASE_VERSION}, got ${actual}"
             exit 1
           fi
           echo "✅ uv version set to: ${actual}"
-
+      
       # Stage changes locally but don't push yet - allows rollback if publish fails
       - name: Stage version changes
         env:
           WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           git add documentation/python-sdk-guide/antora.yml
-          git add "${{ env.WORKING_DIR }}/pyproject.toml"
+          git add "${{ env.WORKING_DIR }}/pyproject.toml" "${{ env.WORKING_DIR }}/uv.lock"
 
           # Check if there are changes to commit
           if git diff --cached --quiet; then
@@ -434,7 +372,6 @@ jobs:
       - name: Build package
         working-directory: ${{ env.WORKING_DIR }}
         run: |
-          uv sync
           uv run download-samm-release
           uv build
           echo "✅ Package built successfully"
