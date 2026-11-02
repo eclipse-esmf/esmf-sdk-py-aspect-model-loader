@@ -1,21 +1,18 @@
 # Manually-triggered release workflow for the esmf-aspect-model-loader Python package.
 #
-# Release order (designed for safe rollback):
-#   1. prepare-release-branch – validate basic input, create/fast-forward release branch
-#   2. check-preconditions    – validate version metadata, build, test, lint the prepared branch
-#   3. create_and_publish_release:
-#      a. Checkout release branch (e.g. 1.2.x)
-#      b. Bump version in pyproject.toml & antora.yml, commit locally
-#      c. Build the package
-#      d. Publish to PyPI          (if this fails → nothing to clean up)
-#      e. Push version commit       (if this fails → PyPI has the package but no tag/release)
-#      f. Create & push git tag
-#      g. Create GitHub release with changelog
-#   4. bump-next-development-version – open a PR to bump main to the next dev version
+# Release order:
+#   1. check-preconditions validates the version, checks the tag, then builds,
+#      tests, and lints the workflow-dispatch commit.
+#   2. create_and_publish_release checks out the validated dispatch ref, verifies
+#      it is the X.Y.x branch for the requested version, updates package and
+#      Antora versions, builds and verifies the artifacts, publishes to PyPI,
+#      pushes the version commit and tag, and creates a GitHub release with a
+#      generated changelog.
+#   3. bump-next-development-version opens a PR to advance main after final
+#      releases and is skipped for pre-releases.
 #
 # Security:
 #   - All third-party actions are pinned to commit SHAs
-#   - Only the branch preparation and publishing jobs receive write permissions
 #   - Validated commit SHA is passed between jobs to prevent TOCTOU races
 #   - Version input is validated with strict regex before any git operations
 
@@ -48,18 +45,17 @@ permissions: { }
 
 jobs:
   # ──────────────────────────────────────────────────────────────────────────────
-  # Job 1: Validate basic input and prepare the release branch with the least write scope
+  # Job 1: Validate inputs, build, test, and lint before touching any release artifacts
   # ──────────────────────────────────────────────────────────────────────────────
-  prepare-release-branch:
-    name: Prepare release branch
+  check-preconditions:
+    name: Check if passes all requirements
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write # Required to create and push the release branch when it does not exist
+      contents: read
 
     outputs:
-      prepared_sha: ${{ steps.prepared_sha.outputs.sha }}
-      release_branch_name: ${{ steps.release_branch.outputs.release_branch_name }}
+      validated_sha: ${{ steps.get_sha.outputs.sha }}
 
     defaults:
       run:
@@ -78,147 +74,34 @@ jobs:
           fi
 
           echo "✅ Version format validated: ${version}"
-      
-      - name: Checkout main
+
+      - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: main
-          persist-credentials: true # Required for pushing a newly created release branch
+          persist-credentials: false
           fetch-depth: 0 # Needed for tag check
-      
-      - name: Check tag does not already exist
+
+      # Pin the exact commit SHA so later jobs check out the same code that was validated
+      - name: Capture validated commit SHA
+        id: get_sha
         run: |
+          echo "sha=${GITHUB_SHA}" >> "${GITHUB_OUTPUT}"
+          echo "✅ Validated commit SHA: ${GITHUB_SHA}"
+
+      - name: Check tag doesn't already exist
+        run: |
+          git tag --list
           if git rev-parse "v${RELEASE_VERSION}" >/dev/null 2>&1; then
             echo "::error::Tag v${RELEASE_VERSION} already exists"
             exit 1
           fi
           echo "✅ Tag v${RELEASE_VERSION} is available"
-      
-      - name: Save latest main commit SHA
-        run: |
-          LAST_MAIN_COMMIT_SHA="$(git rev-parse HEAD)"
-          echo "LAST_MAIN_COMMIT_SHA=${LAST_MAIN_COMMIT_SHA}" >> "${GITHUB_ENV}"
-          echo "✅ LAST_MAIN_COMMIT_SHA=${LAST_MAIN_COMMIT_SHA}"
-      
-      # Derive the release branch name by replacing the PATCH segment with 'x'
-      # e.g. 1.2.3 → 1.2.x, 2.0.0-M1 → 2.0.x
-      - name: Determine release branch
-        id: release_branch
-        run: |
-          branch_name="${RELEASE_VERSION%.*}.x"
-          echo "RELEASE_BRANCH_NAME=${branch_name}" >> "${GITHUB_ENV}"
-          echo "release_branch_name=${branch_name}" >> "${GITHUB_OUTPUT}"
-          echo "✅ Release branch name: ${branch_name}"
 
-      - name: Prepare release branch
-        run: |
-          # Note: fetch-depth: 0 already fetched all refs during checkout
-
-          : "${RELEASE_BRANCH_NAME:?Missing RELEASE_BRANCH_NAME after release branch detection}"
-          : "${LAST_MAIN_COMMIT_SHA:?Missing LAST_MAIN_COMMIT_SHA after main checkout}"
-          
-          if git show-ref --quiet "refs/remotes/origin/${RELEASE_BRANCH_NAME}"; then
-            echo "Release branch ${RELEASE_BRANCH_NAME} exists remotely"
-            
-            remote_sha=$(git rev-parse "origin/${RELEASE_BRANCH_NAME}")
-            
-            # Case 1: Remote matches the last main commit SHA - ideal case
-            if [[ "${remote_sha}" == "${LAST_MAIN_COMMIT_SHA}" ]]; then
-              echo "✅ Remote branch HEAD matches last main commit"
-              git checkout -B "${RELEASE_BRANCH_NAME}" --track "origin/${RELEASE_BRANCH_NAME}"
-            
-            # Case 2: Remote is ancestor of the last main commit SHA - branch can be fast-forwarded
-            elif git merge-base --is-ancestor "${remote_sha}" "${LAST_MAIN_COMMIT_SHA}"; then
-              echo "Remote branch (${remote_sha:0:7}) is behind the last main commit (${LAST_MAIN_COMMIT_SHA:0:7})"
-              echo "Creating local branch at the last main commit..."
-              git checkout -b "${RELEASE_BRANCH_NAME}" "${LAST_MAIN_COMMIT_SHA}"
-              git branch --set-upstream-to="origin/${RELEASE_BRANCH_NAME}"
-              git push origin "HEAD:${RELEASE_BRANCH_NAME}"
-              echo "✅ Release branch fast-forwarded to last main commit"
-            
-            # Case 3: Last main commit SHA is ancestor of remote - branch moved forward after validation
-            elif git merge-base --is-ancestor "${LAST_MAIN_COMMIT_SHA}" "${remote_sha}"; then
-              echo "::error::Release branch has new commits since the last main commit"
-              echo "::error::  Last main commit: ${LAST_MAIN_COMMIT_SHA}"
-              echo "::error::  Remote HEAD:      ${remote_sha}"
-              echo "::error::"
-              echo "::error::Another commit was pushed to the release branch between validation and release."
-              echo "::error::Re-run the workflow to validate the latest branch state."
-              exit 1
-            
-            # Case 4: Diverged histories - manual intervention required (last main commit vs remote)
-            else
-              echo "::error::Release branch has diverged from the last main commit"
-              echo "::error::  Last main commit: ${LAST_MAIN_COMMIT_SHA}"
-              echo "::error::  Remote HEAD:      ${remote_sha}"
-              echo "::error::  Merge base:       $(git merge-base "${LAST_MAIN_COMMIT_SHA}" "${remote_sha}" || echo 'none')"
-              echo "::error::"
-              echo "::error::The release branch and last main commit have diverged."
-              echo "::error::Manual intervention required to resolve."
-              exit 1
-            fi
-          else
-            echo "Creating new release branch ${RELEASE_BRANCH_NAME}"
-            git checkout -b "${RELEASE_BRANCH_NAME}" "${LAST_MAIN_COMMIT_SHA}"
-            git push -u origin "${RELEASE_BRANCH_NAME}"
-            echo "✅ New branch created and pushed"
-          fi
-
-          : "${LAST_MAIN_COMMIT_SHA:?Missing LAST_MAIN_COMMIT_SHA before final verification}"
-          
-          # Final verification - ensure HEAD is at the last main commit SHA
-          current_sha=$(git rev-parse HEAD)
-          if [[ "${current_sha}" != "${LAST_MAIN_COMMIT_SHA}" ]]; then
-            echo "::error::Unexpected state - HEAD (${current_sha}) differs from the last main commit SHA (${LAST_MAIN_COMMIT_SHA})"
-            exit 1
-          fi
-          
-          echo ""
-          echo "✅ On release branch: ${RELEASE_BRANCH_NAME}"
-          echo "   Commit: ${LAST_MAIN_COMMIT_SHA:0:7} ($(git log -1 --format='%s' HEAD))"
-
-      - name: Capture prepared release commit SHA
-        id: prepared_sha
-        run: |
-          prepared_sha="$(git rev-parse HEAD)"
-          echo "sha=${prepared_sha}" >> "${GITHUB_OUTPUT}"
-          echo "✅ Prepared release commit SHA: ${prepared_sha}"
-
-  # ──────────────────────────────────────────────────────────────────────────────
-  # Job 2: Validate, build, test, and lint the prepared release branch read-only
-  # ──────────────────────────────────────────────────────────────────────────────
-  check-preconditions:
-    name: Validate prepared release branch
-    needs: [ prepare-release-branch ]
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-
-    outputs:
-      validated_sha: ${{ steps.get_sha.outputs.sha }}
-      release_branch_name: ${{ steps.release_branch.outputs.release_branch_name }}
-
-    defaults:
-      run:
-        shell: bash -euo pipefail {0}
-
-    env:
-      RELEASE_BRANCH_NAME: ${{ needs.prepare-release-branch.outputs.release_branch_name }}
-      PREPARED_SHA: ${{ needs.prepare-release-branch.outputs.prepared_sha }}
-
-    steps:
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
-        with:
-          version: "0.11.21"
-          enable-cache: false # Disable caching to avoid cache poisoning attacks
-      
       - name: Validate version with PEP 440
         run: |
           python -m pip install --quiet --upgrade --no-input --disable-pip-version-check packaging
@@ -234,42 +117,105 @@ jobs:
               raise SystemExit(f"::error::Invalid PEP 440 version: {version}")
           EOF
 
-      - name: Checkout prepared release branch
+      - name: Install uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          version: "0.11.21"
+          enable-cache: false # Disable caching to avoid cache poisoning attacks
+
+      - name: Build esmf-aspect
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          uv sync
+          uv run download-samm-release
+          uv build
+
+      - name: Run tests
+        working-directory: ${{ env.WORKING_DIR }}
+        run: uv run tox -e "py${PYTHON_VERSION//./}"
+
+      - name: Run code style checks
+        working-directory: ${{ env.WORKING_DIR }}
+        run: uv run tox -e pep8
+
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Job 2: Verify the release branch, bump versions, build and verify artifacts,
+  # publish to PyPI, then push the version commit and tag before creating the
+  # GitHub release.
+  # ──────────────────────────────────────────────────────────────────────────────
+  create_and_publish_release:
+    name: Create tagged release
+    needs: [ check-preconditions ]
+    runs-on: ubuntu-latest
+
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
+
+    defaults:
+      run:
+        shell: bash -euo pipefail {0}
+
+    steps:
+      - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ needs.prepare-release-branch.outputs.release_branch_name }}
-          persist-credentials: false
-          fetch-depth: 0
+          ref: ${{ github.ref }}
+          persist-credentials: true # Required for git push operations
+          fetch-depth: 0 # Fetch full git history and tags (needed for releases)
 
-      - name: Verify prepared branch checkout
-        id: release_branch
+      - name: Verify checkout matches validated SHA
+        env:
+          EXPECTED_SHA: ${{ needs.check-preconditions.outputs.validated_sha }}
         run: |
-          : "${RELEASE_BRANCH_NAME:?Missing RELEASE_BRANCH_NAME from prepare-release-branch output}"
-          : "${PREPARED_SHA:?Missing PREPARED_SHA from prepare-release-branch output}"
+          current_sha=$(git rev-parse HEAD)
+          if [[ "${current_sha}" != "${EXPECTED_SHA}" ]]; then
+            echo "::error::SHA mismatch: expected ${EXPECTED_SHA}, got ${current_sha}"
+            exit 1
+          fi
+          echo "✅ Checkout verified: ${current_sha}"
 
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          version: "0.11.21"
+          enable-cache: false # Disable caching to avoid cache poisoning attacks
+
+      # Use the standard bot identity for automated commits so they are clearly
+      # distinguishable from human commits in git log
+      - name: Setup Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Derive the release branch name by replacing the patch segment with 'x'.
+      # Example: 1.2.3 → 1.2.x.
+      - name: Determine release branch
+        run: echo "RELEASE_BRANCH_NAME=${RELEASE_VERSION%.*}.x" >> "${GITHUB_ENV}"
+
+      - name: Verify checked-out release branch
+        run: |
           current_branch="$(git branch --show-current)"
           if [[ "${current_branch}" != "${RELEASE_BRANCH_NAME}" ]]; then
-            echo "::error::Expected current branch ${RELEASE_BRANCH_NAME}, got ${current_branch:-detached HEAD}"
+            echo "::error::Expected release branch ${RELEASE_BRANCH_NAME}, got ${current_branch:-detached HEAD}."
             exit 1
           fi
+          echo "✅ Checked out release branch: ${current_branch}"
 
-          current_sha="$(git rev-parse HEAD)"
-          if [[ "${current_sha}" != "${PREPARED_SHA}" ]]; then
-            echo "::error::Prepared branch HEAD mismatch: expected ${PREPARED_SHA}, got ${current_sha}"
-            exit 1
-          fi
-
-          echo "release_branch_name=${RELEASE_BRANCH_NAME}" >> "${GITHUB_OUTPUT}"
-          echo "✅ Prepared release branch checkout verified: ${current_branch} at ${current_sha}"
-      
-      # Version check moved AFTER branch checkout to compare against the correct branch's version
+      # Read the version from the checked-out release branch.
       - name: Get current version from release branch
         working-directory: ${{ env.WORKING_DIR }}
         run: echo "CURRENT_VERSION=$(uv version | awk '{print $2}')" >> "${GITHUB_ENV}"
 
       # Skip version increment check for pre-releases (e.g. 1.2.3-M1) since they may
       # re-use the same major.minor.patch as a previous pre-release or the final release
-      - name: Check release version increment
+      - name: Check version incrementing
         if: ${{ !contains(env.RELEASE_VERSION, '-') }}
         run: |
           python -m pip install --quiet --upgrade --no-input --disable-pip-version-check packaging
@@ -286,105 +232,7 @@ jobs:
           print(f"✅ Version increment OK: {current} -> {release}")
           EOF
 
-      - name: Build esmf-aspect package
-        working-directory: ${{ env.WORKING_DIR }}
-        run: |
-          uv sync
-          uv run download-samm-release
-          uv build
-
-      - name: Run tests
-        working-directory: ${{ env.WORKING_DIR }}
-        run: uv run tox -e "py${PYTHON_VERSION//./}"
-
-      - name: Run code style checks
-        working-directory: ${{ env.WORKING_DIR }}
-        run: uv run tox -e pep8
-      
-      # Pin the exact commit SHA so later jobs check out the same code that was validated,
-      # preventing TOCTOU (time-of-check-time-of-use) races if new commits are pushed mid-run
-      - name: Capture validated commit SHA
-        id: get_sha
-        run: |
-          validated_sha="$(git rev-parse HEAD)"
-          echo "sha=${validated_sha}" >> "${GITHUB_OUTPUT}"
-          echo "✅ Validated commit SHA: ${validated_sha}"
-
-  # ──────────────────────────────────────────────────────────────────────────────
-  # Job 3: Bump versions, build, publish to PyPI, tag, and create GitHub release
-  # Runs only after all preconditions pass. Steps are ordered so that failures
-  # at any point leave the repository in a recoverable state.
-  # ──────────────────────────────────────────────────────────────────────────────
-  create_and_publish_release:
-    name: Publish tagged release
-    needs: [ check-preconditions ]
-    runs-on: ubuntu-latest
-
-    permissions:
-      # Give the default GITHUB_TOKEN write permission to commit and push the
-      # added or changed files to the repository.
-      contents: write
-
-    defaults:
-      run:
-        shell: bash -euo pipefail {0}
-    
-    env:
-      RELEASE_BRANCH_NAME: ${{ needs.check-preconditions.outputs.release_branch_name }}
-
-    steps:
-      - name: Checkout release branch
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          ref: ${{ needs.check-preconditions.outputs.release_branch_name }}
-          persist-credentials: true # Required for git push operations
-          fetch-depth: 0 # Fetch full git history and tags (needed for releases)
-
-      - name: Verify release branch checkout
-        env:
-          VALIDATED_SHA: ${{ needs.check-preconditions.outputs.validated_sha }}
-        run: |
-          : "${RELEASE_BRANCH_NAME:?Missing RELEASE_BRANCH_NAME from check-preconditions output}"
-          : "${VALIDATED_SHA:?Missing VALIDATED_SHA from check-preconditions output}"
-
-          current_branch="$(git branch --show-current)"
-          if [[ -z "${current_branch}" ]]; then
-            echo "::error::Repository is in detached HEAD state; expected branch ${RELEASE_BRANCH_NAME}"
-            exit 1
-          fi
-
-          if [[ "${current_branch}" != "${RELEASE_BRANCH_NAME}" ]]; then
-            echo "::error::Expected current branch ${RELEASE_BRANCH_NAME}, got ${current_branch}"
-            exit 1
-          fi
-
-          current_sha="$(git rev-parse HEAD)"
-          if [[ "${current_sha}" != "${VALIDATED_SHA}" ]]; then
-            echo "::error::Release branch HEAD mismatch: expected ${VALIDATED_SHA}, got ${current_sha}"
-            exit 1
-          fi
-
-          echo "✅ Checked out release branch ${current_branch} at validated commit ${current_sha}"
-
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
-        with:
-          version: "0.11.21"
-          enable-cache: false # Disable caching to avoid cache poisoning attacks
-
-      # Use the standard bot identity for automated commits so they are clearly
-      # distinguishable from human commits in git log
-      - name: Set up Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Set Antora version
+      - name: Set antora version
         uses: mikefarah/yq@5a7e72a743649b1b3a47d1a1d8214f3453173c51 # v4.52.4
         with:
           cmd: yq eval -i '.version = strenv(RELEASE_VERSION)' documentation/python-sdk-guide/antora.yml
@@ -470,7 +318,8 @@ jobs:
           print(f"✅ Built package version verified: {wheel_ver}")
           EOF
 
-      # Publish to PyPI BEFORE creating tag/release - if this fails, no cleanup needed
+      # Publish before pushing the version commit or tag; if publishing fails,
+      # the version commit and release tag remain unpushed.
       - name: Publish to PyPI
         working-directory: ${{ env.WORKING_DIR }}
         env:
@@ -479,22 +328,21 @@ jobs:
           uv publish
           echo "✅ Package published to PyPI"
 
-      # Only push version commit after successful PyPI publish
+      # Push the version commit only after PyPI publishing succeeds.
       - name: Push version commit
         run: |
-          : "${RELEASE_BRANCH_NAME:?Missing RELEASE_BRANCH_NAME from check-preconditions output}"
-          git push origin "HEAD:${RELEASE_BRANCH_NAME}"
+          git push
           echo "✅ Version commit pushed to ${RELEASE_BRANCH_NAME}"
 
-      # Create tag only after successful PyPI publish and commit push
+      # Create tag only after the version commit has been pushed.
       - name: Create and push tag
         run: |
           tag_version="v${RELEASE_VERSION}"
-
+          
           git tag -a "${tag_version}" \
             -m "Release ${RELEASE_VERSION}" \
             -m "Automated release by GitHub Actions"
-
+  
           git push origin "${tag_version}"
           echo "✅ Tag ${tag_version} created and pushed"
 
@@ -554,8 +402,6 @@ jobs:
           ACTOR: ${{ github.actor }}
           TRIGGERING_ACTOR: ${{ github.triggering_actor }}
         run: |
-          : "${VALIDATED_SHA:?Missing VALIDATED_SHA from check-preconditions output}"
-          : "${RELEASE_BRANCH_NAME:?Missing RELEASE_BRANCH_NAME from check-preconditions output}"
           echo "## 🚀 Release Summary" >> "${GITHUB_STEP_SUMMARY}"
           echo "" >> "${GITHUB_STEP_SUMMARY}"
           echo "| Property | Value |" >> "${GITHUB_STEP_SUMMARY}"
@@ -582,10 +428,10 @@ jobs:
           echo "- 🌿 [Release Branch](${GH_SERVER}/${GH_REPO}/tree/${RELEASE_BRANCH_NAME})" >> "${GITHUB_STEP_SUMMARY}"
 
   # ──────────────────────────────────────────────────────────────────────────────
-  # Job 4: Bump main to the next development version
+  # Job 3: Bump main to the next development version
   #
   # The release itself happens on a dedicated release branch (X.Y.x); main is never
-  # touched by Job 3. Without this job, main would keep the just-released version and
+  # touched by Job 2. Without this job, main would keep the just-released version and
   # the next release run would fail the "Check version incrementing" check.
   #
   # This job opens a pull request (instead of pushing directly) so it works even when
@@ -625,7 +471,7 @@ jobs:
           version: "0.11.21"
           enable-cache: false # Disable caching to avoid cache poisoning attacks
 
-      - name: Set up Git
+      - name: Setup Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -677,8 +523,8 @@ jobs:
           git checkout -b "${bump_branch}"
 
           (cd "${{ env.WORKING_DIR }}" && uv version "${NEXT_VERSION}")
-
-          git add "${{ env.WORKING_DIR }}/pyproject.toml"
+          
+          git add "${{ env.WORKING_DIR }}/pyproject.toml" "${{ env.WORKING_DIR }}/uv.lock"
           if git diff --cached --quiet; then
             echo "::error::No changes to commit - main may already be at ${NEXT_VERSION}"
             exit 1
@@ -691,14 +537,26 @@ jobs:
           git push -u origin "${bump_branch}"
           echo "✅ Bump branch pushed: ${bump_branch}"
 
+      - name: Ensure GitHub CLI is installed
+        run: |
+          if ! command -v gh >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y gh
+          fi
+          gh --version
+
       - name: Open pull request against main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          gh pr create \
+          if gh pr create \
             --base main \
             --head "${BUMP_BRANCH}" \
             --title "chore: bump development version to ${NEXT_VERSION}" \
-            --body "$(printf 'Automated post-release bump after releasing \x60%s\x60.\n\nThis updates the version on \x60main\x60 to \x60%s\x60 so the next release passes the version-increment check.\n\nWorkflow run: %s' "${RELEASE_VERSION}" "${NEXT_VERSION}" "${WORKFLOW_URL}")"
-          echo "✅ Pull request opened to bump main to ${NEXT_VERSION}"
+            --body "$(printf 'Automated post-release bump after releasing \x60%s\x60.\n\nThis updates the version on \x60main\x60 to \x60%s\x60 so the next release passes the version-increment check.\n\nWorkflow run: %s' "${RELEASE_VERSION}" "${NEXT_VERSION}" "${WORKFLOW_URL}")"; then
+            echo "Pull request opened to bump main to ${NEXT_VERSION}"
+          else
+            status=$?
+            echo "::warning::Could not create the bump PR (gh exited with ${status}). The release remains successful; open the PR manually."
+          fi
