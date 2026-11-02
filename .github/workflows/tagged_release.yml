@@ -3,14 +3,13 @@
 # Release order:
 #   1. check-preconditions validates the version, checks the tag, then builds,
 #      tests, and lints the workflow-dispatch commit.
-#   2. create_and_publish_release checks out that validated commit, derives and
-#      checks for the expected X.Y.x release branch, updates package and Antora versions,
-#      builds the release artifacts, pushes the version commit and tag, and
-#      creates a GitHub release with a generated changelog.
+#   2. create_and_publish_release checks out the validated dispatch ref, verifies
+#      it is the X.Y.x branch for the requested version, updates package and
+#      Antora versions, builds and verifies the artifacts, publishes to PyPI,
+#      pushes the version commit and tag, and creates a GitHub release with a
+#      generated changelog.
 #   3. bump-next-development-version opens a PR to advance main after final
 #      releases and is skipped for pre-releases.
-#
-# PyPI publishing is currently disabled (the Publish to PyPI step is commented out).
 #
 # Security:
 #   - All third-party actions are pinned to commit SHAs
@@ -140,8 +139,9 @@ jobs:
         run: uv run tox -e pep8
 
   # ──────────────────────────────────────────────────────────────────────────────
-  # Job 2: Verify the release branch, bump versions, build, push the commit and
-  # tag, then create the GitHub release. PyPI publishing is currently disabled.
+  # Job 2: Verify the release branch, bump versions, build and verify artifacts,
+  # publish to PyPI, then push the version commit and tag before creating the
+  # GitHub release.
   # ──────────────────────────────────────────────────────────────────────────────
   create_and_publish_release:
     name: Create tagged release
@@ -194,10 +194,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # Derive the release branch name by replacing the patch segment with 'x'.
-      # Example: 1.2.3 → 1.2.x.
+      # Use the first two numeric version components for the X.Y.x release branch.
+      # This also handles dotted prerelease suffixes such as 2.3.1-rc.1.
       - name: Determine release branch
-        run: echo "RELEASE_BRANCH_NAME=${RELEASE_VERSION%.*}.x" >> "${GITHUB_ENV}"
+        run: |
+          if [[ ! "${RELEASE_VERSION}" =~ ^([0-9]+)\.([0-9]+)\.[0-9]+(-[A-Za-z0-9]+(\.[A-Za-z0-9]+)*)?$ ]]; then
+            echo "::error::Cannot derive a release branch from invalid version '${RELEASE_VERSION}'."
+            exit 1
+          fi
+          echo "RELEASE_BRANCH_NAME=${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.x" >> "${GITHUB_ENV}"
 
       - name: Verify checked-out release branch
         run: |
@@ -318,7 +323,8 @@ jobs:
           print(f"✅ Built package version verified: {wheel_ver}")
           EOF
 
-      # Publish to PyPI BEFORE creating tag/release - if this fails, no cleanup needed
+      # Publish before pushing the version commit or tag; if publishing fails,
+      # the version commit and release tag remain unpushed.
       - name: Publish to PyPI
         working-directory: ${{ env.WORKING_DIR }}
         env:
@@ -327,7 +333,7 @@ jobs:
           uv publish
           echo "✅ Package published to PyPI"
 
-      # Push the version commit after local build and artifact verification.
+      # Push the version commit only after PyPI publishing succeeds.
       - name: Push version commit
         run: |
           git push
