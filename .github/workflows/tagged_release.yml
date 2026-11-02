@@ -194,15 +194,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # Use the first two numeric version components for the X.Y.x release branch.
-      # This also handles dotted prerelease suffixes such as 2.3.1-rc.1.
+      # Derive the release branch name by replacing the patch segment with 'x'.
+      # Example: 1.2.3 → 1.2.x.
       - name: Determine release branch
-        run: |
-          if [[ ! "${RELEASE_VERSION}" =~ ^([0-9]+)\.([0-9]+)\.[0-9]+(-[A-Za-z0-9]+(\.[A-Za-z0-9]+)*)?$ ]]; then
-            echo "::error::Cannot derive a release branch from invalid version '${RELEASE_VERSION}'."
-            exit 1
-          fi
-          echo "RELEASE_BRANCH_NAME=${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.x" >> "${GITHUB_ENV}"
+        run: echo "RELEASE_BRANCH_NAME=${RELEASE_VERSION%.*}.x" >> "${GITHUB_ENV}"
 
       - name: Verify checked-out release branch
         run: |
