@@ -13,6 +13,7 @@ import platform
 
 from os import makedirs, remove
 from os.path import abspath, dirname, isfile, join
+from shutil import rmtree
 
 from rdflib.term import URIRef
 
@@ -83,6 +84,7 @@ class TestDependencyResolution:
     def teardown_class(cls):
         """Remove the model file created for the tests."""
         remove(join(cls.evil_model_dir, cls.evil_model_name))
+        rmtree(cls.secret_dir)
 
     def test_parse_namespace_relative_path_return_path(self):
         """Verify that relative namespace paths are parsed normally."""

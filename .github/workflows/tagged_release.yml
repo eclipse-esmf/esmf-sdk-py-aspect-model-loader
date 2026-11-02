@@ -1,15 +1,15 @@
 # Manually-triggered release workflow for the esmf-aspect-model-loader Python package.
 #
-# Release order (designed for safe rollback):
-#   1. check-preconditions  – validate input, build, test, lint
-#   2. create_and_publish_release:
-#      a. Create/checkout release branch (e.g. 1.2.x)
-#      b. Bump version in pyproject.toml & antora.yml, commit locally
-#      c. Build the package
-#      d. Publish to PyPI          (if this fails → nothing to clean up)
-#      e. Push version commit       (if this fails → PyPI has the package but no tag/release)
-#      f. Create & push git tag
-#      g. Create GitHub release with changelog
+# Release order:
+#   1. check-preconditions validates the version, checks the tag, then builds,
+#      tests, and lints the workflow-dispatch commit.
+#   2. create_and_publish_release checks out the validated dispatch ref, verifies
+#      it is the X.Y.x branch for the requested version, updates package and
+#      Antora versions, builds and verifies the artifacts, publishes to PyPI,
+#      pushes the version commit and tag, and creates a GitHub release with a
+#      generated changelog.
+#   3. bump-next-development-version opens a PR to advance main after final
+#      releases and is skipped for pre-releases.
 #
 # Security:
 #   - All third-party actions are pinned to commit SHAs
@@ -81,8 +81,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 # Needed for tag check
 
-      # Pin the exact commit SHA so later jobs check out the same code that was validated,
-      # preventing TOCTOU (time-of-check-time-of-use) races if new commits are pushed mid-run
+      # Pin the exact commit SHA so later jobs check out the same code that was validated
       - name: Capture validated commit SHA
         id: get_sha
         run: |
@@ -91,6 +90,7 @@ jobs:
 
       - name: Check tag doesn't already exist
         run: |
+          git tag --list
           if git rev-parse "v${RELEASE_VERSION}" >/dev/null 2>&1; then
             echo "::error::Tag v${RELEASE_VERSION} already exists"
             exit 1
@@ -139,9 +139,9 @@ jobs:
         run: uv run tox -e pep8
 
   # ──────────────────────────────────────────────────────────────────────────────
-  # Job 2: Bump versions, build, publish to PyPI, tag, and create GitHub release
-  # Runs only after all preconditions pass. Steps are ordered so that failures
-  # at any point leave the repository in a recoverable state.
+  # Job 2: Verify the release branch, bump versions, build and verify artifacts,
+  # publish to PyPI, then push the version commit and tag before creating the
+  # GitHub release.
   # ──────────────────────────────────────────────────────────────────────────────
   create_and_publish_release:
     name: Create tagged release
@@ -158,10 +158,10 @@ jobs:
         shell: bash -euo pipefail {0}
 
     steps:
-      - name: Checkout validated commit
+      - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ needs.check-preconditions.outputs.validated_sha }}
+          ref: ${{ github.ref }}
           persist-credentials: true # Required for git push operations
           fetch-depth: 0 # Fetch full git history and tags (needed for releases)
 
@@ -194,75 +194,21 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # Derive the release branch name by replacing the PATCH segment with 'x'
-      # e.g. 1.2.3 → 1.2.x, 2.0.0-M1 → 2.0.x
+      # Derive the release branch name by replacing the patch segment with 'x'.
+      # Example: 1.2.3 → 1.2.x.
       - name: Determine release branch
         run: echo "RELEASE_BRANCH_NAME=${RELEASE_VERSION%.*}.x" >> "${GITHUB_ENV}"
 
-      - name: Create or checkout release branch
-        env:
-          VALIDATED_SHA: ${{ needs.check-preconditions.outputs.validated_sha }}
+      - name: Verify checked-out release branch
         run: |
-          # Note: fetch-depth: 0 already fetched all refs during checkout
-          
-          if git show-ref --quiet "refs/remotes/origin/${RELEASE_BRANCH_NAME}"; then
-            echo "Release branch ${RELEASE_BRANCH_NAME} exists remotely"
-            
-            remote_sha=$(git rev-parse "origin/${RELEASE_BRANCH_NAME}")
-            
-            # Case 1: Remote matches validated SHA - ideal case
-            if [[ "${remote_sha}" == "${VALIDATED_SHA}" ]]; then
-              echo "✅ Remote branch HEAD matches validated commit"
-              git checkout -B "${RELEASE_BRANCH_NAME}" --track "origin/${RELEASE_BRANCH_NAME}"
-            
-            # Case 2: Remote is ancestor of validated SHA - branch can be fast-forwarded
-            elif git merge-base --is-ancestor "${remote_sha}" "${VALIDATED_SHA}"; then
-              echo "Remote branch (${remote_sha:0:7}) is behind validated commit (${VALIDATED_SHA:0:7})"
-              echo "Creating local branch at validated commit..."
-              git checkout -b "${RELEASE_BRANCH_NAME}" "${VALIDATED_SHA}"
-              git branch --set-upstream-to="origin/${RELEASE_BRANCH_NAME}"
-              echo "✅ Branch will be fast-forwarded on push"
-            
-            # Case 3: Validated SHA is ancestor of remote - branch moved forward after validation
-            elif git merge-base --is-ancestor "${VALIDATED_SHA}" "${remote_sha}"; then
-              echo "::error::Release branch has new commits since validation started"
-              echo "::error::  Validated commit: ${VALIDATED_SHA}"
-              echo "::error::  Remote HEAD:      ${remote_sha}"
-              echo "::error::"
-              echo "::error::Another commit was pushed to the release branch between validation and release."
-              echo "::error::Re-run the workflow to validate the latest branch state."
-              exit 1
-            
-            # Case 4: Diverged histories - manual intervention required
-            else
-              echo "::error::Release branch has diverged from validated commit"
-              echo "::error::  Validated commit: ${VALIDATED_SHA}"
-              echo "::error::  Remote HEAD:      ${remote_sha}"
-              echo "::error::  Merge base:       $(git merge-base "${VALIDATED_SHA}" "${remote_sha}" || echo 'none')"
-              echo "::error::"
-              echo "::error::The release branch and validated commit have diverged."
-              echo "::error::Manual intervention required to resolve."
-              exit 1
-            fi
-          else
-            echo "Creating new release branch ${RELEASE_BRANCH_NAME}"
-            git checkout -b "${RELEASE_BRANCH_NAME}" "${VALIDATED_SHA}"
-            git push -u origin "${RELEASE_BRANCH_NAME}"
-            echo "✅ New branch created and pushed"
-          fi
-          
-          # Final verification - ensure HEAD is at validated SHA
-          current_sha=$(git rev-parse HEAD)
-          if [[ "${current_sha}" != "${VALIDATED_SHA}" ]]; then
-            echo "::error::Unexpected state - HEAD (${current_sha}) differs from validated SHA (${VALIDATED_SHA})"
+          current_branch="$(git branch --show-current)"
+          if [[ "${current_branch}" != "${RELEASE_BRANCH_NAME}" ]]; then
+            echo "::error::Expected release branch ${RELEASE_BRANCH_NAME}, got ${current_branch:-detached HEAD}."
             exit 1
           fi
-          
-          echo ""
-          echo "✅ On release branch: ${RELEASE_BRANCH_NAME}"
-          echo "   Commit: ${VALIDATED_SHA:0:7} ($(git log -1 --format='%s' HEAD))"
+          echo "✅ Checked out release branch: ${current_branch}"
 
-      # Version check moved AFTER branch checkout to compare against the correct branch's version
+      # Read the version from the checked-out release branch.
       - name: Get current version from release branch
         working-directory: ${{ env.WORKING_DIR }}
         run: echo "CURRENT_VERSION=$(uv version | awk '{print $2}')" >> "${GITHUB_ENV}"
@@ -291,7 +237,7 @@ jobs:
         with:
           cmd: yq eval -i '.version = strenv(RELEASE_VERSION)' documentation/python-sdk-guide/antora.yml
 
-      - name: Verify antora version update
+      - name: Verify Antora version update
         run: |
           actual=$(yq '.version' documentation/python-sdk-guide/antora.yml)
           if [[ "${actual}" != "${RELEASE_VERSION}" ]]; then
@@ -300,7 +246,7 @@ jobs:
           fi
           echo "✅ Antora version set to: ${actual}"
 
-      - name: Set esmf-aspect project version
+      - name: Set esmf-aspect package version
         working-directory: ${{ env.WORKING_DIR }}
         run: |
           uv version "${RELEASE_VERSION}"
@@ -372,7 +318,8 @@ jobs:
           print(f"✅ Built package version verified: {wheel_ver}")
           EOF
 
-      # Publish to PyPI BEFORE creating tag/release - if this fails, no cleanup needed
+      # Publish before pushing the version commit or tag; if publishing fails,
+      # the version commit and release tag remain unpushed.
       - name: Publish to PyPI
         working-directory: ${{ env.WORKING_DIR }}
         env:
@@ -381,21 +328,21 @@ jobs:
           uv publish
           echo "✅ Package published to PyPI"
 
-      # Only push version commit after successful PyPI publish
+      # Push the version commit only after PyPI publishing succeeds.
       - name: Push version commit
         run: |
           git push
           echo "✅ Version commit pushed to ${RELEASE_BRANCH_NAME}"
 
-      # Create tag only after successful PyPI publish and commit push
+      # Create tag only after the version commit has been pushed.
       - name: Create and push tag
         run: |
           tag_version="v${RELEASE_VERSION}"
-
+          
           git tag -a "${tag_version}" \
             -m "Release ${RELEASE_VERSION}" \
             -m "Automated release by GitHub Actions"
-
+  
           git push origin "${tag_version}"
           echo "✅ Tag ${tag_version} created and pushed"
 
@@ -576,8 +523,8 @@ jobs:
           git checkout -b "${bump_branch}"
 
           (cd "${{ env.WORKING_DIR }}" && uv version "${NEXT_VERSION}")
-
-          git add "${{ env.WORKING_DIR }}/pyproject.toml"
+          
+          git add "${{ env.WORKING_DIR }}/pyproject.toml" "${{ env.WORKING_DIR }}/uv.lock"
           if git diff --cached --quiet; then
             echo "::error::No changes to commit - main may already be at ${NEXT_VERSION}"
             exit 1
@@ -590,15 +537,26 @@ jobs:
           git push -u origin "${bump_branch}"
           echo "✅ Bump branch pushed: ${bump_branch}"
 
+      - name: Ensure GitHub CLI is installed
+        run: |
+          if ! command -v gh >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y gh
+          fi
+          gh --version
+
       - name: Open pull request against main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          gh pr create \
+          if gh pr create \
             --base main \
             --head "${BUMP_BRANCH}" \
             --title "chore: bump development version to ${NEXT_VERSION}" \
-            --body "$(printf 'Automated post-release bump after releasing \x60%s\x60.\n\nThis updates the version on \x60main\x60 to \x60%s\x60 so the next release passes the version-increment check.\n\nWorkflow run: %s' "${RELEASE_VERSION}" "${NEXT_VERSION}" "${WORKFLOW_URL}")"
-          echo "✅ Pull request opened to bump main to ${NEXT_VERSION}"
-
+            --body "$(printf 'Automated post-release bump after releasing \x60%s\x60.\n\nThis updates the version on \x60main\x60 to \x60%s\x60 so the next release passes the version-increment check.\n\nWorkflow run: %s' "${RELEASE_VERSION}" "${NEXT_VERSION}" "${WORKFLOW_URL}")"; then
+            echo "Pull request opened to bump main to ${NEXT_VERSION}"
+          else
+            status=$?
+            echo "::warning::Could not create the bump PR (gh exited with ${status}). The release remains successful; open the PR manually."
+          fi

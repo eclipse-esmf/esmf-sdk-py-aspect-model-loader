@@ -22,7 +22,7 @@ This guide gives an overview of the components in the Python SDK and shows how t
 
 === Prerequisites
 
-* Python Version 3.10 or higher.
+* Python Version 3.11 or higher.
 Check your version with
 +
 [source,bash]
