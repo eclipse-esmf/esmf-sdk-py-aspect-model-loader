@@ -1,21 +1,22 @@
-The Aspect Model Loader as part of the Python SDK provided by the [*Eclipse Semantic Modeling Framework*](
-https://projects.eclipse.org/projects/dt.esmf).
+# A loader for SAMM Aspect Models
 
-# An Aspect of the Meta Model
-
-The `esmf-aspect-model-loader` package provides the Python implementation for the SAMM Aspect Meta Model, or SAMM.
-Each Meta Model element and each Characteristic class is represented by an interface with a corresponding
-implementation.
+The `esmf-aspect-model-loader` package provides the Python implementation for the [Semantic SAMM
+Aspect Meta Model](https://eclipse-esmf.github.io/samm-specification/snapshot/index.html) (SAMM). It
+is a part of the Python SDK provided by the [*Eclipse Semantic Modeling
+Framework*](https://projects.eclipse.org/projects/dt.esmf). Each Meta Model element and each
+Characteristic class is represented by an interface with a corresponding implementation.
 
 ## Documentation
 
 * Check the [developer documentation](https://eclipse-esmf.github.io)
-* Check the SAMM [specification](https://eclipse-esmf.github.io/samm-specification/snapshot/index.html)
-* Having issues with the ESMF SDK Python Aspect Model Loader? Open a [GitHub issue](https://github.com/eclipse-esmf/esmf-sdk-py-aspect-model-loader/issues).
+* Check the [SAMM specification](https://eclipse-esmf.github.io/samm-specification/snapshot/index.html)
+* Having issues with the ESMF SDK Python Aspect Model Loader? Open a [GitHub
+  issue](https://github.com/eclipse-esmf/esmf-sdk-py-aspect-model-loader/issues).
 
-## Set Up SAMM Aspect Meta Model
+## Set Up
 
-Before getting started to use the `esmf-aspect-model-loader` library you need to apply some set up actions:
+Before getting started to use the `esmf-aspect-model-loader` library you need to apply some set up
+actions:
 
 Required
 - [Install uv](#install-uv)
@@ -24,8 +25,8 @@ Required
 
 ### Install uv
 
-`uv` is used as the dependency manager for the `esmf-aspect-model-loader`. Follow the next [instruction](https://docs.astral.sh/uv/getting-started/installation/)
- to install it.
+`uv` is used as the dependency manager for the `esmf-aspect-model-loader`. Follow the next
+ [instruction](https://docs.astral.sh/uv/getting-started/installation/) to install it.
 
 To check the uv version run:
 ```console
@@ -34,8 +35,9 @@ uv --version
 
 ### Install project dependencies
 
-uv provides convenient functionality for working with dependencies in the project.
-To automatically create a virtual environment and install all the necessary libraries, just run one command:
+uv provides convenient functionality for working with dependencies in the project. To automatically
+create a virtual environment and install all the necessary libraries, just run one command:
+
 ```console
 uv sync
 ```
@@ -43,37 +45,37 @@ It is required to run `uv sync` once in the esmf-aspect-model-loader module.
 
 ### Download SAMM files
 
-There are two possibilities to download the SAMM files and extract the Turtle sources for the Meta Model: 
-SAMM release or SAMM branch
+There are two possibilities to download the SAMM files and extract the Turtle sources for the Meta
+Model: SAMM release or SAMM branch
 
 #### Download SAMM release
 
-This script downloads a release JAR-file from GitHub, extracts them for further usage in the Aspect Model Loader:
+This script downloads the stable [SAMM
+release](https://github.com/eclipse-esmf/esmf-semantic-aspect-meta-model/releases) from GitHub, and
+extracts it for further usage in the Aspect Model Loader:
 
 To run script, execute the next command.
 ```console
 uv run download-samm-release
 ```
-The version of the SAMM release is specified in the python script.
-
-Link to all Releases: [SAMM Releases](https://github.com/eclipse-esmf/esmf-semantic-aspect-meta-model/releases)
+The version of the SAMM release is specified in the Python script.
 
 #### Download SAMM branch
 
-The script uses the GitHub API and downloads the files from the `main` GitHub branch. 
+The script uses the GitHub API and downloads the files from the `main` GitHub branch.
 
-If the script is run in a pipeline, it uses a GitHub token to authorize. If the script is run locally, 
-the API is called without a token. This may cause problems because unauthorized API calls are limited.
+If the script is run in a pipeline, it uses a GitHub token to authorize. If the script is run
+locally, the API is called without a token. This may cause problems because unauthorized API calls
+are limited.
 
 Run the next command to download and start working with the Aspect Model Loader.
 ```console
 uv run download-samm-branch
 ```
-Link to all branches: [SAMM Releases](https://github.com/eclipse-esmf/esmf-semantic-aspect-meta-model/branches)
 
 ## SAMM Aspect Model Graph usage
 
-SAMM Aspect Model Graph is a class that allows you to load and interact with the Semantic Data Aspect Meta Model graph. 
+SAMM Aspect Model Graph is a class that allows you to load and interact with the Aspect Model graph.
 Below is an example of how to use SAMM Aspect Model Graph in your Python code:
 ```python
 from esmf_aspect_meta_model_python import SAMMGraph
@@ -91,8 +93,9 @@ samm_graph.parse(model_path)
 aspect = samm_graph.load_aspect_model()
 ```
 
-The `load_model_elements` method in the SAMMGraph class creates Python objects to represent all nodes from the Aspect 
-model graph. It retrieves all SAMM elements from the RDF graph and converts them into structured Python objects.
+The `load_model_elements` method in the SAMMGraph class creates Python objects to represent all
+nodes from the Aspect Model graph. It retrieves all SAMM elements from the RDF graph and converts
+them into structured Python objects.
 ```python
 from esmf_aspect_meta_model_python import SAMMGraph
 
@@ -109,10 +112,10 @@ samm_graph.parse(model_path)
 model_elements = samm_graph.load_model_elements()
 ```
 
-## Samm Units
+## SAMM Units
 
 SAMMUnitsGraph is a class contains functions for accessing units of measurement.
-```python 
+```python
 from esmf_aspect_meta_model_python.samm_meta_model import SammUnitsGraph
 
 units = SammUnitsGraph()
@@ -139,10 +142,10 @@ units.print_info(volt_info)
 
 The SAMM CLI is a command line tool provided number of functions for working with Aspect Models.
 
-More detailed information about SAMM CLI functionality can be found in the 
-[SAMM CLI documentation](https://eclipse-esmf.github.io/esmf-developer-guide/tooling-guide/samm-cli.html).
+More detailed information about SAMM CLI functionality can be found in the [SAMM CLI
+documentation](https://eclipse-esmf.github.io/esmf-developer-guide/tooling-guide/samm-cli.html).
 
-Python Aspect Model Loader provide a wrapper class to be able to call SAMM CLI functions from the Python code.
+Python Aspect Model Loader provides a wrapper class to call SAMM CLI functions from the Python code.
 For instance, validation of a model can be done with the following code snippet:
 
 ```python
@@ -185,26 +188,26 @@ Provided scripts:
  - download-samm-cli
  - download-test-models
 
-All scripts run like a uv command. uv is available from the folder where [pyproject.toml](pyproject.toml) 
-is located.
+All scripts run like a uv command. uv is available from the folder where
+[pyproject.toml](pyproject.toml) is located.
 
-# Tests running
+# Running tests
 ## tox
 
-`tox` is used for the tests automation purpose. There are two environments with different purposes and tests can 
-be running with the tox:
+`tox` is used for the tests automation purpose. There are two environments with different purposes
+and tests can be running with `tox`:
 - pep8: static code checks (PEP8 style) with MyPy and Black
 - py311, py312, py313 and py314: unit and integration tests
 
 ### tox-uv plugin
 
-`tox` is integrated with `uv` through the [`tox-uv`](https://github.com/tox-dev/tox-uv) plugin. Both `tox` and 
-`tox-uv` are declared as `dev` dependencies in [pyproject.toml](pyproject.toml), so a single `uv sync` installs 
+`tox` is integrated with `uv` through the [`tox-uv`](https://github.com/tox-dev/tox-uv) plugin. Both `tox` and
+`tox-uv` are declared as `dev` dependencies in [pyproject.toml](pyproject.toml), so a single `uv sync` installs
 everything required - no separate installation step is needed.
 
 The two environments use the plugin differently (see [tox.ini](tox.ini)):
-- `pep8` uses the `uv-venv-lock-runner` provided by `tox-uv`, which provisions the environment directly from the 
-  pinned `uv.lock` and installs the `dev` dependency group. This guarantees the linters run with the exact, locked 
+- `pep8` uses the `uv-venv-lock-runner` provided by `tox-uv`, which provisions the environment directly from the
+  pinned `uv.lock` and installs the `dev` dependency group. This guarantees the linters run with the exact, locked
   versions.
 - `py311` uses the default runner and explicitly runs `uv sync` and `uv run download-samm-release` in its
   `commands_pre` to prepare dependencies and the SAMM meta model files before executing the test suite.
